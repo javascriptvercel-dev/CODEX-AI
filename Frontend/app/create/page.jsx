@@ -1,6 +1,6 @@
 "use client";
 import { useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import CreateNavbar from "@/components/layout/CreateNavbar";
 import AuthModal from "@/components/auth/AuthModal";
 import PluginSubmitForm from "@/components/plugins/PluginSubmitForm";
@@ -8,14 +8,16 @@ import { useAuth } from "@/context/AuthContext";
 export default function CreatePluginPage() {
   const { user, loading, hasFreshSession } = useAuth();
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   useEffect(() => {
-    const fromConsole = searchParams.get("from") === "console";
+    const fromConsole =
+      typeof window !== "undefined" &&
+      new URLSearchParams(window.location.search).get("from") === "console";
+
     if (user?.role === "admin" && !fromConsole) {
       router.replace("/console");
     }
-  }, [user, router, searchParams]);
+  }, [user, router]);
 
   if (loading) {
     return (

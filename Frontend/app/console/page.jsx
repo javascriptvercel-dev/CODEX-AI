@@ -95,7 +95,7 @@ function ConsolePageInner() {
                   <ShieldCheck size={14} /> Control center
                 </div>
                 <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">
-                  Workspace administration
+                  ADMINISTRATIVE WORKSPACE
                 </h1>
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">
                   
