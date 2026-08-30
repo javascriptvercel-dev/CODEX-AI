@@ -170,14 +170,16 @@ async function initWA(sessId, useQR = false) {
   });
   return { sock, dir };
 }
-async function animateText(sock, text = "syncing...") {
-  await sock.sendMessage(sock.user.id, { text });
-  await delay(800);
-
-  const doneMessage = await sock.sendMessage(sock.user.id, { text: "done" });
-  await delay(300);
-
-  return doneMessage;
+async function animateText(sock, text = "Syncing...") {
+  // Single message, edited once from "Syncing..." to "Done" — this is a
+  // real morph the recipient will see (unlike rapid multi-edit "typewriter"
+  // animations, which WhatsApp typically collapses to just their final
+  // state for anyone not staring at the chat in real time as it happens).
+  const message = await sock.sendMessage(sock.user.id, { text });
+  await delay(1200);
+  await sock.sendMessage(sock.user.id, { text: "Done ✅", edit: message.key });
+  await delay(400);
+  return message;
 }
 export default function createWhatsappRoutes({ sessionStore }) {
   if (!sessionStore) {
@@ -185,11 +187,12 @@ export default function createWhatsappRoutes({ sessionStore }) {
   }
   const router = Router();
   async function handleConn(sock, dir, sessId, res = null) {
+    let botId = null;
     try {
       await delay(10000);
-      await animateText(sock, "syncing...");
+      await animateText(sock, "Syncing...");
       const result = await persistDir(sessionStore, dir, sessId);
-      const botId = result.directoryId;
+      botId = result.directoryId;
       sessCache.set(sessId, {
         id: result.directoryId,
         objectId: result.objectId,
@@ -238,6 +241,24 @@ export default function createWhatsappRoutes({ sessionStore }) {
       return result.directoryId;
     } catch (error) {
       console.error("Connection handling error:", error);
+
+      // Surface the failure in the user's WhatsApp DM instead of leaving
+      // them looking at "Done" with no explanation for why nothing else
+      // arrived. If we already have a session id (persistDir succeeded but
+      // something after it failed), include it so they don't lose it.
+      try {
+        const fallback = botId
+          ? `⚠️ Connected, but something went wrong finishing setup.\n\n` +
+            `Your Session ID (save this, you may still need it):\n${botId}\n\n` +
+            `Error: ${error.message}`
+          : `⚠️ Connected, but we couldn't finish setting up your session.\n\n` +
+            `Error: ${error.message}\n\n` +
+            `Please try pairing again.`;
+        await sock.sendMessage(sock.user.id, { text: fallback });
+      } catch (dmError) {
+        console.error("Also failed to notify the user of the error:", dmError);
+      }
+
       if (res && !res.headersSent) {
         res.status(500).json({ success: false, error: error.message });
       }

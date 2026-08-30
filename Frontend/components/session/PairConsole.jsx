@@ -68,15 +68,10 @@ export default function PairConsole() {
         requestController.current = null;
     };
   }, [mode]);
+  const canRequestPairCode = number.trim().replace(/[^0-9]/g, "").length > 0;
   const requestPairCode = async () => {
     const num = number.trim().replace(/[^0-9]/g, "");
-    if (!num) {
-      setResult({
-        state: "error",
-        text: "Enter a valid WhatsApp number to continue.",
-      });
-      return;
-    }
+    if (!num || !canRequestPairCode) return;
     requestController.current?.abort();
     const controller = new AbortController();
     requestController.current = controller;
@@ -187,8 +182,8 @@ export default function PairConsole() {
           <button
             type="button"
             onClick={requestPairCode}
-            disabled={loading}
-            className="focus-ring mb-4 flex w-full items-center justify-center gap-2 rounded-lg bg-azure-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-azure-600 disabled:opacity-60"
+            disabled={loading || !canRequestPairCode}
+            className="focus-ring mb-4 flex w-full items-center justify-center gap-2 rounded-lg bg-azure-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-azure-600 disabled:cursor-not-allowed disabled:opacity-45"
           >
             
             {loading ? (

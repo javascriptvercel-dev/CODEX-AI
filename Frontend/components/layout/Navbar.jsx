@@ -19,7 +19,7 @@ export default function Navbar({ navLinks = links, onOpenSection }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-edge bg-bg/85 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-edge bg-surface/95 shadow-sm shadow-black/5 backdrop-blur-sm">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
         <Link
           href="/"

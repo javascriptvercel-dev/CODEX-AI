@@ -83,7 +83,7 @@ export default function TermsPage() {
       <Navbar />
       <main className="flex-1">
         
-        <article className="mx-auto max-w-3xl px-5 py-14 sm:py-20">
+        <article className="mx-auto max-w-3xl px-5 py-10 sm:py-14">
           
           <p className="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-azure-500">
             Legal

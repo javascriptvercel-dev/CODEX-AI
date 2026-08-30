@@ -82,15 +82,15 @@ function ConsolePageInner() {
       <ConsoleNavbar />
       <main className="flex-1">
         
-        <section className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
+        <section className="mx-auto w-full max-w-7xl px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
           
-          <div className="mb-7 overflow-hidden rounded-3xl border border-edge bg-surface shadow-glow">
+          <div className="mb-6 overflow-hidden rounded-3xl border border-edge bg-surface shadow-glow">
             
-            <div className="flex flex-col gap-5 p-5 sm:p-7 lg:flex-row lg:items-end lg:justify-between">
+            <div className="flex flex-col gap-5 p-4 sm:p-6 lg:flex-row lg:items-end lg:justify-between lg:p-7">
               
-              <div>
+              <div className="max-w-2xl">
                 
-                <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-azure-500">
+                <div className="mb-3 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-azure-500">
                   
                   <ShieldCheck size={14} /> Control center
                 </div>
@@ -103,7 +103,7 @@ function ConsolePageInner() {
                   workspace preferences from one place.
                 </p>
               </div>
-              <div className="grid grid-cols-2 gap-2 sm:flex sm:items-stretch">
+              <div className="grid w-full max-w-md grid-cols-2 gap-2 sm:grid-cols-2 lg:w-auto">
                 
                 <div className="rounded-2xl border border-edge bg-surface2 px-4 py-3">
                   
@@ -128,12 +128,12 @@ function ConsolePageInner() {
           </div>
           <div className="rounded-2xl border border-edge bg-surface p-1.5 shadow-sm">
             
-            <div className="flex gap-1 overflow-x-auto">
+            <div className="flex flex-wrap gap-1.5">
               
               <button
                 type="button"
                 onClick={() => setTab("submissions")}
-                className={`focus-ring flex flex-shrink-0 items-center justify-center rounded-full px-4 py-2 text-sm font-semibold transition active:scale-95 ${tab === "submissions" ? "bg-azure-500 text-white" : "bg-surface2 text-muted hover:text-fg"}`}
+                className={`focus-ring flex flex-shrink-0 items-center justify-center rounded-full px-3.5 py-2 text-sm font-semibold transition active:scale-95 sm:px-4 ${tab === "submissions" ? "bg-azure-500 text-white" : "bg-surface2 text-muted hover:text-fg"}`}
               >
                 
                 <span className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap">
@@ -144,7 +144,7 @@ function ConsolePageInner() {
               <button
                 type="button"
                 onClick={() => setTab("suggestions")}
-                className={`focus-ring flex flex-shrink-0 items-center justify-center rounded-full px-4 py-2 text-sm font-semibold transition active:scale-95 ${tab === "suggestions" ? "bg-azure-500 text-white" : "bg-surface2 text-muted hover:text-fg"}`}
+                className={`focus-ring flex flex-shrink-0 items-center justify-center rounded-full px-3.5 py-2 text-sm font-semibold transition active:scale-95 sm:px-4 ${tab === "suggestions" ? "bg-azure-500 text-white" : "bg-surface2 text-muted hover:text-fg"}`}
               >
                 
                 <span className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap">
@@ -155,7 +155,7 @@ function ConsolePageInner() {
             </div>
           </div>
           {tab === "submissions" && (
-            <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
+            <div className="mt-4 flex flex-wrap gap-2 pb-1">
               
               {["pending", "approved", "rejected"].map((s) => (
                 <button

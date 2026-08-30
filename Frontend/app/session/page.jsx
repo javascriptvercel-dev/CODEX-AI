@@ -7,7 +7,7 @@ export default function SessionPage() {
     <div className="flex min-h-screen animate-rise flex-col">
       
       <Navbar />
-      <main className="flex flex-1 flex-col items-center px-5 py-16">
+      <main className="flex flex-1 flex-col items-center px-5 py-10">
         
         <div className="mb-8 max-w-md text-center">
           

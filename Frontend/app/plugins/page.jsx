@@ -10,7 +10,6 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 const pluginNavLinks = [
   { href: "/", label: "Home" },
-  { href: "/plugins", label: "Plugins" },
   { href: "/deploy", label: "Deploy" },
   { href: "/session", label: "Session" },
 ];
@@ -54,7 +53,7 @@ export default function PluginsPage() {
       <Navbar navLinks={pluginNavLinks} showCta={false} />
       <main className="flex-1">
         
-        <section className="mx-auto max-w-4xl px-5 pb-4 pt-14 text-center">
+        <section className="mx-auto max-w-4xl px-5 pb-4 pt-8 text-center">
           
           <h1 className="font-display text-4xl font-bold uppercase tracking-tight text-fg sm:text-5xl">
             CODEX PLUGINS

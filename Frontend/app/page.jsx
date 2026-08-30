@@ -25,7 +25,7 @@ export default function HomePage() {
     <div className="flex min-h-screen animate-rise flex-col">
       <Navbar onOpenSection={setSection} />
       <main className="flex-1">
-        <section className="mx-auto max-w-6xl px-5 pb-10 pt-12 text-center sm:pt-16">
+        <section className="mx-auto max-w-6xl px-5 pb-10 pt-8 text-center sm:pt-12">
           <h1 className="font-display text-4xl font-bold uppercase leading-[1.05] tracking-tight sm:text-6xl">
             CODEX AI
           </h1>

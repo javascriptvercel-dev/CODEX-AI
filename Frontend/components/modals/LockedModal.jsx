@@ -16,7 +16,7 @@ export default function LockedModal({ title, onClose }) {
           <Lock size={20} />
         </span>
         <p className="text-sm text-muted">
-          {title ? `${title} isn't open yet.` : "This feature isn't open yet."} We're still building it out — check back soon.
+          {title ? `${title} isn't open yet.` : "This feature isn't open yet."} We're still building it out — you would be informed when it's available.
         </p>
       </div>
     </Modal>

@@ -34,15 +34,10 @@ export default function GenerateConsole() {
   const [autoread, setAutoread] = useState(true);
   const [autostatus, setAutostatus] = useState(false);
   const [code, setCode] = useState("");
-  const [warn, setWarn] = useState("");
   const [copied, setCopied] = useState(false);
+  const canGenerate = name.trim().length > 0 && number.trim().length > 0;
   const generate = () => {
-    if (!number.trim()) {
-      setWarn("Fill in your WhatsApp number first");
-      setTimeout(() => setWarn(""), 2400);
-      return;
-    }
-    setWarn("");
+    if (!canGenerate) return;
     setCode(
       buildScript({
         name: name.trim() || "USER",
@@ -197,20 +192,14 @@ export default function GenerateConsole() {
       <button
         type="button"
         onClick={generate}
-        className="focus-ring mt-5 flex w-full items-center justify-center rounded-lg bg-azure-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-azure-600 active:scale-[0.99]"
+        disabled={!canGenerate}
+        className="focus-ring mt-5 flex w-full items-center justify-center rounded-lg bg-azure-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-azure-600 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-45"
       >
         
-        {warn ? (
-          <span className="inline-flex items-center gap-2">
-            
-            <TriangleAlert size={15} /> {warn}
-          </span>
-        ) : (
-          <span className="inline-flex items-center gap-2">
-            
-            <Wand2 size={15} /> Generate index.js
-          </span>
-        )}
+        <span className="inline-flex items-center gap-2">
+          
+          <Wand2 size={15} /> Generate index.js
+        </span>
       </button>
       <div className="mt-4 overflow-hidden rounded-xl border border-edge">
         

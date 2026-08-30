@@ -49,7 +49,7 @@ export default function CreatePluginPage() {
       <CreateNavbar />
       <main className="flex-1">
         
-        <section className="mx-auto max-w-3xl px-5 py-12">
+        <section className="mx-auto max-w-3xl px-5 py-8">
           
           <p className="mb-2 font-mono text-xs uppercase tracking-[0.2em] text-azure-500">
             New submission

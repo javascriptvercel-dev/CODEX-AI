@@ -10,19 +10,15 @@ export default function PluginSubmitForm() {
   const [code, setCode] = useState("");
   const [file, setFile] = useState(null);
   const [status, setStatus] = useState({ state: "idle", message: "" });
+  const hasCode = code.trim().length > 0;
+  const hasFileSelected = Boolean(file);
+  const canSubmit =
+    title.trim().length > 0 &&
+    description.trim().length > 0 &&
+    (hasCode || hasFileSelected);
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const hasCode = code.trim().length > 0;
-    const hasFileSelected = Boolean(file);
-
-    if (!title.trim() || !description.trim() || (!hasCode && !hasFileSelected)) {
-      setStatus({
-        state: "error",
-        message:
-          "Please add a name, description, and either code or an uploaded file.",
-      });
-      return;
-    }
+    if (!canSubmit) return;
 
     setStatus({ state: "loading", message: "" });
     try {
@@ -35,7 +31,7 @@ export default function PluginSubmitForm() {
       setStatus({
         state: "success",
         message:
-          "Submitted — you'll see it in the library once an admin approves it.",
+          "Submitted — you'll see it in the library once it's approved by our team.",
       });
     } catch (err) {
       setStatus({
@@ -126,8 +122,8 @@ export default function PluginSubmitForm() {
       )}
       <button
         type="submit"
-        disabled={status.state === "loading"}
-        className="focus-ring mt-1 rounded-lg bg-azure-500 py-2.5 text-sm font-semibold text-white transition hover:bg-azure-600 disabled:opacity-60"
+        disabled={status.state === "loading" || !canSubmit}
+        className="focus-ring mt-1 rounded-lg bg-azure-500 py-2.5 text-sm font-semibold text-white transition hover:bg-azure-600 disabled:cursor-not-allowed disabled:opacity-45"
       >
         
         {status.state === "loading" ? "Submitting…" : "Submit for review"}
