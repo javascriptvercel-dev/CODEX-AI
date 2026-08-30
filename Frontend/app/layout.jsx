@@ -15,7 +15,7 @@ const mono = JetBrains_Mono({
   weight: ["400", "600"],
 });
 export const metadata = {
-  title: "CODEX WA BOT — Bot Workspace",
+  title: "CODEX AI BOT — Bot workspace",
   description:
     "A multifunctional WhatsApp bot workspace built with Baileys.",
   icons: {

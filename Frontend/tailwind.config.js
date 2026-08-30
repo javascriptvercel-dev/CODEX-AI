@@ -25,6 +25,7 @@ module.exports = {
         surface2: "var(--surface-2)",
         fg: "var(--text)",
         muted: "var(--text-muted)",
+        bg: "var(--bg)",
       },
       fontFamily: {
         display: ["var(--font-display)", "sans-serif"],

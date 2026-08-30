@@ -3,8 +3,7 @@ import { useMemo, useState } from "react";
 import {
   CalendarDays,
   Check,
-  Clipboard,
-  Link2,
+  Copy,
   Loader2,
   User,
 } from "lucide-react";
@@ -14,7 +13,7 @@ function formatDate(value) {
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? "—" : date.toLocaleDateString();
 }
-function CopyAction({ label, value, icon: Icon }) {
+function CopyAction({ label, value }) {
   const [copied, setCopied] = useState(false);
   const copy = async () => {
     if (!value) return;
@@ -31,13 +30,13 @@ function CopyAction({ label, value, icon: Icon }) {
       type="button"
       onClick={copy}
       disabled={!value}
-      className="focus-ring inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-edge bg-surface2 px-4 py-2.5 text-sm font-semibold transition hover:border-azure-500/60 disabled:cursor-not-allowed disabled:opacity-40"
+      className="focus-ring inline-flex flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-edge bg-surface2 px-3 py-2 text-xs font-semibold transition hover:border-azure-500/60 disabled:cursor-not-allowed disabled:opacity-40 sm:flex-none sm:text-sm"
     >
       
       {copied ? (
-        <Check size={16} className="text-green-400" />
+        <Check size={14} className="text-green-400" />
       ) : (
-        <Icon size={16} />
+        <Copy size={14} />
       )}
       {copied ? "Copied" : label}
     </button>
@@ -95,17 +94,15 @@ export default function PluginFullView({ plugin }) {
                 </span>
               </div>
             </div>
-            <div className="flex flex-col gap-2 sm:flex-row lg:flex-shrink-0">
+            <div className="flex flex-row gap-2 lg:flex-shrink-0">
               
               <CopyAction
                 label="Copy URL"
                 value={plugin.referenceUrl}
-                icon={Link2}
               />
               <CopyAction
                 label="Copy Command"
                 value={plugin.installCommand}
-                icon={Clipboard}
               />
             </div>
           </div>

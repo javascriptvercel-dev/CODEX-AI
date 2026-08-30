@@ -1,22 +1,17 @@
 "use client";
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import {
-  MessageSquareText,
-  Settings as SettingsIcon,
-  ShieldCheck,
-} from "lucide-react";
+import { MessageSquareText, ShieldCheck } from "lucide-react";
 import ConsoleNavbar from "@/components/layout/ConsoleNavbar";
 import SubmissionCard from "@/components/admin/SubmissionCard";
 import SuggestionCard from "@/components/admin/SuggestionCard";
-import SettingsTab from "@/components/admin/SettingsTab";
 import AdminEmailOptInModal, {
   shouldShowEmailPrompt,
 } from "@/components/admin/AdminEmailOptInModal";
 import AuthModal from "@/components/auth/AuthModal";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
-const TABS = ["submissions", "suggestions", "settings"];
+const TABS = ["submissions", "suggestions"];
 function ConsolePageInner() {
   const { user, isAdmin, loading: authLoading, refresh } = useAuth();
   const router = useRouter();
@@ -177,9 +172,7 @@ function ConsolePageInner() {
           )}
           <div className="mt-6">
             
-            {tab === "settings" ? (
-              <SettingsTab />
-            ) : loading ? (
+            {loading ? (
               <div className="grid gap-3">
                 
                 {Array.from({ length: 3 }).map((_, i) => (

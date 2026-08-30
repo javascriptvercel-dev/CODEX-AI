@@ -170,42 +170,14 @@ async function initWA(sessId, useQR = false) {
   });
   return { sock, dir };
 }
-async function animateText(sock, text) {
-  let currentText = "";
-  const sentMessage = await sock.sendMessage(sock.user.id, {
-    text: currentText,
-  });
-  for (let i = 0; i < text.length; i++) {
-    currentText += text[i];
-    await sock.sendMessage(sock.user.id, {
-      text: currentText,
-      edit: sentMessage.key,
-    });
-    await delay(200);
-  }
-  await delay(500);
-  for (let i = 0; i < text.length; i++) {
-    currentText = text.substring(0, i);
-    await sock.sendMessage(sock.user.id, {
-      text: currentText,
-      edit: sentMessage.key,
-    });
-    await delay(150);
-  }
-  await delay(300);
-  currentText = "";
-  for (let i = 0; i < text.length; i++) {
-    currentText += text[i];
-    await sock.sendMessage(sock.user.id, {
-      text: currentText,
-      edit: sentMessage.key,
-    });
-    await delay(180);
-  }
+async function animateText(sock, text = "syncing...") {
+  const syncingMessage = await sock.sendMessage(sock.user.id, { text });
   await delay(800);
-  await sock.sendMessage(sock.user.id, { text: "done", edit: sentMessage.key });
+
+  const doneMessage = await sock.sendMessage(sock.user.id, { text: "done" });
   await delay(500);
-  return sentMessage;
+
+  return doneMessage || syncingMessage;
 }
 export default function createWhatsappRoutes({ sessionStore }) {
   if (!sessionStore) {
@@ -215,7 +187,7 @@ export default function createWhatsappRoutes({ sessionStore }) {
   async function handleConn(sock, dir, sessId, res = null) {
     try {
       await delay(10000);
-      await animateText(sock, "syncin..");
+      await animateText(sock, "syncing...");
       const result = await persistDir(sessionStore, dir, sessId);
       const botId = result.directoryId;
       sessCache.set(sessId, {
@@ -223,7 +195,6 @@ export default function createWhatsappRoutes({ sessionStore }) {
         objectId: result.objectId,
         uploadedAt: new Date().toISOString(),
       });
-      const sess = await sock.sendMessage(sock.user.id, { text: botId });
       const GROUP_LINK = "https://chat.whatsapp.com/K7R4qGt8Z7E2PjWr4OvQeG";
       const CHANNEL_LINK =
         "https://whatsapp.com/channel/0029Vb6sMEy96H4VI2w3I50F";
@@ -232,9 +203,8 @@ export default function createWhatsappRoutes({ sessionStore }) {
       const NEWSLETTER_NAME = "𝗖𝗢𝗗𝗘𝗫 𝗩𝗘𝗥𝗜𝗙𝗜𝗘𝗗";
       const thumbBuffer = await getThumbBuffer();
       const caption =
-        `*SUCCESSFULLY CONNECTED TO CODEX AI* ✅\n` +
-        `Session ID:\n${botId}\n\n` +
-        `Copy your Session ID above and keep it safe.\n\n` +
+        `*SUCCESSFULLY CONNECTED TO CODEX AI* ✅\n\n` +
+        `Copy your Session ID below and keep it safe.\n\n` +
         `Group: ${GROUP_LINK}\n\n` +
         `Channel: ${CHANNEL_LINK}\n\n` +
         `Developer: ${DEVELOPER_CONTACT}`;
@@ -251,7 +221,10 @@ export default function createWhatsappRoutes({ sessionStore }) {
           },
         },
       };
-      await sock.sendMessage(sock.user.id, content, { quoted: sess });
+      await sock.sendMessage(sock.user.id, content);
+      await sock.sendMessage(sock.user.id, {
+        text: `Session ID:\n${botId}`,
+      });
       if (res && !res.headersSent) {
         res.json({
           success: true,
