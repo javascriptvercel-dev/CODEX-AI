@@ -1,6 +1,6 @@
 "use client";
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import CreateNavbar from "@/components/layout/CreateNavbar";
 import AuthModal from "@/components/auth/AuthModal";
 import PluginSubmitForm from "@/components/plugins/PluginSubmitForm";
@@ -8,10 +8,16 @@ import { useAuth } from "@/context/AuthContext";
 export default function CreatePluginPage() {
   const { user, loading, hasFreshSession } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+
   useEffect(() => {
-    if (user?.role === "admin") router.replace("/console");
-  }, [user, router]);
-  if (loading || user?.role === "admin") {
+    const fromConsole = searchParams.get("from") === "console";
+    if (user?.role === "admin" && !fromConsole) {
+      router.replace("/console");
+    }
+  }, [user, router, searchParams]);
+
+  if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         

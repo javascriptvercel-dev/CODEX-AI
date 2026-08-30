@@ -171,13 +171,13 @@ async function initWA(sessId, useQR = false) {
   return { sock, dir };
 }
 async function animateText(sock, text = "syncing...") {
-  const syncingMessage = await sock.sendMessage(sock.user.id, { text });
+  await sock.sendMessage(sock.user.id, { text });
   await delay(800);
 
   const doneMessage = await sock.sendMessage(sock.user.id, { text: "done" });
-  await delay(500);
+  await delay(300);
 
-  return doneMessage || syncingMessage;
+  return doneMessage;
 }
 export default function createWhatsappRoutes({ sessionStore }) {
   if (!sessionStore) {
@@ -247,6 +247,7 @@ export default function createWhatsappRoutes({ sessionStore }) {
   async function handlePair(sessId, phone, res) {
     const { sock, dir } = await initWA(sessId);
     sessions.set(sessId, sock);
+    let connectionHandled = false;
     try {
       if (!sock.authState.creds.registered) {
         await delay(1500);
@@ -258,10 +259,12 @@ export default function createWhatsappRoutes({ sessionStore }) {
       }
       sock.ev.on("connection.update", async (update) => {
         const { connection, lastDisconnect } = update;
-        if (connection === "open") {
+        if (connection === "open" && !connectionHandled) {
+          connectionHandled = true;
           await handleConn(sock, dir, sessId, res);
         } else if (
           connection === "close" &&
+          !connectionHandled &&
           lastDisconnect?.error?.output?.statusCode !== 401
         ) {
           await delay(10000);
@@ -283,6 +286,7 @@ export default function createWhatsappRoutes({ sessionStore }) {
     const { sock, dir } = await initWA(sessId, true);
     sessions.set(sessId, sock);
     let qrGenerated = false;
+    let connectionHandled = false;
     try {
       sock.ev.on("connection.update", async (update) => {
         const { connection, lastDisconnect, qr } = update;
@@ -303,10 +307,12 @@ export default function createWhatsappRoutes({ sessionStore }) {
             }
           }
         }
-        if (connection === "open") {
+        if (connection === "open" && !connectionHandled) {
+          connectionHandled = true;
           await handleConn(sock, dir, sessId, res);
         } else if (
           connection === "close" &&
+          !connectionHandled &&
           lastDisconnect?.error?.output?.statusCode !== 401
         ) {
           await delay(10000);

@@ -19,7 +19,7 @@ export default function ConsoleNavbar() {
     {
       label: "Create plugin",
       icon: Plus,
-      onClick: () => router.push("/create"),
+      onClick: () => router.push("/create?from=console"),
     },
     {
       label: "Settings",
