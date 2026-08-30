@@ -1,5 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   CalendarDays,
   Check,
@@ -43,6 +44,7 @@ function CopyAction({ label, value }) {
   );
 }
 export default function PluginFullView({ plugin }) {
+  const router = useRouter();
   const codeLines = useMemo(
     () => String(plugin?.code || "").split("\n"),
     [plugin?.code],
@@ -105,6 +107,15 @@ export default function PluginFullView({ plugin }) {
                 value={plugin.installCommand}
               />
             </div>
+          </div>
+          <div className="mt-6 flex justify-start">
+            <button
+              type="button"
+              onClick={() => router.push("/plugins")}
+              className="focus-ring inline-flex items-center gap-2 rounded-lg border border-edge bg-surface2 px-3.5 py-2 text-sm font-semibold text-fg transition hover:border-azure-500/60 hover:text-azure-500 active:scale-95"
+            >
+              ← Back to plugins
+            </button>
           </div>
           <div className="mt-8 border-t border-edge pt-7">
             
