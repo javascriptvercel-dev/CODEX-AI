@@ -14,19 +14,17 @@ import Switch from "@/components/ui/Switch";
 function buildScript({
   name,
   number,
-  session,
   botname,
   prefix,
   mode,
   autoread,
   autostatus,
 }) {
-  return `const { spawnSync } = require('child_process');const fs = require('fs');const path = require('path');const ROOT = process.cwd();const STAGE = path.join(ROOT, '.codex-bootstrap');const SOURCE = {  url: 'https://github.com/codexverified/CODEX-AI.git',  branch: 'main'};const KEEP_LOCAL = new Set([  '.env',  'config.env',  'database',  'node_modules',  'plugins',  'session']);function codexConfig() {  const ownerNumber = '${number}'.replace(/\\D/g, '');  return {    botName: '${botname}',    prefix: '${prefix}',    owner: {      name: '${name}',      number: \`\${ownerNumber}@s.whatsapp.net\`    },    mods: [],    sudo: [],    mode: '${mode}',    autoTyping: true,    autoRecording: false,    autoRead: ${autoread},    alwaysOnline: false,    statusView: { enabled: ${autostatus} },    statusReact: { enabled: true, emoji: '👀' },    sessionId: '${session}',    antiCall: true,    antiLink: { enabled: true, action: 'warn', maxWarns: 3 },    antiSpam: { enabled: true, action: 'warn', maxWarns: 3, limit: 5, cooldown: 10000 },    antiBot: { enabled: true, action: 'kick', maxWarns: 1 },    antiTag: { enabled: true, action: 'warn', maxWarns: 3 },    antiGame: { enabled: false, action: 'warn', maxWarns: 3 },    antiGroupMention: { enabled: false, action: 'warn', maxWarns: 3 },    antiDelete: { enabled: false, forwardTo: 'dm' },    antiEdit: { enabled: false, forwardTo: 'dm' },    mentionReact: { enabled: false, emoji: '❤️' },    autoReact: { enabled: false, emoji: '❤️' },    welcome: true,    goodbye: true,    sessionName: 'session',    STICKER_PACKNAME: '${botname}',    STICKER_AUTHOR: '${name}'  };}function run(bin, args, options = {}) {  const result = spawnSync(bin, args, {    cwd: options.cwd || ROOT,    stdio: 'inherit',    shell: false  });  if (result.error) throw result.error;  if (result.status !== 0) {    throw new Error(\`\${bin} \${args.join(' ')} failed with exit code \${result.status}\`);  }}function resetStage() {  fs.rmSync(STAGE, { recursive: true, force: true });  fs.mkdirSync(STAGE, { recursive: true });}function pullFreshSource() {  run('git', ['clone', '--depth', '1', '--branch', SOURCE.branch, SOURCE.url, STAGE]);  fs.rmSync(path.join(STAGE, '.git'), { recursive: true, force: true });}function syncProjectFiles() {  for (const name of fs.readdirSync(STAGE)) {    if (KEEP_LOCAL.has(name)) continue;    const incoming = path.join(STAGE, name);    const target = path.join(ROOT, name);    fs.rmSync(target, { recursive: true, force: true });    fs.renameSync(incoming, target);  }}function writeCodexConfig() {  const configPath = path.join(ROOT, 'config.json');  fs.writeFileSync(configPath, JSON.stringify(codexConfig(), null, 2));}function ensureRuntimeFolders() {  for (const dir of ['database', 'plugins', 'session']) {    fs.mkdirSync(path.join(ROOT, dir), { recursive: true });  }}function bootstrap() {  console.log('Preparing CODEX-AI source...');  resetStage();  pullFreshSource();  console.log('Syncing project files...');  syncProjectFiles();  fs.rmSync(STAGE, { recursive: true, force: true });  console.log('Writing Codex config...');  writeCodexConfig();  ensureRuntimeFolders();  console.log('Installing dependencies...');  run('npm', ['install']);  console.log('Launching CODEX-AI...');  run('npm', ['start']);}try {  bootstrap();} catch (error) {  fs.rmSync(STAGE, { recursive: true, force: true });  console.error(\`CODEX-AI setup failed: \${error.message}\`);  process.exit(1);}`;
+  return `const { spawnSync } = require('child_process');const fs = require('fs');const path = require('path');const ROOT = process.cwd();const STAGE = path.join(ROOT, '.codex-bootstrap');const SOURCE = {  url: 'https://github.com/codexverified/CODEX-AI.git',  branch: 'main'};const KEEP_LOCAL = new Set([  '.env',  'config.env',  'database',  'node_modules',  'plugins',  'session']);function codexConfig() {  const ownerNumber = '${number}'.replace(/\\D/g, '');  return {    botName: '${botname}',    prefix: '${prefix}',    owner: {      name: '${name}',      number: \`\${ownerNumber}@s.whatsapp.net\`    },    mods: [],    sudo: [],    mode: '${mode}',    autoTyping: true,    autoRecording: false,    autoRead: ${autoread},    alwaysOnline: false,    statusView: { enabled: ${autostatus} },    statusReact: { enabled: true, emoji: '👀' },    antiCall: true,    antiLink: { enabled: true, action: 'warn', maxWarns: 3 },    antiSpam: { enabled: true, action: 'warn', maxWarns: 3, limit: 5, cooldown: 10000 },    antiBot: { enabled: true, action: 'kick', maxWarns: 1 },    antiTag: { enabled: true, action: 'warn', maxWarns: 3 },    antiGame: { enabled: false, action: 'warn', maxWarns: 3 },    antiGroupMention: { enabled: false, action: 'warn', maxWarns: 3 },    antiDelete: { enabled: false, forwardTo: 'dm' },    antiEdit: { enabled: false, forwardTo: 'dm' },    mentionReact: { enabled: false, emoji: '❤️' },    autoReact: { enabled: false, emoji: '❤️' },    welcome: true,    goodbye: true,    sessionName: 'session',    STICKER_PACKNAME: '${botname}',    STICKER_AUTHOR: '${name}'  };}function run(bin, args, options = {}) {  const result = spawnSync(bin, args, {    cwd: options.cwd || ROOT,    stdio: 'inherit',    shell: false  });  if (result.error) throw result.error;  if (result.status !== 0) {    throw new Error(\`\${bin} \${args.join(' ')} failed with exit code \${result.status}\`);  }}function resetStage() {  fs.rmSync(STAGE, { recursive: true, force: true });  fs.mkdirSync(STAGE, { recursive: true });}function pullFreshSource() {  run('git', ['clone', '--depth', '1', '--branch', SOURCE.branch, SOURCE.url, STAGE]);  fs.rmSync(path.join(STAGE, '.git'), { recursive: true, force: true });}function syncProjectFiles() {  for (const name of fs.readdirSync(STAGE)) {    if (KEEP_LOCAL.has(name)) continue;    const incoming = path.join(STAGE, name);    const target = path.join(ROOT, name);    fs.rmSync(target, { recursive: true, force: true });    fs.renameSync(incoming, target);  }}function writeCodexConfig() {  const configPath = path.join(ROOT, 'config.json');  fs.writeFileSync(configPath, JSON.stringify(codexConfig(), null, 2));}function ensureRuntimeFolders() {  for (const dir of ['database', 'plugins', 'session']) {    fs.mkdirSync(path.join(ROOT, dir), { recursive: true });  }}function bootstrap() {  console.log('Preparing CODEX-AI source...');  resetStage();  pullFreshSource();  console.log('Syncing project files...');  syncProjectFiles();  fs.rmSync(STAGE, { recursive: true, force: true });  console.log('Writing Codex config...');  writeCodexConfig();  ensureRuntimeFolders();  console.log('Installing dependencies...');  run('npm', ['install']);  console.log('Launching CODEX-AI...');  run('npm', ['start']);}try {  bootstrap();} catch (error) {  fs.rmSync(STAGE, { recursive: true, force: true });  console.error(\`CODEX-AI setup failed: \${error.message}\`);  process.exit(1);}`;
 }
 export default function GenerateConsole() {
   const [name, setName] = useState("");
   const [number, setNumber] = useState("");
-  const [session, setSession] = useState("");
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [botname, setBotname] = useState("");
   const [prefix, setPrefix] = useState("");
@@ -42,7 +40,6 @@ export default function GenerateConsole() {
       buildScript({
         name: name.trim() || "USER",
         number: number.trim(),
-        session: session.trim(),
         botname: botname.trim() || "CODEX AI",
         prefix: prefix.trim() || ".",
         mode: publicMode ? "public" : "private",
@@ -113,17 +110,6 @@ export default function GenerateConsole() {
           />
         </label>
       </div>
-      <label className="mt-4 flex flex-col gap-1.5 text-sm">
-        
-        <span className="font-medium">Session ID</span>
-        <input
-          value={session}
-          onChange={(e) => setSession(e.target.value)}
-          placeholder="Optional — paste it here, or leave blank to set it up later"
-          spellCheck={false}
-          className="focus-ring rounded-lg border border-edge bg-surface2 px-3 py-2.5 font-mono text-xs outline-none placeholder:text-muted/70"
-        />
-      </label>
       <button
         type="button"
         onClick={() => setShowAdvanced((v) => !v)}

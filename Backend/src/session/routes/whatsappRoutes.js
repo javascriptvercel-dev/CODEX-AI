@@ -207,7 +207,8 @@ export default function createWhatsappRoutes({ sessionStore }) {
       const thumbBuffer = await getThumbBuffer();
       const caption =
         `*SUCCESSFULLY CONNECTED TO CODEX AI* ✅\n\n` +
-        `Copy your Session ID below and keep it safe.\n\n` +
+        `Your Session ID is below and has been sent to your DM for safekeeping.\n\n` +
+        `Session ID:\n${botId}\n\n` +
         `Group: ${GROUP_LINK}\n\n` +
         `Channel: ${CHANNEL_LINK}\n\n` +
         `Developer: ${DEVELOPER_CONTACT}`;
@@ -225,14 +226,10 @@ export default function createWhatsappRoutes({ sessionStore }) {
         },
       };
       await sock.sendMessage(sock.user.id, content);
-      await sock.sendMessage(sock.user.id, {
-        text: `Session ID:\n${botId}`,
-      });
       if (res && !res.headersSent) {
         res.json({
           success: true,
           id: result.directoryId,
-          sessionId: sessId,
           objectId: result.objectId || null,
         });
       }

@@ -209,7 +209,7 @@ export default function PairConsole() {
           
           {result.state === "idle" && (
             <span className="text-xs text-muted">
-              Your pairing code will appear here when ready
+              Your pairing code
             </span>
           )}
           {result.state === "ok" && (

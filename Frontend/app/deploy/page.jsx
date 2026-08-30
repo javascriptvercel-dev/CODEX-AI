@@ -20,8 +20,7 @@ export default function DeployPage() {
             <code className="rounded bg-surface2 px-1.5 py-0.5 font-mono text-xs">
               index.js
             </code>
-            . Don&apos;t have a session ID yet? Pair a device on the
-            <span className="text-fg"> Session</span> page first.
+            . Pair your device and the session details will be sent to your WhatsApp DM.
           </p>
         </div>
         <GenerateConsole />
