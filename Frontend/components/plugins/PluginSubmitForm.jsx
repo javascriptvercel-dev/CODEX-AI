@@ -12,12 +12,24 @@ export default function PluginSubmitForm() {
   const [status, setStatus] = useState({ state: "idle", message: "" });
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const hasCode = code.trim().length > 0;
+    const hasFileSelected = Boolean(file);
+
+    if (!title.trim() || !description.trim() || (!hasCode && !hasFileSelected)) {
+      setStatus({
+        state: "error",
+        message:
+          "Please add a name, description, and either code or an uploaded file.",
+      });
+      return;
+    }
+
     setStatus({ state: "loading", message: "" });
     try {
       const formData = new FormData();
       formData.append("title", title);
       formData.append("description", description);
-      formData.append("code", code);
+      if (hasCode) formData.append("code", code);
       if (file) formData.append("file", file);
       await api.submitPlugin(formData);
       setStatus({
@@ -29,6 +41,7 @@ export default function PluginSubmitForm() {
       setStatus({
         state: "error",
         message:
+          err?.message ||
           "We could not submit this plugin for review. Please check the form and try again.",
       });
     }
@@ -84,13 +97,12 @@ export default function PluginSubmitForm() {
       </label>
       <label className="flex flex-col gap-1.5 text-sm">
         
-        <span className="font-medium">Code</span>
+        <span className="font-medium">Code (optional if uploading a file)</span>
         <textarea
-          required
           rows={10}
           value={code}
           onChange={(e) => setCode(e.target.value)}
-          placeholder="Paste your plugin's source here"
+          placeholder="Paste your plugin's source here, or upload a file instead"
           spellCheck={false}
           className="focus-ring resize-none rounded-lg border border-edge bg-ink-950 px-3 py-2.5 font-mono text-xs text-azure-300 outline-none placeholder:text-white/30"
         />

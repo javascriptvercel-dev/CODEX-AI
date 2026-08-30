@@ -64,11 +64,15 @@ export const getPluginById = async (req, res) => {
 };
 export const submitPlugin = async (req, res) => {
   const { title, description, code, category } = req.body || {};
-  if (!title?.trim() || !description?.trim() || !code?.trim()) {
-    return res
-      .status(400)
-      .json({ error: "Name, description and code are required." });
+  const hasCode = typeof code === "string" ? code.trim().length > 0 : Boolean(code);
+  const hasFile = Boolean(req.file);
+
+  if (!title?.trim() || !description?.trim() || (!hasCode && !hasFile)) {
+    return res.status(400).json({
+      error: "Name, description, and either code or a file upload are required.",
+    });
   }
+
   let filePath = null;
   if (req.file) {
     const path = `${req.user.id}/${Date.now()}-${req.file.originalname}`;
@@ -84,6 +88,7 @@ export const submitPlugin = async (req, res) => {
     }
     filePath = path;
   }
+
   const { data: submission, error } = await supabase
     .from("plugin_submissions")
     .insert({
@@ -91,7 +96,7 @@ export const submitPlugin = async (req, res) => {
       user_id: req.user.id,
       title: title.trim(),
       description: description.trim(),
-      code,
+      code: hasCode ? code : null,
       file_path: filePath,
       category: CATEGORIES.includes(category) ? category : "Utility",
     })

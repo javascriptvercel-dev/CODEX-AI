@@ -35,7 +35,7 @@ export default function ConsoleNavbar() {
         <div className="min-w-0 flex items-center gap-2">
           
           <span className="truncate font-display text-base font-bold tracking-tight sm:text-lg">
-            CODEX <span className="text-azure-500">WA BOT</span>
+            CODEX <span className="text-azure-500">AI</span>
           </span>
           <span className="ml-1 hidden rounded-full border border-azure-500/40 bg-azure-500/10 px-2 py-0.5 text-[11px] font-semibold text-azure-500 sm:inline">
             

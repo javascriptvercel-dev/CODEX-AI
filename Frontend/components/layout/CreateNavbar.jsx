@@ -21,7 +21,7 @@ export default function CreateNavbar() {
         
         <div className="flex items-center gap-2 font-display text-lg font-bold tracking-tight">
           
-          CODEX <span className="text-azure-500">WA BOT</span>
+          CODEX <span className="text-azure-500">AI</span>
         </div>
         <div className="hidden items-center gap-2 md:flex">
           

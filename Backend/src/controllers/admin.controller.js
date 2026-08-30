@@ -81,9 +81,13 @@ export const approveSubmission = async (req, res) => {
 export const updateAndApproveSubmission = async (req, res) => {
   const { id } = req.params; // public_id
   const { title, description, code } = req.body || {};
+  const hasCode = typeof code === "string" ? code.trim().length > 0 : Boolean(code);
+  const hasFile = Boolean(req.files?.length) || Boolean(req.file) || Boolean(req.body?.file_path);
 
-  if (!title?.trim() || !description?.trim() || !code?.trim()) {
-    return res.status(400).json({ error: "Name, description and code are required." });
+  if (!title?.trim() || !description?.trim() || (!hasCode && !hasFile)) {
+    return res.status(400).json({
+      error: "Name, description, and either code or an attached file are required.",
+    });
   }
 
   const { data: submission, error: findError } = await supabase
@@ -97,7 +101,7 @@ export const updateAndApproveSubmission = async (req, res) => {
   if (submission.status === "approved") return res.status(409).json({ error: "Already approved." });
 
   const authorName = submission.users?.full_name || submission.users?.email || "Unknown";
-  const edited = { title: title.trim(), description: description.trim(), code };
+  const edited = { title: title.trim(), description: description.trim(), code: hasCode ? code : null };
 
   const { error: updateError } = await supabase
     .from("plugin_submissions")
