@@ -1,0 +1,145 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+:root {
+  --ink-950: #05070c;
+  --ink-900: #0b1120;
+  --ink-800: #121b2e;
+  --ink-700: #1b2740;
+  --paper-50: #f5f8ff;
+  --paper-100: #e9eefb;
+  --azure-300: #69afff;
+  --azure-500: #005fcc;
+  --azure-600: #0047a3;
+  --surface: var(--ink-900);
+  --surface-2: var(--ink-800);
+  --edge: rgba(143, 180, 255, 0.14);
+  --text: #eef2ff;
+  --text-muted: #8b97b8;
+  --bg: var(--ink-950);
+}
+[data-theme="light"] {
+  --surface: #ffffff;
+  --surface-2: var(--paper-100);
+  --edge: rgba(11, 17, 32, 0.1);
+  --text: #0b1120;
+  --text-muted: #4b5875;
+  --bg: var(--paper-50);
+}
+* {
+  border-color: var(--edge);
+}
+html,
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+body {
+  font-family: var(--font-body), sans-serif;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+.focus-ring {
+  outline: none;
+}
+.focus-ring:focus-visible {
+  outline: 2px solid var(--azure-500);
+  outline-offset: 2px;
+}
+.terminal-caret {
+  display: inline-block;
+  width: 0.55ch;
+  background: var(--azure-500);
+  margin-left: 2px;
+}
+@keyframes robot-pop {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes robot-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+@keyframes robot-look-around {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  35% {
+    transform: rotate(-7deg);
+  }
+  70% {
+    transform: rotate(7deg);
+  }
+}
+@keyframes robot-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.animate-robot-pop {
+  animation: robot-pop 180ms ease-out;
+}
+.animate-robot-bob {
+  animation: robot-bob 380ms ease-out;
+}
+.animate-robot-look-around {
+  animation: robot-look-around 1400ms ease-in-out infinite;
+}
+.animate-robot-pulse {
+  animation: robot-pulse 1800ms ease-in-out infinite;
+}
+html {
+  min-width: 320px;
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+}
+body {
+  min-width: 320px;
+  overflow-x: hidden;
+}
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+img {
+  max-width: 100%;
+}
+::selection {
+  background: color-mix(in srgb, var(--azure-500) 28%, transparent);
+  color: var(--text);
+}
+@media (max-width: 639px) {
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
