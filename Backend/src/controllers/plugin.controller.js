@@ -21,7 +21,7 @@ const toPublicPlugin = (p) => {
     description: p.description,
     code: p.code,
 
-    installCommand: `.plugin ${url}`,
+    installCommand: `.install ${url}`,
     referenceUrl: url,
     category: p.category,
     publishedAt: p.published_at,
