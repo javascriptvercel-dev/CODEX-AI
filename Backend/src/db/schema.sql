@@ -27,7 +27,7 @@ create table if not exists public.plugin_submissions (
   user_id uuid not null references public.users(id) on delete cascade,
   title text not null,
   description text not null,
-  code text not null,
+  code text,                           -- nullable when the plugin is submitted as a file upload only
   file_path text,                      -- storage object path in plugin-files bucket
   category text not null default 'Utility',
   install_command text,                -- set by an admin while reviewing, not auto-generated
@@ -46,7 +46,7 @@ create table if not exists public.plugins (
   author_id uuid references public.users(id) on delete set null,
   author_name text not null,
   description text not null,
-  code text not null,
+  code text,                           -- nullable when the plugin is distributed as a file upload only
   category text not null default 'Utility',
   install_command text,                -- carried over from the submission, admin-entered
   reference_url text,                  -- carried over from the submission, admin-entered

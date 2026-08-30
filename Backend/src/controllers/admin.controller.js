@@ -65,7 +65,7 @@ export const approveSubmission = async (req, res) => {
     author_id: submission.user_id,
     author_name: authorName,
     description: submission.description,
-    code: submission.code,
+    code: submission.code || null,
     category: submission.category,
   });
 
@@ -120,7 +120,7 @@ export const updateAndApproveSubmission = async (req, res) => {
     author_id: submission.user_id,
     author_name: authorName,
     description: edited.description,
-    code: edited.code,
+    code: edited.code || null,
     category: submission.category,
   });
 
