@@ -107,14 +107,6 @@ export default function PluginsPage() {
           </div>
         </section>
       </main>
-      <Footer onOpenSection={setModal} />
-      {modal === "support" && <SupportModal onClose={() => setModal(null)} />}
-      {modal === "repository" && (
-        <RepositoryModal onClose={() => setModal(null)} />
-      )}
-      {modal === "suggest" && (
-        <SuggestModal onClose={() => setModal(null)} />
-      )}
     </div>
   );
 }

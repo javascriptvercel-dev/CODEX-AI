@@ -5,6 +5,7 @@ import { MessageSquareText, ShieldCheck } from "lucide-react";
 import ConsoleNavbar from "@/components/layout/ConsoleNavbar";
 import SubmissionCard from "@/components/admin/SubmissionCard";
 import SuggestionCard from "@/components/admin/SuggestionCard";
+import SettingsTab from "@/components/admin/SettingsTab";
 import AdminEmailOptInModal, {
   shouldShowEmailPrompt,
 } from "@/components/admin/AdminEmailOptInModal";
@@ -16,10 +17,12 @@ function ConsolePageInner() {
   const { user, isAdmin, loading: authLoading, refresh } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const requestedView = searchParams.get("view") || searchParams.get("tab");
   const initialTab = TABS.includes(searchParams.get("tab"))
     ? searchParams.get("tab")
     : "submissions";
   const [tab, setTab] = useState(initialTab);
+  const showSettings = requestedView === "settings";
   const [statusFilter, setStatusFilter] = useState("pending");
   const [submissions, setSubmissions] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
@@ -126,49 +129,59 @@ function ConsolePageInner() {
               </div>
             </div>
           </div>
-          <div className="rounded-2xl border border-edge bg-surface p-1.5 shadow-sm">
-            
-            <div className="flex flex-wrap gap-1.5">
+          {!showSettings && (
+            <div className="rounded-2xl border border-edge bg-surface p-1.5 shadow-sm">
               
-              <button
-                type="button"
-                onClick={() => setTab("submissions")}
-                className={`focus-ring flex flex-shrink-0 items-center justify-center rounded-full px-3.5 py-2 text-sm font-semibold transition active:scale-95 sm:px-4 ${tab === "submissions" ? "bg-azure-500 text-white" : "bg-surface2 text-muted hover:text-fg"}`}
-              >
+              <div className="flex flex-wrap gap-1.5">
                 
-                <span className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap">
-                  
-                  <ShieldCheck size={14} /> Plugin submissions
-                </span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setTab("suggestions")}
-                className={`focus-ring flex flex-shrink-0 items-center justify-center rounded-full px-3.5 py-2 text-sm font-semibold transition active:scale-95 sm:px-4 ${tab === "suggestions" ? "bg-azure-500 text-white" : "bg-surface2 text-muted hover:text-fg"}`}
-              >
-                
-                <span className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap">
-                  
-                  <MessageSquareText size={14} /> Suggestions
-                </span>
-              </button>
-            </div>
-          </div>
-          {tab === "submissions" && (
-            <div className="mt-4 flex flex-wrap gap-2 pb-1">
-              
-              {["pending", "approved", "rejected"].map((s) => (
                 <button
-                  key={s}
                   type="button"
-                  onClick={() => setStatusFilter(s)}
-                  className={`focus-ring flex-shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold capitalize transition active:scale-95 ${statusFilter === s ? "bg-azure-500 text-white" : "bg-surface2 text-muted hover:text-fg"}`}
+                  onClick={() => setTab("submissions")}
+                  className={`focus-ring flex flex-shrink-0 items-center justify-center rounded-full px-3.5 py-2 text-sm font-semibold transition active:scale-95 sm:px-4 ${tab === "submissions" ? "bg-azure-500 text-white" : "bg-surface2 text-muted hover:text-fg"}`}
                 >
                   
-                  {s}
+                  <span className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap">
+                    
+                    <ShieldCheck size={14} /> Plugin submissions
+                  </span>
                 </button>
-              ))}
+                <button
+                  type="button"
+                  onClick={() => setTab("suggestions")}
+                  className={`focus-ring flex flex-shrink-0 items-center justify-center rounded-full px-3.5 py-2 text-sm font-semibold transition active:scale-95 sm:px-4 ${tab === "suggestions" ? "bg-azure-500 text-white" : "bg-surface2 text-muted hover:text-fg"}`}
+                >
+                  
+                  <span className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap">
+                    
+                    <MessageSquareText size={14} /> Suggestions
+                  </span>
+                </button>
+              </div>
             </div>
+          )}
+          {showSettings ? (
+            <div className="mt-6">
+              <SettingsTab />
+            </div>
+          ) : (
+            <>
+              {tab === "submissions" && (
+                <div className="mt-4 flex flex-wrap gap-2 pb-1">
+                  
+                  {["pending", "approved", "rejected"].map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => setStatusFilter(s)}
+                      className={`focus-ring flex-shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold capitalize transition active:scale-95 ${statusFilter === s ? "bg-azure-500 text-white" : "bg-surface2 text-muted hover:text-fg"}`}
+                    >
+                      
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </>
           )}
           <div className="mt-6">
             

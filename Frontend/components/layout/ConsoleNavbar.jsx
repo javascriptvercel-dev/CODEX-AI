@@ -24,7 +24,7 @@ export default function ConsoleNavbar() {
     {
       label: "Settings",
       icon: Settings,
-      onClick: () => router.push("/console?tab=settings"),
+      onClick: () => router.push("/console?view=settings"),
     },
   ];
   return (
