@@ -70,6 +70,15 @@ export default function PluginFullView({ plugin }) {
     <main className="min-h-screen bg-bg text-fg">
       
       <Navbar navLinks={pluginNavLinks} showCta={false} />
+      <div className="mx-auto max-w-7xl px-5 pt-4 pb-2 sm:px-6 lg:px-8">
+        <button
+          type="button"
+          onClick={() => router.push("/plugins")}
+          className="inline-flex items-center gap-2 text-sm font-semibold text-fg transition hover:text-azure-500 sm:text-[15px]"
+        >
+          ← Back to plugins
+        </button>
+      </div>
       <section className="mx-auto max-w-7xl px-5 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
         
         <div className="rounded-2xl border border-edge bg-surface p-6 shadow-2xl shadow-black/10 sm:p-8 lg:p-10">
@@ -107,15 +116,6 @@ export default function PluginFullView({ plugin }) {
                 value={plugin.installCommand}
               />
             </div>
-          </div>
-          <div className="mt-6 flex justify-start">
-            <button
-              type="button"
-              onClick={() => router.push("/plugins")}
-              className="focus-ring inline-flex items-center gap-2 rounded-lg border border-edge bg-surface2 px-3.5 py-2 text-sm font-semibold text-fg transition hover:border-azure-500/60 hover:text-azure-500 active:scale-95"
-            >
-              ← Back to plugins
-            </button>
           </div>
           <div className="mt-8 border-t border-edge pt-7">
             
