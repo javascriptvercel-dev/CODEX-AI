@@ -49,12 +49,12 @@ export default function PluginsPage() {
   const visiblePlugins = sortNewestFirst ? plugins : [...plugins].reverse();
   return (
     <div className="flex min-h-screen animate-rise flex-col">
-      
+
       <Navbar navLinks={pluginNavLinks} showCta={false} />
       <main className="flex-1">
-        
+
         <section className="mx-auto max-w-4xl px-5 pb-4 pt-8 text-center">
-          
+
           <h1 className="font-display text-4xl font-bold uppercase tracking-tight text-fg sm:text-5xl">
             CODEX PLUGINS
           </h1>
@@ -66,12 +66,12 @@ export default function PluginsPage() {
           </p>
         </section>
         <section className="mx-auto max-w-6xl px-5 pb-16 pt-6">
-          
+
           <div className="mx-auto flex max-w-2xl flex-col gap-2 sm:flex-row sm:items-center">
-            
+
             <SearchBar value={query} onChange={setQuery} />
             <div className="flex items-center justify-center gap-2 sm:flex-row">
-              
+
               <button
                 type="button"
                 onClick={() => setSortNewestFirst((v) => !v)}
@@ -83,7 +83,7 @@ export default function PluginsPage() {
                 title={sortNewestFirst ? "Newest first" : "Oldest first"}
                 className="focus-ring grid h-[42px] w-[42px] flex-shrink-0 place-items-center rounded-lg border border-edge bg-surface2 text-muted transition hover:border-azure-500/60 hover:text-fg active:scale-95"
               >
-                
+
                 {sortNewestFirst ? (
                   <ArrowDownWideNarrow size={16} />
                 ) : (
@@ -95,14 +95,14 @@ export default function PluginsPage() {
                 onClick={() => router.push("/create")}
                 className="focus-ring inline-flex flex-shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg bg-azure-500 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-azure-600 active:scale-95"
               >
-                
+
                 <Plus size={15} />
                 Create
               </button>
             </div>
           </div>
           <div className="mt-10">
-            
+
             <PluginGrid plugins={visiblePlugins} loading={loading} />
           </div>
         </section>

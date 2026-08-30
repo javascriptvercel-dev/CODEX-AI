@@ -1,7 +1,7 @@
 "use client";
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { MessageSquareText, ShieldCheck } from "lucide-react";
+import { MessageSquareText, Settings, ShieldCheck } from "lucide-react";
 import ConsoleNavbar from "@/components/layout/ConsoleNavbar";
 import SubmissionCard from "@/components/admin/SubmissionCard";
 import SuggestionCard from "@/components/admin/SuggestionCard";
@@ -67,7 +67,7 @@ function ConsolePageInner() {
   if (!user) {
     return (
       <div className="min-h-screen bg-bg">
-        
+
         <AuthModal
           message="Sign in to enter the admin console."
           onClose={() => router.push("/")}
@@ -81,35 +81,35 @@ function ConsolePageInner() {
   const suggestionCount = suggestions.length;
   return (
     <div className="min-h-screen bg-bg text-fg">
-      
+
       <ConsoleNavbar />
       <main className="flex-1">
-        
+
         <section className="mx-auto w-full max-w-7xl px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
-          
+
           <div className="mb-6 overflow-hidden rounded-3xl border border-edge bg-surface shadow-glow">
-            
+
             <div className="flex flex-col gap-5 p-4 sm:p-6 lg:flex-row lg:items-end lg:justify-between lg:p-7">
-              
+
               <div className="max-w-2xl">
-                
+
                 <div className="mb-3 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-azure-500">
-                  
+
                   <ShieldCheck size={14} /> Control center
                 </div>
                 <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">
                   ADMINISTRATIVE WORKSPACE
                 </h1>
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">
-                  
+
                   Review submissions, triage community feedback, and manage
                   workspace preferences from one place.
                 </p>
               </div>
               <div className="grid w-full max-w-md grid-cols-2 gap-2 sm:grid-cols-2 lg:w-auto">
-                
+
                 <div className="rounded-2xl border border-edge bg-surface2 px-4 py-3">
-                  
+
                   <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">
                     Current submissions
                   </p>
@@ -118,7 +118,7 @@ function ConsolePageInner() {
                   </p>
                 </div>
                 <div className="rounded-2xl border border-edge bg-surface2 px-4 py-3">
-                  
+
                   <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">
                     Feedback
                   </p>
@@ -131,17 +131,17 @@ function ConsolePageInner() {
           </div>
           {!showSettings && (
             <div className="rounded-2xl border border-edge bg-surface p-1.5 shadow-sm">
-              
+
               <div className="flex flex-wrap gap-1.5">
-                
+
                 <button
                   type="button"
                   onClick={() => setTab("submissions")}
                   className={`focus-ring flex flex-shrink-0 items-center justify-center rounded-full px-3.5 py-2 text-sm font-semibold transition active:scale-95 sm:px-4 ${tab === "submissions" ? "bg-azure-500 text-white" : "bg-surface2 text-muted hover:text-fg"}`}
                 >
-                  
+
                   <span className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap">
-                    
+
                     <ShieldCheck size={14} /> Plugin submissions
                   </span>
                 </button>
@@ -150,9 +150,9 @@ function ConsolePageInner() {
                   onClick={() => setTab("suggestions")}
                   className={`focus-ring flex flex-shrink-0 items-center justify-center rounded-full px-3.5 py-2 text-sm font-semibold transition active:scale-95 sm:px-4 ${tab === "suggestions" ? "bg-azure-500 text-white" : "bg-surface2 text-muted hover:text-fg"}`}
                 >
-                  
+
                   <span className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap">
-                    
+
                     <MessageSquareText size={14} /> Suggestions
                   </span>
                 </button>
@@ -161,13 +161,16 @@ function ConsolePageInner() {
           )}
           {showSettings ? (
             <div className="mt-6">
+              <div className="mb-4 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-azure-500">
+                <Settings size={14} /> Preferences
+              </div>
               <SettingsTab />
             </div>
           ) : (
             <>
               {tab === "submissions" && (
                 <div className="mt-4 flex flex-wrap gap-2 pb-1">
-                  
+
                   {["pending", "approved", "rejected"].map((s) => (
                     <button
                       key={s}
@@ -175,7 +178,7 @@ function ConsolePageInner() {
                       onClick={() => setStatusFilter(s)}
                       className={`focus-ring flex-shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold capitalize transition active:scale-95 ${statusFilter === s ? "bg-azure-500 text-white" : "bg-surface2 text-muted hover:text-fg"}`}
                     >
-                      
+
                       {s}
                     </button>
                   ))}
@@ -184,10 +187,10 @@ function ConsolePageInner() {
             </>
           )}
           <div className="mt-6">
-            
+
             {loading ? (
               <div className="grid gap-3">
-                
+
                 {Array.from({ length: 3 }).map((_, i) => (
                   <div
                     key={i}
@@ -199,9 +202,9 @@ function ConsolePageInner() {
             ) : tab === "submissions" ? (
               submissions.length === 0 ? (
                 <div className="rounded-2xl border border-dashed border-edge bg-surface p-10 text-center sm:p-16">
-                  
+
                   <div className="mx-auto grid h-11 w-11 place-items-center rounded-xl bg-azure-500/10 text-azure-500">
-                    
+
                     <ShieldCheck size={19} />
                   </div>
                   <p className="mt-4 font-semibold">
@@ -214,14 +217,14 @@ function ConsolePageInner() {
                 </div>
               ) : (
                 <div className="flex flex-col gap-3">
-                  
+
                   {submissions.map((submission, i) => (
                     <div
                       key={submission.id}
                       className="animate-rise"
                       style={{ animationDelay: `${i * 40}ms` }}
                     >
-                      
+
                       <SubmissionCard
                         submission={submission}
                         onApprove={handleApprove}
@@ -234,9 +237,9 @@ function ConsolePageInner() {
               )
             ) : suggestions.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-edge bg-surface p-10 text-center sm:p-16">
-                
+
                 <div className="mx-auto grid h-11 w-11 place-items-center rounded-xl bg-azure-500/10 text-azure-500">
-                  
+
                   <MessageSquareText size={19} />
                 </div>
                 <p className="mt-4 font-semibold">No feedback yet</p>
@@ -246,14 +249,14 @@ function ConsolePageInner() {
               </div>
             ) : (
               <div className="flex flex-col gap-3">
-                
+
                 {suggestions.map((suggestion, i) => (
                   <div
                     key={suggestion.id}
                     className="animate-rise"
                     style={{ animationDelay: `${i * 40}ms` }}
                   >
-                    
+
                     <SuggestionCard suggestion={suggestion} />
                   </div>
                 ))}
@@ -271,7 +274,7 @@ function ConsolePageInner() {
 export default function ConsolePage() {
   return (
     <Suspense fallback={<div className="min-h-screen bg-bg" />}>
-      
+
       <ConsolePageInner />
     </Suspense>
   );

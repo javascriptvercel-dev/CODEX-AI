@@ -9,11 +9,6 @@ const getClient = () => {
   return client;
 };
 
-// Shared sender for every admin alert. Silently no-ops if Resend isn't
-// configured, so local dev never crashes on a missing mail setup. The
-// review link points at /console — an admin who isn't logged in yet lands
-// on a sign-in prompt there and is carried straight through to the right
-// tab once authenticated.
 const sendAdminAlert = async ({ subject, heading, body, tab }) => {
   const resend = getClient();
   if (!resend) return;
@@ -57,8 +52,6 @@ export const notifyAdminsOfSuggestion = (suggestion) =>
     tab: "suggestions",
   });
 
-// Password-reset email — separate from sendAdminAlert since it goes to one
-// specific user (not every opted-in admin) and isn't a "review" link.
 export const sendPasswordResetEmail = async (user, resetUrl) => {
   const resend = getClient();
   if (!resend) return;

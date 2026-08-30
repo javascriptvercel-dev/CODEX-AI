@@ -79,12 +79,12 @@ const sections = [
 export default function TermsPage() {
   return (
     <div className="flex min-h-screen flex-col">
-      
+
       <Navbar />
       <main className="flex-1">
-        
+
         <article className="mx-auto max-w-3xl px-5 py-10 sm:py-14">
-          
+
           <p className="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-azure-500">
             Legal
           </p>
@@ -93,21 +93,21 @@ export default function TermsPage() {
           </h1>
           <p className="mt-4 text-sm text-muted">Effective August 26, 2026</p>
           <p className="mt-8 text-base leading-7 text-muted">
-            
+
             These Terms govern your access to and use of CODEX AI. They explain
             your responsibilities, the rights you grant us to operate the
             Service, and the limits that apply to our relationship.
           </p>
           <div className="mt-12 space-y-10">
-            
+
             {sections.map((section) => (
               <section key={section.title}>
-                
+
                 <h2 className="font-display text-xl font-bold">
                   {section.title}
                 </h2>
                 <div className="mt-3 space-y-3 text-sm leading-7 text-muted">
-                  
+
                   {section.content.map((paragraph) => (
                     <p key={paragraph}>{paragraph}</p>
                   ))}
@@ -116,7 +116,7 @@ export default function TermsPage() {
             ))}
           </div>
           <div className="mt-12 border-t border-edge pt-6 text-sm leading-7 text-muted">
-            
+
             Questions about these Terms can be submitted through <SupportLink />
             .
           </div>

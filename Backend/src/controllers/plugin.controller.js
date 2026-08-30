@@ -20,7 +20,7 @@ const toPublicPlugin = (p) => {
     authorName: p.author_name,
     description: p.description,
     code: p.code,
-    // Auto-generated from the plugin's own page — not admin-entered.
+
     installCommand: `.plugin ${url}`,
     referenceUrl: url,
     category: p.category,

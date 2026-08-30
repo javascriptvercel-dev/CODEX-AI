@@ -249,14 +249,14 @@ export default function RobotWidget() {
       className="fixed bottom-5 right-5 z-40 flex flex-col items-end gap-2"
       aria-hidden="true"
     >
-      
+
       {bubble && (
         <div className="animate-robot-pop max-w-[190px] rounded-2xl rounded-br-sm border border-edge bg-surface px-3 py-2 text-xs text-fg shadow-glow">
           {bubble.message}
         </div>
       )}
       <div className="group flex items-center gap-1.5">
-        
+
         <button
           type="button"
           onClick={toggleSound}
@@ -265,15 +265,15 @@ export default function RobotWidget() {
           }
           className="focus-ring grid h-6 w-6 place-items-center rounded-full border border-edge bg-surface text-muted opacity-0 transition hover:text-fg group-hover:opacity-100"
         >
-          
+
           {soundEnabled ? <Volume2 size={11} /> : <VolumeX size={11} />}
         </button>
         <div
           className={`relative h-14 w-14 select-none transition-transform duration-200 ${bounce ? "scale-110" : "scale-100"} ${scrollPulse ? "animate-robot-bob" : ""} ${lookingAround ? "animate-robot-look-around" : ""}`}
         >
-          
+
           <svg viewBox="0 0 32 32" className="h-full w-full drop-shadow-md">
-            
+
             <line
               x1="16"
               y1="4"
@@ -301,7 +301,7 @@ export default function RobotWidget() {
             />
             {[11, 21].map((eyeX) => (
               <g key={eyeX}>
-                
+
                 <circle
                   cx={eyeX}
                   cy="17"

@@ -29,14 +29,14 @@ export default function SuggestModal({ onClose }) {
       icon={<Lightbulb size={18} className="text-azure-500" />}
       onClose={onClose}
     >
-      
+
       <p className="mb-4 text-sm text-muted">
         Tell us what you&apos;d like to see next.
       </p>
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-        
+
         <label className="flex flex-col gap-1.5 text-sm">
-          
+
           <span className="font-medium">Your email</span>
           <input
             type="email"
@@ -48,7 +48,7 @@ export default function SuggestModal({ onClose }) {
           />
         </label>
         <label className="flex flex-col gap-1.5 text-sm">
-          
+
           <span className="font-medium">Your idea</span>
           <textarea
             required

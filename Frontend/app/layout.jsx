@@ -27,15 +27,15 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      
+
       <body
         className={`${display.variable} ${body.variable} ${mono.variable} antialiased`}
       >
-        
+
         <ThemeProvider>
-          
+
           <AuthProvider>
-            
+
             {children} <RobotWidget />
           </AuthProvider>
         </ThemeProvider>

@@ -45,7 +45,7 @@ export const listSubmissions = async (req, res) => {
 };
 
 export const approveSubmission = async (req, res) => {
-  const { id } = req.params; // public_id
+  const { id } = req.params;
   const { data: submission, error: findError } = await supabase
     .from("plugin_submissions")
     .select("*, users(full_name, email)")
@@ -59,7 +59,7 @@ export const approveSubmission = async (req, res) => {
   const authorName = submission.users?.full_name || submission.users?.email || "Unknown";
 
   const { error: insertError } = await supabase.from("plugins").insert({
-    public_id: submission.public_id, // same id the submission had — start to finish
+    public_id: submission.public_id,
     submission_id: submission.id,
     name: submission.title,
     author_id: submission.user_id,
@@ -79,7 +79,7 @@ export const approveSubmission = async (req, res) => {
 };
 
 export const updateAndApproveSubmission = async (req, res) => {
-  const { id } = req.params; // public_id
+  const { id } = req.params;
   const { title, description, code } = req.body || {};
   const hasCode = typeof code === "string" ? code.trim().length > 0 : Boolean(code);
   const hasFile = Boolean(req.files?.length) || Boolean(req.file) || Boolean(req.body?.file_path);
@@ -114,7 +114,7 @@ export const updateAndApproveSubmission = async (req, res) => {
   }
 
   const { error: insertError } = await supabase.from("plugins").insert({
-    public_id: submission.public_id, // same id the submission had — start to finish
+    public_id: submission.public_id,
     submission_id: submission.id,
     name: edited.title,
     author_id: submission.user_id,
@@ -148,7 +148,7 @@ export const listSuggestions = async (req, res) => {
 };
 
 export const rejectSubmission = async (req, res) => {
-  const { id } = req.params; // public_id
+  const { id } = req.params;
   const { note } = req.body || {};
 
   const { error } = await supabase

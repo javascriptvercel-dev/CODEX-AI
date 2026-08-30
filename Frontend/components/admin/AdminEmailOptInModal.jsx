@@ -43,28 +43,28 @@ export default function AdminEmailOptInModal({ onClose }) {
       icon={<Mail size={18} className="text-azure-500" />}
       onClose={snooze}
     >
-      
+
       <div className="flex flex-col items-center gap-3 py-2 text-center">
-        
+
         <span className="grid h-12 w-12 place-items-center rounded-full bg-azure-500/10 text-azure-500">
-          
+
           <Mail size={20} />
         </span>
         <p className="max-w-xs text-sm text-muted">
-          
+
           {isRepeatPrompt
             ? "You haven't subscribed to start receiving plugin submissions and bot suggestions."
             : "Subscribe to receive plugin submissions and bot suggestions."}
         </p>
       </div>
       <div className="mt-5 flex gap-2">
-        
+
         <button
           type="button"
           onClick={snooze}
           className="focus-ring flex-1 rounded-lg border border-edge bg-surface2 py-2.5 text-sm font-semibold transition hover:border-azure-500/60 active:scale-95"
         >
-          
+
           {isRepeatPrompt ? "Remind me later" : "Not now"}
         </button>
         <button
@@ -73,7 +73,7 @@ export default function AdminEmailOptInModal({ onClose }) {
           disabled={loading}
           className="focus-ring flex-1 rounded-lg bg-azure-500 py-2.5 text-sm font-semibold text-white transition hover:bg-azure-600 active:scale-95 disabled:opacity-60"
         >
-          
+
           {loading ? "…" : "Subscribe"}
         </button>
       </div>

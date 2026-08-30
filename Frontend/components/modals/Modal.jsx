@@ -16,16 +16,15 @@ export default function Modal({ title, icon, onClose, children }) {
   }, [onClose]);
   return (
     <div
-      className="fixed inset-0 z-50 grid h-[100dvh] w-full place-items-center overflow-hidden bg-black/60 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-black/60 p-4 backdrop-blur-sm"
       onMouseDown={(e) => e.target === e.currentTarget && onClose()}
     >
-      
-      <div className="animate-rise max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-hidden rounded-2xl border border-edge bg-surface p-5 shadow-glow sm:p-6">
-        
+      <div className="animate-rise my-auto max-h-[85vh] w-full max-w-md overflow-y-auto rounded-2xl border border-edge bg-surface p-5 shadow-glow sm:p-6">
+
         <div className="mb-4 flex items-start justify-between gap-4">
-          
+
           <div className="flex items-center gap-2.5">
-            
+
             {icon}
             <h2 className="font-display text-lg font-bold">{title}</h2>
           </div>
@@ -36,7 +35,7 @@ export default function Modal({ title, icon, onClose, children }) {
             aria-label="Close"
             className="focus-ring grid h-8 w-8 flex-shrink-0 place-items-center rounded-lg text-muted transition hover:bg-surface2 hover:text-fg"
           >
-            
+
             <X size={16} />
           </button>
         </div>

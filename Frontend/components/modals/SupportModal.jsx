@@ -52,12 +52,12 @@ export default function SupportModal({ onClose }) {
       icon={<MessageCircle size={18} className="text-azure-500" />}
       onClose={onClose}
     >
-      
+
       <p className="mb-4 text-sm text-muted">
         Reach the community and the team directly.
       </p>
       <div className="flex max-h-[60vh] flex-col gap-2 overflow-y-auto pr-1">
-        
+
         {CHANNELS.map(({ name, description, href, icon: Icon }) => (
           <a
             key={name}
@@ -66,13 +66,13 @@ export default function SupportModal({ onClose }) {
             rel="noreferrer noopener"
             className="focus-ring group flex items-center gap-3 rounded-xl border border-edge bg-surface2 p-3 transition hover:border-azure-500/60"
           >
-            
+
             <span className="grid h-9 w-9 flex-shrink-0 place-items-center rounded-lg bg-azure-500/10 text-azure-500">
-              
+
               <Icon size={17} />
             </span>
             <span>
-              
+
               <span className="block text-sm font-semibold">{name}</span>
               <span className="block text-xs text-muted">
                 {description}

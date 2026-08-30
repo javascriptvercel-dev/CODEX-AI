@@ -38,9 +38,9 @@ export default function PluginDetailPage() {
   if (loading) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-ink-950 px-5 text-fg">
-        
+
         <div className="flex items-center gap-2 text-sm text-muted">
-          
+
           <Loader2 size={16} className="animate-spin" /> Loading plugin…
         </div>
       </main>
@@ -49,15 +49,15 @@ export default function PluginDetailPage() {
   if (error || !plugin) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-ink-950 px-5 text-fg">
-        
+
         <div className="w-full max-w-md rounded-2xl border border-edge bg-surface p-6 text-center">
-          
+
           <TriangleAlert className="mx-auto text-amber-400" size={22} />
           <h1 className="mt-3 font-display text-lg font-bold">
             Plugin unavailable
           </h1>
           <p className="mt-2 text-sm leading-6 text-muted">
-            
+
             {error || "This plugin could not be found."}
           </p>
           <button
@@ -65,7 +65,7 @@ export default function PluginDetailPage() {
             onClick={() => router.push("/plugins")}
             className="focus-ring mt-5 rounded-lg bg-azure-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-azure-600"
           >
-            
+
             Back to plugins
           </button>
         </div>

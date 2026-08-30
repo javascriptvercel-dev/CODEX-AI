@@ -45,9 +45,9 @@ export default function PluginSubmitForm() {
   if (status.state === "success") {
     return (
       <div className="flex flex-col items-center gap-3 rounded-2xl border border-edge bg-surface py-16 text-center">
-        
+
         <span className="grid h-12 w-12 place-items-center rounded-full bg-azure-500/10 text-azure-500">
-          
+
           <PackagePlus size={20} />
         </span>
         <p className="max-w-sm text-sm text-muted">{status.message}</p>
@@ -56,7 +56,7 @@ export default function PluginSubmitForm() {
           onClick={() => router.push("/plugins")}
           className="focus-ring mt-2 rounded-lg bg-azure-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-azure-600"
         >
-          
+
           Back to plugins
         </button>
       </div>
@@ -67,9 +67,9 @@ export default function PluginSubmitForm() {
       onSubmit={handleSubmit}
       className="flex flex-col gap-4 rounded-2xl border border-edge bg-surface p-6 sm:p-8"
     >
-      
+
       <label className="flex flex-col gap-1.5 text-sm">
-        
+
         <span className="font-medium">Plugin name</span>
         <input
           required
@@ -80,7 +80,7 @@ export default function PluginSubmitForm() {
         />
       </label>
       <label className="flex flex-col gap-1.5 text-sm">
-        
+
         <span className="font-medium">Description</span>
         <textarea
           required
@@ -92,7 +92,7 @@ export default function PluginSubmitForm() {
         />
       </label>
       <label className="flex flex-col gap-1.5 text-sm">
-        
+
         <span className="font-medium">Code (optional if uploading a file)</span>
         <textarea
           rows={10}
@@ -104,10 +104,10 @@ export default function PluginSubmitForm() {
         />
       </label>
       <label className="flex cursor-pointer flex-col gap-1.5 text-sm">
-        
+
         <span className="font-medium">File (optional, max 5MB)</span>
         <span className="focus-ring flex items-center gap-2 rounded-lg border border-dashed border-edge bg-surface2 px-3 py-3 text-xs text-muted">
-          
+
           <UploadCloud size={15} />
           {file ? file.name : "Attach a zip, script, or asset"}
           <input
@@ -125,7 +125,7 @@ export default function PluginSubmitForm() {
         disabled={status.state === "loading" || !canSubmit}
         className="focus-ring mt-1 rounded-lg bg-azure-500 py-2.5 text-sm font-semibold text-white transition hover:bg-azure-600 disabled:cursor-not-allowed disabled:opacity-45"
       >
-        
+
         {status.state === "loading" ? "Submitting…" : "Submit for review"}
       </button>
     </form>

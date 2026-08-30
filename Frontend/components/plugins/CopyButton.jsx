@@ -14,7 +14,7 @@ export default function CopyButton({ label, value, icon: Icon = Copy }) {
       onClick={handleCopy}
       className="focus-ring flex items-center gap-2 rounded-lg border border-edge bg-surface2 px-3.5 py-2 text-xs font-semibold transition hover:border-azure-500/60"
     >
-      
+
       {copied ? (
         <Check size={14} className="text-green-400" />
       ) : (

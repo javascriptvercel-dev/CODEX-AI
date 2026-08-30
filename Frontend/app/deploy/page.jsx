@@ -5,17 +5,17 @@ import GenerateConsole from "@/components/session/GenerateConsole";
 export default function DeployPage() {
   return (
     <div className="flex min-h-screen animate-rise flex-col">
-      
+
       <Navbar />
       <main className="flex flex-1 flex-col items-center px-5 py-10">
-        
+
         <div className="mb-8 max-w-md text-center">
-          
+
           <p className="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-azure-500">
             Deploy
           </p>
           <p className="mt-3 text-sm text-muted">
-            
+
             Fill in your details and generate a ready-to-run
             <code className="rounded bg-surface2 px-1.5 py-0.5 font-mono text-xs">
               index.js

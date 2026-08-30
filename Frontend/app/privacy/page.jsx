@@ -57,12 +57,12 @@ const sections = [
 export default function PrivacyPage() {
   return (
     <div className="flex min-h-screen flex-col">
-      
+
       <Navbar />
       <main className="flex-1">
-        
+
         <article className="mx-auto max-w-3xl px-5 py-10 sm:py-14">
-          
+
           <p className="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-azure-500">
             Legal
           </p>
@@ -71,21 +71,21 @@ export default function PrivacyPage() {
           </h1>
           <p className="mt-4 text-sm text-muted">Effective August 26, 2026</p>
           <p className="mt-8 text-base leading-7 text-muted">
-            
+
             This Privacy Policy explains how CODEX AI collects, uses, shares,
             and protects information when you use our website, workspace,
             plugins, and related services (collectively, the “Service”).
           </p>
           <div className="mt-12 space-y-10">
-            
+
             {sections.map((section) => (
               <section key={section.title}>
-                
+
                 <h2 className="font-display text-xl font-bold">
                   {section.title}
                 </h2>
                 <div className="mt-3 space-y-3 text-sm leading-7 text-muted">
-                  
+
                   {section.content.map((paragraph) => (
                     <p key={paragraph}>{paragraph}</p>
                   ))}
@@ -94,7 +94,7 @@ export default function PrivacyPage() {
             ))}
           </div>
           <div className="mt-12 border-t border-edge pt-6 text-sm leading-7 text-muted">
-            
+
             Questions about this Policy can be submitted through <SupportLink />
             .
           </div>

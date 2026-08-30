@@ -63,15 +63,15 @@ export default function GenerateConsole() {
   };
   return (
     <div className="w-full max-w-2xl rounded-2xl border border-edge bg-surface p-6 sm:p-8">
-      
+
       <div className="mb-5 flex items-center gap-2.5">
-        
+
         <span className="grid h-9 w-9 place-items-center rounded-lg bg-azure-500/10 text-azure-500">
-          
+
           <Wand2 size={17} />
         </span>
         <div>
-          
+
           <h2 className="font-display text-base font-bold">
             Generate index.js
           </h2>
@@ -81,11 +81,11 @@ export default function GenerateConsole() {
         </div>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
-        
+
         <label className="flex flex-col gap-1.5 text-sm">
-          
+
           <span className="font-medium">
-            
+
             Your Name <span className="text-azure-500">*</span>
           </span>
           <input
@@ -96,9 +96,9 @@ export default function GenerateConsole() {
           />
         </label>
         <label className="flex flex-col gap-1.5 text-sm">
-          
+
           <span className="font-medium">
-            
+
             WhatsApp Number <span className="text-azure-500">*</span>
           </span>
           <input
@@ -115,7 +115,7 @@ export default function GenerateConsole() {
         onClick={() => setShowAdvanced((v) => !v)}
         className="focus-ring mt-4 flex w-full items-center justify-between rounded-lg border border-edge bg-surface2 px-3.5 py-2.5 text-sm font-medium transition hover:border-azure-500/40"
       >
-        
+
         <span>Advanced Options</span>
         <ChevronDown
           size={15}
@@ -125,13 +125,13 @@ export default function GenerateConsole() {
       <div
         className={`grid transition-all duration-300 ease-out ${showAdvanced ? "mt-3 grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
       >
-        
+
         <div className="flex flex-col gap-4 overflow-hidden">
-          
+
           <div className="grid gap-4 sm:grid-cols-2">
-            
+
             <label className="flex flex-col gap-1.5 text-sm">
-              
+
               <span className="font-medium">Bot Name</span>
               <input
                 value={botname}
@@ -141,7 +141,7 @@ export default function GenerateConsole() {
               />
             </label>
             <label className="flex flex-col gap-1.5 text-sm">
-              
+
               <span className="font-medium">Command Prefix</span>
               <input
                 value={prefix}
@@ -181,29 +181,29 @@ export default function GenerateConsole() {
         disabled={!canGenerate}
         className="focus-ring mt-5 flex w-full items-center justify-center rounded-lg bg-azure-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-azure-600 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-45"
       >
-        
+
         <span className="inline-flex items-center gap-2">
-          
+
           <Wand2 size={15} /> Generate index.js
         </span>
       </button>
       <div className="mt-4 overflow-hidden rounded-xl border border-edge">
-        
+
         <div className="flex items-center justify-between border-b border-edge bg-surface2 px-3.5 py-2">
-          
+
           <span className="flex items-center gap-1.5 text-xs font-medium text-muted">
-            
+
             <FileCode2 size={13} /> index.js
           </span>
           <div className="flex gap-1.5">
-            
+
             {code && (
               <button
                 type="button"
                 onClick={downloadCode}
                 className="focus-ring flex items-center gap-1 rounded-md border border-edge bg-surface px-2.5 py-1 text-[11px] font-semibold transition hover:border-azure-500/60"
               >
-                
+
                 <Download size={12} /> Save
               </button>
             )}
@@ -213,7 +213,7 @@ export default function GenerateConsole() {
               disabled={!code}
               className="focus-ring flex items-center gap-1 rounded-md border border-edge bg-surface px-2.5 py-1 text-[11px] font-semibold transition hover:border-azure-500/60 disabled:opacity-50"
             >
-              
+
               {copied ? (
                 <Check size={12} className="text-green-400" />
               ) : (
@@ -224,17 +224,17 @@ export default function GenerateConsole() {
           </div>
         </div>
         <div className="max-h-[320px] overflow-auto bg-ink-950 p-4">
-          
+
           {code ? (
             <pre className="whitespace-pre-wrap break-all font-mono text-[11px] leading-relaxed text-azure-300">
               {code}
             </pre>
           ) : (
             <div className="flex flex-col items-center gap-2 py-10 text-center">
-              
+
               <FileCode2 size={22} className="text-muted" />
               <p className="text-xs text-muted">
-                
+
                 Fill in your details above, then click
                 <strong className="text-fg">Generate index.js</strong>
               </p>
@@ -244,7 +244,7 @@ export default function GenerateConsole() {
       </div>
       {code && (
         <div className="mt-4 flex flex-wrap items-center gap-2 rounded-lg border border-azure-500/25 bg-azure-500/5 px-3.5 py-2.5 text-xs text-azure-300">
-          
+
           <Terminal size={13} />
           <code className="font-mono">node index.js</code>
           <span className="text-muted">Save the file and run this.</span>
@@ -256,9 +256,9 @@ export default function GenerateConsole() {
 function ToggleRow({ label, hint, checked, onChange }) {
   return (
     <div className="flex items-center justify-between gap-4 rounded-lg border border-edge bg-surface2 px-3.5 py-2.5">
-      
+
       <div>
-        
+
         <p className="text-sm font-medium">{label}</p>
         <p className="text-xs text-muted">{hint}</p>
       </div>

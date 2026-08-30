@@ -35,7 +35,7 @@ export default function Avatar({ size = 36, editable = true }) {
   const dimension = `${size}px`;
   return (
     <div className="relative">
-      
+
       <button
         type="button"
         onClick={() => editable && inputRef.current?.click()}
@@ -44,7 +44,7 @@ export default function Avatar({ size = 36, editable = true }) {
         className={`focus-ring group relative overflow-hidden rounded-full border border-edge bg-azure-500/10 transition ${editable ? "cursor-pointer hover:scale-105 hover:border-azure-500/60 active:scale-95" : ""}`}
         style={{ width: dimension, height: dimension }}
       >
-        
+
         {user.avatarUrl ? (
           <img
             src={user.avatarUrl}
@@ -56,13 +56,13 @@ export default function Avatar({ size = 36, editable = true }) {
             className="grid h-full w-full place-items-center font-display font-bold text-azure-500"
             style={{ fontSize: size * 0.38 }}
           >
-            
+
             {getInitials(user)}
           </span>
         )}
         {editable && (
           <span className="absolute inset-0 grid place-items-center bg-black/50 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-            
+
             {uploading ? (
               <Loader2 size={size * 0.4} className="animate-spin text-white" />
             ) : (
@@ -82,7 +82,7 @@ export default function Avatar({ size = 36, editable = true }) {
       )}
       {error && (
         <p className="absolute right-0 top-full z-10 mt-1.5 w-40 rounded-lg border border-red-400/30 bg-surface px-2.5 py-1.5 text-[11px] text-red-400 shadow-glow">
-          
+
           {error}
         </p>
       )}

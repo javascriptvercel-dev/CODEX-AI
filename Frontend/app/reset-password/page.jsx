@@ -48,25 +48,25 @@ function ResetPasswordInner() {
   };
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-5 py-16">
-      
+
       <div className="mb-6 flex items-center gap-2">
-        
+
         <TerminalSquare size={22} className="text-azure-500" />
         <span className="font-display text-lg font-bold tracking-tight">
-          
+
           CODEX <span className="text-azure-500">AI</span>
         </span>
       </div>
       <div className="w-full max-w-md rounded-2xl border border-edge bg-surface p-6 sm:p-8">
-        
+
         <div className="mb-5 flex items-center gap-2.5">
-          
+
           <span className="grid h-9 w-9 place-items-center rounded-lg bg-azure-500/10 text-azure-500">
-            
+
             <KeyRound size={17} />
           </span>
           <div>
-            
+
             <h1 className="font-display text-base font-bold">
               Reset your password
             </h1>
@@ -77,17 +77,17 @@ function ResetPasswordInner() {
         </div>
         {missingLink ? (
           <div className="flex flex-col items-center gap-3 py-4 text-center">
-            
+
             <TriangleAlert size={22} className="text-red-400" />
             <p className="text-sm text-muted">
-              
+
               This link is missing some information. Request a new reset link
               and use the one from your email directly.
             </p>
           </div>
         ) : done ? (
           <div className="flex flex-col items-center gap-3 py-4 text-center">
-            
+
             <CheckCircle2 size={26} className="text-green-400" />
             <p className="text-sm text-muted">Your password has been reset.</p>
             <button
@@ -95,18 +95,18 @@ function ResetPasswordInner() {
               onClick={() => router.push("/plugins")}
               className="focus-ring mt-1 w-full rounded-lg bg-azure-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-azure-600"
             >
-              
+
               Continue to CODEX AI
             </button>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-            
+
             <label className="flex flex-col gap-1.5 text-sm">
-              
+
               <span className="font-medium">New password</span>
               <div className="relative">
-                
+
                 <input
                   type={showPassword ? "text" : "password"}
                   required
@@ -122,13 +122,13 @@ function ResetPasswordInner() {
                   className="focus-ring absolute right-2.5 top-1/2 -translate-y-1/2 text-muted hover:text-fg"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
-                  
+
                   {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
               </div>
             </label>
             <label className="flex flex-col gap-1.5 text-sm">
-              
+
               <span className="font-medium">Confirm password</span>
               <input
                 type={showPassword ? "text" : "password"}
@@ -148,7 +148,7 @@ function ResetPasswordInner() {
               disabled={status.state === "loading"}
               className="focus-ring mt-1 rounded-lg bg-azure-500 py-2.5 text-sm font-semibold text-white transition hover:bg-azure-600 disabled:opacity-60"
             >
-              
+
               {status.state === "loading"
                 ? "Resetting…"
                 : "Reset password"}
@@ -162,7 +162,7 @@ function ResetPasswordInner() {
 export default function ResetPasswordPage() {
   return (
     <Suspense fallback={<div className="min-h-screen bg-bg" />}>
-      
+
       <ResetPasswordInner />
     </Suspense>
   );

@@ -75,7 +75,7 @@ export function AuthProvider({ children }) {
         hasFreshSession,
       }}
     >
-      
+
       {children}
     </AuthContext.Provider>
   );

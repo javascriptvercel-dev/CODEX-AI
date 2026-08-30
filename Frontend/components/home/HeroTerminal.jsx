@@ -44,18 +44,18 @@ export default function HeroTerminal() {
   }, [text, phase, commandIndex]);
   return (
     <div className="w-full max-w-md overflow-hidden rounded-2xl border border-edge bg-ink-950 shadow-glow">
-      
+
       <div className="flex items-center gap-1.5 border-b border-white/10 px-4 py-3">
-        
+
         <span className="h-2.5 w-2.5 rounded-full bg-red-400/70" />
         <span className="h-2.5 w-2.5 rounded-full bg-yellow-400/70" />
         <span className="h-2.5 w-2.5 rounded-full bg-green-400/70" />
         <span className="ml-2 font-mono text-xs text-white/40">panel</span>
       </div>
       <div className="min-h-[140px] p-4 font-mono text-sm text-azure-300">
-        
+
         <p>
-          
+
           <span className="text-white/40">codex@bot</span>
           <span className="text-white/20">:~$</span> {text}
           <span className="terminal-caret animate-blink h-4 align-middle" />
