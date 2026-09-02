@@ -6,6 +6,14 @@ export default function Footer({ onOpenSection }) {
     <footer className="border-t border-edge">
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 px-5 py-8 text-center">
         <p className="text-sm font-semibold text-fg">© 2026 CODEX</p>
+        <a
+          href="https://github.com/codexverified"
+          target="_blank"
+          rel="noreferrer noopener"
+          className="focus-ring rounded text-sm text-muted hover:text-fg"
+        >
+         codexverified organization
+        </a>
         <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm">
           <Link href="/privacy" className="focus-ring rounded text-muted hover:text-fg">
             Privacy Policy

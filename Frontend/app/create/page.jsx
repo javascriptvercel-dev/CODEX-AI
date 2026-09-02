@@ -1,12 +1,14 @@
 "use client";
+
 import { useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import CreateNavbar from "@/components/layout/CreateNavbar";
+import PluginNavbar from "@/components/layout/PluginNavbar";
 import AuthModal from "@/components/auth/AuthModal";
 import PluginSubmitForm from "@/components/plugins/PluginSubmitForm";
 import { useAuth } from "@/context/AuthContext";
+
 export default function CreatePluginPage() {
   const { user, loading, hasFreshSession } = useAuth();
   const router = useRouter();
@@ -16,48 +18,36 @@ export default function CreatePluginPage() {
       typeof window !== "undefined" &&
       new URLSearchParams(window.location.search).get("from") === "console";
 
-    if (user?.role === "admin" && !fromConsole) {
-      router.replace("/console");
-    }
+    if (user?.role === "admin" && !fromConsole) router.replace("/console");
   }, [user, router]);
 
   if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-
-        <div className="h-8 w-8 animate-pulse rounded-full bg-azure-500/30" />
-      </div>
-    );
+    return <div className="flex min-h-dvh items-center justify-center bg-bg"><div className="h-8 w-8 animate-pulse rounded-full bg-azure-500/30" /></div>;
   }
+
   const needsAuth = !user || !hasFreshSession();
   if (needsAuth) {
     return (
-      <div className="min-h-screen bg-bg">
-
+      <div className="min-h-dvh bg-bg">
+        <PluginNavbar />
         <AuthModal
-          message={
-            !user
-              ? "Sign in to submit a plugin."
-              : "For your security, please sign in again to continue."
-          }
+          message={!user ? "Sign in to submit a plugin." : "For your security, please sign in again to continue."}
           onClose={() => router.push("/plugins")}
         />
       </div>
     );
   }
+
   return (
-    <div className="flex min-h-screen animate-rise flex-col">
-
-      <CreateNavbar />
+    <div className="flex min-h-dvh flex-col bg-bg text-fg">
+      <PluginNavbar />
       <main className="flex-1">
-
-        <section className="mx-auto max-w-3xl px-5 py-8">
-
+        <section className="mx-auto w-full max-w-[1408px] px-4 py-7 sm:px-6 sm:py-9 lg:px-8 lg:py-10">
           <Link
             href="/plugins"
-            className="focus-ring mb-6 inline-flex items-center gap-1.5 rounded-md text-sm font-semibold text-muted transition hover:text-fg"
+            className="focus-ring mb-8 inline-flex items-center gap-2 rounded-md text-sm font-semibold text-fg transition hover:text-azure-500 sm:text-[15px]"
           >
-            <ArrowLeft size={15} /> Back to plugins
+            <ArrowLeft size={18} /> Back to plugins
           </Link>
           <PluginSubmitForm />
         </section>

@@ -1,29 +1,21 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  ArrowDownWideNarrow,
-  ArrowUpNarrowWide,
-  Plus,
-} from "lucide-react";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-const pluginNavLinks = [
-  { href: "/", label: "Home" },
-  { href: "/plugins", label: "Plugins" },
-  { href: "/create", label: "Create" },
-];
+import { ArrowDownWideNarrow, ArrowUpNarrowWide, Plus } from "lucide-react";
+import PluginNavbar from "@/components/layout/PluginNavbar";
 import SearchBar from "@/components/plugins/SearchBar";
 import PluginGrid from "@/components/plugins/PluginGrid";
 import { api } from "@/lib/api";
 import { robot } from "@/lib/robot";
+
 export default function PluginsPage() {
   const router = useRouter();
   const [plugins, setPlugins] = useState([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [sortNewestFirst, setSortNewestFirst] = useState(true);
-  const [modal, setModal] = useState(null);
+
   const loadPlugins = async (q) => {
     setLoading(true);
     try {
@@ -35,76 +27,64 @@ export default function PluginsPage() {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     if (!window.localStorage.getItem("codex_robot_plugins_greeting_shown")) {
       robot.say("Looking for something useful?");
       window.localStorage.setItem("codex_robot_plugins_greeting_shown", "true");
     }
-    const t = setTimeout(() => loadPlugins(query), 250);
-    return () => clearTimeout(t);
+    const timer = window.setTimeout(() => loadPlugins(query), 250);
+    return () => window.clearTimeout(timer);
   }, [query]);
+
   const visiblePlugins = sortNewestFirst ? plugins : [...plugins].reverse();
+
   return (
-    <div className="flex min-h-screen animate-rise flex-col">
+    <div className="flex min-h-dvh flex-col bg-bg text-fg">
+      <PluginNavbar />
 
-      <Navbar navLinks={pluginNavLinks} showCta={false} />
       <main className="flex-1">
-
-        <section className="mx-auto max-w-4xl px-5 pb-4 pt-8 text-center">
-
-          <h1 className="font-display text-4xl font-bold uppercase tracking-tight text-fg sm:text-5xl">
-            CODEX PLUGINS
-          </h1>
-          <p className="mt-3 font-mono text-xs font-semibold uppercase tracking-[0.2em] text-azure-500 sm:text-sm">
-            PLUGIN LIBRARY
-          </p>
-          <p className="mx-auto mt-5 max-w-xl text-muted">
-            Discover community plugins and add new capabilities to your bot.
-          </p>
+        <section className="mx-auto w-full max-w-[1408px] px-4 pb-7 pt-10 text-center sm:px-6 lg:px-8">
+          <div className="mx-auto mb-8 max-w-md">
+            <p className="mb-3 font-mono text-xs uppercase tracking-normal text-azure-500">
+              Plugins
+            </p>
+            <p className="mt-3 text-sm text-muted">
+            Discover and install plugins for your Codex WhatsApp Bot. Create your own plugins and share them with the community.
+            </p>
+          </div>
         </section>
-        <section className="mx-auto max-w-6xl px-5 pb-16 pt-6">
 
-          <div className="mx-auto flex max-w-2xl flex-col gap-2 sm:flex-row sm:items-center">
-
+        <section className="relative -mt-5 mx-auto w-full max-w-[1408px] px-4 pb-16 sm:-mt-6 sm:px-6 lg:px-8">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center">
             <SearchBar value={query} onChange={setQuery} />
-            <div className="flex items-center justify-center gap-2 sm:flex-row">
 
+            <div className="flex flex-col items-center gap-3 md:flex-row md:flex-shrink-0">
               <button
                 type="button"
-                onClick={() => setSortNewestFirst((v) => !v)}
-                aria-label={
-                  sortNewestFirst
-                    ? "Showing newest first — click for oldest first"
-                    : "Showing oldest first — click for newest first"
-                }
+                onClick={() => setSortNewestFirst((value) => !value)}
+                aria-label={sortNewestFirst ? "Showing newest first" : "Showing oldest first"}
                 title={sortNewestFirst ? "Newest first" : "Oldest first"}
-                className="focus-ring grid h-[42px] w-[42px] flex-shrink-0 place-items-center rounded-lg border border-edge bg-surface2 text-muted transition hover:border-azure-500/60 hover:text-fg active:scale-95"
+                className="focus-ring grid h-10 w-10 shrink-0 place-items-center rounded-md border border-edge bg-surface text-fg transition hover:border-azure-500/60 hover:bg-surface2 active:scale-95"
               >
-
-                {sortNewestFirst ? (
-                  <ArrowDownWideNarrow size={16} />
-                ) : (
-                  <ArrowUpNarrowWide size={16} />
-                )}
+                {sortNewestFirst ? <ArrowDownWideNarrow size={16} /> : <ArrowUpNarrowWide size={16} />}
               </button>
               <button
                 type="button"
                 onClick={() => router.push("/create")}
-                className="focus-ring inline-flex flex-shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg bg-azure-500 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-azure-600 active:scale-95"
+                className="focus-ring inline-flex h-10 w-auto shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-md bg-azure-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-azure-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-500 focus-visible:ring-offset-2 focus-visible:ring-offset-bg active:scale-[0.98]"
               >
-
-                <Plus size={15} />
-                Create
+                <Plus size={16} />
+                Create Plugin
               </button>
             </div>
           </div>
-          <div className="mt-10">
 
+          <div className="mt-10 sm:mt-12">
             <PluginGrid plugins={visiblePlugins} loading={loading} />
           </div>
         </section>
       </main>
-      <Footer />
     </div>
   );
 }
