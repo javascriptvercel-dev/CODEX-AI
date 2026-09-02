@@ -8,6 +8,7 @@ import SearchBar from "@/components/plugins/SearchBar";
 import PluginGrid from "@/components/plugins/PluginGrid";
 import { api } from "@/lib/api";
 import { robot } from "@/lib/robot";
+import Footer from "@/components/layout/Footer";
 
 export default function PluginsPage() {
   const router = useRouter();
@@ -85,6 +86,7 @@ export default function PluginsPage() {
           </div>
         </section>
       </main>
+      <Footer />
     </div>
   );
 }
