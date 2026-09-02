@@ -1,6 +1,8 @@
 "use client";
 import { useEffect } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 import CreateNavbar from "@/components/layout/CreateNavbar";
 import AuthModal from "@/components/auth/AuthModal";
 import PluginSubmitForm from "@/components/plugins/PluginSubmitForm";
@@ -51,12 +53,12 @@ export default function CreatePluginPage() {
 
         <section className="mx-auto max-w-3xl px-5 py-8">
 
-          <p className="mb-2 font-mono text-xs uppercase tracking-[0.2em] text-azure-500">
-            New submission
-          </p>
-          <h1 className="mb-6 font-display text-3xl font-bold tracking-tight">
-            Submit a plugin
-          </h1>
+          <Link
+            href="/plugins"
+            className="focus-ring mb-6 inline-flex items-center gap-1.5 rounded-md text-sm font-semibold text-muted transition hover:text-fg"
+          >
+            <ArrowLeft size={15} /> Back to plugins
+          </Link>
           <PluginSubmitForm />
         </section>
       </main>

@@ -32,7 +32,7 @@ function CopyAction({ label, value }) {
       type="button"
       onClick={copy}
       disabled={!value}
-      className="focus-ring flex w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-edge bg-surface2 px-3 py-2 text-xs font-semibold transition hover:border-azure-500/60 disabled:cursor-not-allowed disabled:opacity-40 sm:flex-none sm:text-sm"
+      className="focus-ring inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-edge bg-surface2 px-3 py-2 text-xs font-semibold transition hover:border-azure-500/60 disabled:cursor-not-allowed disabled:opacity-40 sm:flex-none sm:text-sm"
     >
 
       {copied ? (
@@ -46,6 +46,12 @@ function CopyAction({ label, value }) {
 }
 export default function PluginFullView({ plugin }) {
   const router = useRouter();
+  const rawUrl =
+    plugin?.rawUrl ||
+    plugin?.installCommand?.replace(/^\.install\s+/i, "") ||
+    plugin?.referenceUrl ||
+    "";
+  const installCommand = plugin?.installCommand || `.install ${rawUrl}`;
   const codeLines = useMemo(
     () => String(plugin?.code || "").split("\n"),
     [plugin?.code],
@@ -62,10 +68,8 @@ export default function PluginFullView({ plugin }) {
     );
   }
   const pluginNavLinks = [
-    { href: "/", label: "Home" },
+    { href: "/create", label: "Create" },
     { href: "/plugins", label: "Plugins" },
-    { href: "/deploy", label: "Deploy" },
-    { href: "/session", label: "Session" },
   ];
   return (
     <div className="flex min-h-dvh flex-col bg-bg text-fg">
@@ -106,20 +110,10 @@ export default function PluginFullView({ plugin }) {
                 </span>
               </div>
             </div>
-            <div className="flex w-full flex-col gap-2 sm:flex-row lg:w-auto lg:flex-shrink-0">
+            <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-row lg:flex-shrink-0">
 
-              <CopyAction
-                label="Copy URL"
-                value={
-                  plugin.rawUrl ||
-                  plugin.installCommand?.replace(/^\.install\s+/i, "") ||
-                  plugin.referenceUrl
-                }
-              />
-              <CopyAction
-                label="Copy Command"
-                value={plugin.installCommand}
-              />
+              <CopyAction label="Copy URL" value={rawUrl} />
+              <CopyAction label="Copy Command" value={installCommand} />
             </div>
           </div>
           <div className="mt-8 border-t border-edge pt-7">

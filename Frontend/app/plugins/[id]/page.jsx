@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { TriangleAlert, Loader2 } from "lucide-react";
+import { TriangleAlert } from "lucide-react";
 import PluginFullView from "@/components/plugins/PluginFullView";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -41,12 +41,31 @@ export default function PluginDetailPage() {
     return (
       <div className="flex min-h-dvh flex-col bg-bg text-fg">
         <Navbar />
-        <main className="flex flex-1 items-center justify-center px-5 py-12">
-
-        <div className="flex items-center gap-2 text-sm text-muted">
-
-          <Loader2 size={16} className="animate-spin" /> Loading plugin…
+        <div className="mx-auto w-full max-w-7xl px-5 pt-4 pb-2 sm:px-6 lg:px-8">
+          <span className="inline-flex items-center gap-2 text-sm font-semibold text-muted">
+            ← Back to plugins
+          </span>
         </div>
+        <main className="mx-auto w-full max-w-7xl flex-1 px-5 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
+          <div className="animate-pulse rounded-2xl border border-edge bg-surface p-6 sm:p-8 lg:p-10">
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+              <div className="min-w-0 flex-1 space-y-3">
+                <div className="h-8 w-2/3 rounded-lg bg-surface2 sm:h-10" />
+                <div className="h-4 w-1/3 rounded bg-surface2" />
+              </div>
+              <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-row">
+                <div className="h-9 w-full rounded-lg bg-surface2 sm:w-28" />
+                <div className="h-9 w-full rounded-lg bg-surface2 sm:w-32" />
+              </div>
+            </div>
+            <div className="mt-8 space-y-2 border-t border-edge pt-7">
+              <div className="h-4 w-full rounded bg-surface2" />
+              <div className="h-4 w-5/6 rounded bg-surface2" />
+            </div>
+            <div className="mt-8 border-t border-edge pt-7">
+              <div className="h-40 rounded-xl border border-edge bg-ink-950/60" />
+            </div>
+          </div>
         </main>
         <Footer />
       </div>

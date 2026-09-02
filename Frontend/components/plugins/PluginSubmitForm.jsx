@@ -73,6 +73,15 @@ export default function PluginSubmitForm() {
       className="flex flex-col gap-4 rounded-2xl border border-edge bg-surface p-6 sm:p-8"
     >
 
+      <div className="mb-1">
+
+        <p className="mb-2 font-mono text-xs uppercase tracking-[0.2em] text-azure-500">
+          New submission
+        </p>
+        <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">
+          Submit a plugin
+        </h1>
+      </div>
       <label className="flex flex-col gap-1.5 text-sm">
 
         <span className="font-medium">Plugin name</span>
