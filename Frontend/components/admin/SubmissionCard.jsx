@@ -45,9 +45,9 @@ export default function SubmissionCard({ submission, onApprove, onReject, onSave
               className="focus-ring w-full rounded-lg border border-edge bg-surface2 px-3 py-2 text-sm font-bold outline-none"
             />
           ) : (
-            <h4 className="font-display text-base font-bold">{submission.title}</h4>
+            <h4 className="break-words font-display text-base font-bold [overflow-wrap:anywhere]">{submission.title}</h4>
           )}
-          <p className="mt-1 text-xs text-muted">by {submission.authorName}</p>
+          <p className="mt-1 break-words text-xs text-muted [overflow-wrap:anywhere]">by {submission.authorName}</p>
         </div>
         <span className="flex-shrink-0 rounded-full border border-edge bg-surface2 px-2.5 py-1 text-[11px] text-muted">
           {new Date(submission.createdAt).toLocaleDateString()}
@@ -62,7 +62,7 @@ export default function SubmissionCard({ submission, onApprove, onReject, onSave
           className="focus-ring mt-3 w-full resize-none rounded-lg border border-edge bg-surface2 px-3 py-2 text-sm outline-none"
         />
       ) : (
-        <p className="mt-3 text-sm text-muted">{submission.description}</p>
+        <p className="mt-3 break-words text-sm text-muted [overflow-wrap:anywhere]">{submission.description}</p>
       )}
 
       {editing ? (

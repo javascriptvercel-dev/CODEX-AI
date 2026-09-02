@@ -12,6 +12,7 @@ export const env = {
   port: Number(process.env.PORT || 4000),
   nodeEnv: process.env.NODE_ENV || "development",
   frontendUrl: required("FRONTEND_URL", "http://localhost:3000"),
+  publicFrontendUrl: (process.env.PUBLIC_FRONTEND_URL || process.env.FRONTEND_URL || "https://codex-ai-v3.vercel.app").replace(/\/+$/, ""),
   // The backend's own public URL — used to build links (like the plugin
   // raw-code endpoint) that must point at this API, not the frontend.
   // API_URL lets you set it explicitly; RENDER_EXTERNAL_URL is Render's own

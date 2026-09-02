@@ -29,10 +29,10 @@ export default function SettingsTab() {
 
             <Mail size={16} />
           </span>
-          <div>
+          <div className="min-w-0">
 
             <p className="text-sm font-semibold">Email alerts</p>
-            <p className="mt-0.5 text-xs text-muted">
+            <p className="mt-0.5 break-words text-xs text-muted [overflow-wrap:anywhere]">
 
               Get an email whenever someone submits a plugin or a
               suggestion.
@@ -54,10 +54,10 @@ export default function SettingsTab() {
 
             <Trash2 size={16} />
           </span>
-          <div>
+          <div className="min-w-0">
 
             <p className="text-sm font-semibold">Delete account</p>
-            <p className="mt-0.5 text-xs text-muted">
+            <p className="mt-0.5 break-words text-xs text-muted [overflow-wrap:anywhere]">
               Permanently remove your account. This can&apos;t be undone.
             </p>
           </div>

@@ -5,7 +5,10 @@ export default function PluginGrid({ plugins, loading }) {
     return (
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {Array.from({ length: 8 }).map((_, index) => (
-          <div key={index} className="h-[250px] animate-pulse rounded-xl border border-edge bg-surface" />
+          <div
+            key={index}
+            className="h-[250px] animate-pulse rounded-xl border border-edge bg-surface"
+          />
         ))}
       </div>
     );

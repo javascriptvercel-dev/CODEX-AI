@@ -123,7 +123,7 @@ export default function SupportPage() {
                 <details key={faq.question} className="group p-4 sm:p-5">
                   <summary className="focus-ring flex cursor-pointer list-none items-center gap-3 rounded-lg text-sm font-semibold [&::-webkit-details-marker]:hidden">
                     <CircleHelp size={16} className="flex-none text-azure-500" aria-hidden="true" />
-                    <span className="flex-1">{faq.question}</span>
+                    <span className="min-w-0 flex-1 break-words [overflow-wrap:anywhere]">{faq.question}</span>
                     <span className="text-lg leading-none text-muted transition group-open:rotate-45" aria-hidden="true">+</span>
                   </summary>
                   <p className="mt-3 pl-7 text-sm leading-6 text-muted">{faq.answer}</p>

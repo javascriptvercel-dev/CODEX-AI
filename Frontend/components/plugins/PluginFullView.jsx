@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CalendarDays, Check, Copy, User } from "lucide-react";
+import { ArrowLeft, CalendarDays, Check, Copy, User } from "lucide-react";
 
 function formatDate(value) {
   if (!value) return "—";
@@ -54,11 +54,11 @@ export default function PluginFullView({ plugin }) {
       <button
         type="button"
         onClick={() => router.push("/plugins")}
-        className="focus-ring mb-7 inline-flex items-center gap-2 rounded-md text-sm font-semibold text-fg transition hover:text-azure-500 sm:text-[15px]"
+        className="mb-7 inline-flex items-center gap-4 rounded-lg bg-[#1c273b] px-5 py-3 text-[15px] font-semibold text-white transition-colors hover:bg-[#25334b] focus:outline-none focus:ring-2 focus:ring-white/20"
       >
-        <span aria-hidden="true">←</span> Back to plugins
+        <ArrowLeft size={20} strokeWidth={2} aria-hidden="true" />
+        <span>Back to plugins</span>
       </button>
-
       <article className="overflow-hidden rounded-xl border border-edge bg-surface shadow-2xl shadow-black/10">
         <div className="p-6 sm:p-8 lg:p-10">
           <div className="flex flex-col gap-7 lg:flex-row lg:items-start lg:justify-between">
@@ -79,8 +79,8 @@ export default function PluginFullView({ plugin }) {
               </div>
             </div>
 
-            <div className="flex w-full gap-2 sm:w-auto">
-              <CopyAction label="Copy URL" value={rawUrl} />
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+              <CopyAction label="Copy URL" value={plugin.referenceUrl || ""} />
               <CopyAction label="Copy Command" value={installCommand} />
             </div>
           </div>

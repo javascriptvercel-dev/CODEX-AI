@@ -246,12 +246,12 @@ export default function RobotWidget() {
   return (
     <div
       ref={rootRef}
-      className="fixed bottom-5 right-5 z-40 flex flex-col items-end gap-2"
+      className="fixed bottom-3 right-3 z-40 flex max-w-[calc(100vw-1.5rem)] flex-col items-end gap-2 sm:bottom-5 sm:right-5"
       aria-hidden="true"
     >
 
       {bubble && (
-        <div className="animate-robot-pop max-w-[190px] rounded-2xl rounded-br-sm border border-edge bg-surface px-3 py-2 text-xs text-fg shadow-glow">
+        <div className="animate-robot-pop max-w-[min(190px,calc(100vw-5rem))] break-words rounded-2xl rounded-br-sm border border-edge bg-surface px-3 py-2 text-xs text-fg shadow-glow [overflow-wrap:anywhere]">
           {bubble.message}
         </div>
       )}

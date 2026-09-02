@@ -54,7 +54,7 @@ export default function HeroTerminal() {
       </div>
       <div className="min-h-[140px] p-4 font-mono text-sm text-azure-300">
 
-        <p>
+        <p className="break-all">
 
           <span className="text-white/40">codex@bot</span>
           <span className="text-white/20">:~$</span> {text}

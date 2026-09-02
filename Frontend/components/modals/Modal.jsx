@@ -90,7 +90,7 @@ export default function Modal({ title, icon, onClose, children, closeLabel = "Cl
         <div className="flex items-start justify-between gap-4 border-b border-edge px-4 py-4 sm:px-6">
           <div className="flex min-w-0 items-center gap-2.5">
             {icon}
-            <h2 id={titleId} className="min-w-0 font-display text-lg font-bold leading-tight">
+            <h2 id={titleId} className="min-w-0 break-words font-display text-lg font-bold leading-tight [overflow-wrap:anywhere]">
               {title}
             </h2>
           </div>
