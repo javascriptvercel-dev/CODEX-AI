@@ -32,7 +32,7 @@ function CopyAction({ label, value }) {
       type="button"
       onClick={copy}
       disabled={!value}
-      className="focus-ring inline-flex flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-edge bg-surface2 px-3 py-2 text-xs font-semibold transition hover:border-azure-500/60 disabled:cursor-not-allowed disabled:opacity-40 sm:flex-none sm:text-sm"
+      className="focus-ring flex w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-edge bg-surface2 px-3 py-2 text-xs font-semibold transition hover:border-azure-500/60 disabled:cursor-not-allowed disabled:opacity-40 sm:flex-none sm:text-sm"
     >
 
       {copied ? (
@@ -106,11 +106,15 @@ export default function PluginFullView({ plugin }) {
                 </span>
               </div>
             </div>
-            <div className="flex flex-row gap-2 lg:flex-shrink-0">
+            <div className="flex w-full flex-col gap-2 sm:flex-row lg:w-auto lg:flex-shrink-0">
 
               <CopyAction
                 label="Copy URL"
-                value={plugin.referenceUrl}
+                value={
+                  plugin.rawUrl ||
+                  plugin.installCommand?.replace(/^\.install\s+/i, "") ||
+                  plugin.referenceUrl
+                }
               />
               <CopyAction
                 label="Copy Command"

@@ -11,7 +11,8 @@ const CATEGORIES = [
   "AI",
 ];
 const buildPluginUrl = (publicId) => `${env.frontendUrl}/plugins/${publicId}`;
-const buildPluginRawUrl = (publicId) => `${env.apiUrl}/api/plugins/${publicId}/raw`;
+const buildPluginRawUrl = (publicId) =>
+  `${env.frontendUrl || env.apiUrl}/api/plugins/${publicId}/raw`;
 const toPublicPlugin = (p) => {
   const url = buildPluginUrl(p.public_id);
   const rawUrl = buildPluginRawUrl(p.public_id);
@@ -21,7 +22,7 @@ const toPublicPlugin = (p) => {
     authorName: p.author_name,
     description: p.description,
     code: p.code,
-
+    rawUrl,
     installCommand: `.install ${rawUrl}`,
     referenceUrl: url,
     category: p.category,
