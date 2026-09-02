@@ -29,7 +29,7 @@ function CopyAction({ label, value }) {
       type="button"
       onClick={copy}
       disabled={!value}
-      className="focus-ring inline-flex h-11 min-w-0 flex-1 items-center justify-center gap-2 rounded-lg border border-edge bg-surface2 px-3 text-sm font-semibold transition hover:border-azure-500/60 disabled:cursor-not-allowed disabled:opacity-40 sm:flex-none sm:px-4"
+      className="focus-ring inline-flex h-9 min-w-0 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-edge bg-surface2 px-2 text-xs font-semibold transition hover:border-azure-500/60 disabled:cursor-not-allowed disabled:opacity-40 sm:h-11 sm:flex-none sm:gap-2 sm:px-4 sm:text-sm"
     >
       {copied ? <Check size={15} className="text-green-400" /> : <Copy size={15} />}
       <span>{copied ? "Copied" : label}</span>
@@ -54,7 +54,7 @@ export default function PluginFullView({ plugin }) {
       <button
         type="button"
         onClick={() => router.push("/plugins")}
-        className="mb-7 inline-flex items-center gap-4 rounded-lg bg-[#1c273b] px-5 py-3 text-[15px] font-semibold text-white transition-colors hover:bg-[#25334b] focus:outline-none focus:ring-2 focus:ring-white/20"
+        className="mb-7 inline-flex items-center gap-4 rounded-lg px-5 py-3 text-[15px] font-semibold text-fg transition-colors hover:bg-[#1c273b] hover:text-white focus-visible:bg-[#1c273b] focus-visible:text-white active:bg-[#25334b] focus:outline-none focus-visible:ring-2 focus-visible:ring-azure-500/40"
       >
         <ArrowLeft size={20} strokeWidth={2} aria-hidden="true" />
         <span>Back to plugins</span>
@@ -79,8 +79,8 @@ export default function PluginFullView({ plugin }) {
               </div>
             </div>
 
-            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
-              <CopyAction label="Copy URL" value={plugin.referenceUrl || ""} />
+            <div className="flex w-full flex-row gap-2 sm:w-auto">
+              <CopyAction label="Copy URL" value={rawUrl} />
               <CopyAction label="Copy Command" value={installCommand} />
             </div>
           </div>
