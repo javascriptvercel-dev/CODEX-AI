@@ -15,7 +15,7 @@ export default function PluginCard({ plugin }) {
       {plugin.name || "Untitled plugin"}
     </h3>
 
-    <p className="mt-2 line-clamp-3 min-w-0 text-[15px] leading-6 text-muted [overflow-wrap:anywhere]">
+    <p className="mt-2 line-clamp-2 min-w-0 text-[15px] leading-6 text-muted [overflow-wrap:anywhere]">
       {plugin.description || "No description provided."}
     </p>
 
