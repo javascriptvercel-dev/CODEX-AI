@@ -19,7 +19,6 @@ export const env = {
   // auto-injected variable, so this works with zero config when deployed
   // there.
   apiUrl: (process.env.API_URL || process.env.RENDER_EXTERNAL_URL || `http://localhost:${Number(process.env.PORT || 4000)}`).replace(/\/+$/, ""),
-  cookieDomain: process.env.COOKIE_DOMAIN || undefined,
   jwtSecret: required("JWT_SECRET"),
   supabaseUrl: required("SUPABASE_URL"),
   supabaseServiceKey: required("SUPABASE_SERVICE_ROLE_KEY"),

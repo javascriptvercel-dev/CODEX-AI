@@ -17,12 +17,11 @@ export const setSessionCookie = (res, token) => {
     httpOnly: true,
     secure: env.nodeEnv === "production",
     sameSite: env.nodeEnv === "production" ? "none" : "lax",
-    domain: env.cookieDomain,
     maxAge: 30 * 24 * 60 * 60 * 1000,
     path: "/",
   });
 };
 export const clearSessionCookie = (res) => {
-  res.clearCookie(COOKIE_NAME, { domain: env.cookieDomain, path: "/" });
+  res.clearCookie(COOKIE_NAME, { path: "/" });
 };
 export { COOKIE_NAME };

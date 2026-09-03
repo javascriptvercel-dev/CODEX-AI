@@ -41,15 +41,31 @@ function ConsolePageInner() {
   }, [authLoading, user]);
   const loadSubmissions = async () => {
     setLoading(true);
-    const { submissions: data } = await api.adminSubmissions(statusFilter);
-    setSubmissions(data);
-    setLoading(false);
+    try {
+      const { submissions: data } = await api.adminSubmissions(statusFilter);
+      setSubmissions(data);
+    } catch (error) {
+      setSubmissions([]);
+      if (error.message === "Sign in to continue.") {
+        await refresh();
+      }
+    } finally {
+      setLoading(false);
+    }
   };
   const loadSuggestions = async () => {
     setLoading(true);
-    const { suggestions: data } = await api.adminSuggestions();
-    setSuggestions(data);
-    setLoading(false);
+    try {
+      const { suggestions: data } = await api.adminSuggestions();
+      setSuggestions(data);
+    } catch (error) {
+      setSuggestions([]);
+      if (error.message === "Sign in to continue.") {
+        await refresh();
+      }
+    } finally {
+      setLoading(false);
+    }
   };
   const handlePluginSubmitted = () => {
     setStatusFilter("pending");
@@ -61,12 +77,20 @@ function ConsolePageInner() {
     else if (tab === "suggestions") loadSuggestions();
   }, [tab, statusFilter, isAdmin]);
   const handleApprove = async (id) => {
-    await api.approveSubmission(id);
-    loadSubmissions();
+    try {
+      await api.approveSubmission(id);
+      await loadSubmissions();
+    } catch (error) {
+      if (error.message === "Sign in to continue.") await refresh();
+    }
   };
   const handleReject = async (id, note) => {
-    await api.rejectSubmission(id, note);
-    loadSubmissions();
+    try {
+      await api.rejectSubmission(id, note);
+      await loadSubmissions();
+    } catch (error) {
+      if (error.message === "Sign in to continue.") await refresh();
+    }
   };
   if (authLoading) return <div className="min-h-screen bg-bg" />;
   if (!user) {
