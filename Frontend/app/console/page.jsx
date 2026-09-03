@@ -123,7 +123,7 @@ function ConsolePageInner() {
 
               <div className="max-w-2xl">
 
-                <div className="mb-3 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-azure-500">
+                <div className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.18em] text-azure-500">
 
                   <ShieldCheck size={14} /> Control center
                 </div>
@@ -200,7 +200,7 @@ function ConsolePageInner() {
           )}
           {showSettings ? (
             <div className="mt-6">
-              <div className="mb-4 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-azure-500">
+              <div className="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.18em] text-azure-500">
                 <Settings size={14} /> Preferences
               </div>
               <SettingsTab />

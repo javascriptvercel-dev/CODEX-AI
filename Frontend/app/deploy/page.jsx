@@ -11,7 +11,7 @@ export default function DeployPage() {
 
         <div className="mb-8 max-w-md text-center">
 
-          <p className="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-azure-500">
+          <p className="mb-3 font-mono text-sm uppercase tracking-[0.2em] text-azure-500">
             Deploy
           </p>
           <p className="mt-3 text-sm text-muted">

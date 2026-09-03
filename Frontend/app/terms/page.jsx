@@ -85,7 +85,7 @@ export default function TermsPage() {
 
         <article className="mx-auto max-w-3xl px-5 py-10 sm:py-14">
 
-          <p className="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-azure-500">
+          <p className="mb-3 font-mono text-sm uppercase tracking-[0.2em] text-azure-500"> 
             Legal
           </p>
           <h1 className="font-display text-4xl font-bold tracking-tight sm:text-5xl">

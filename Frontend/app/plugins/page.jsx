@@ -47,7 +47,7 @@ export default function PluginsPage() {
       <main className="flex-1">
         <section className="mx-auto w-full max-w-[1408px] px-4 pb-7 pt-10 text-center sm:px-6 lg:px-8">
           <div className="mx-auto mb-8 max-w-md">
-            <p className="mb-3 font-mono text-xs uppercase tracking-normal text-azure-500">
+            <p className="mb-3 font-mono text-sm uppercase tracking-normal text-azure-500">
               Plugins
             </p>
             <p className="mt-3 text-sm text-muted">

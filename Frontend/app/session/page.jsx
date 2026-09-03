@@ -11,7 +11,7 @@ export default function SessionPage() {
 
         <div className="mb-8 max-w-md text-center">
 
-          <p className="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-azure-500">
+          <p className="mb-3 font-mono text-sm uppercase tracking-[0.2em] text-azure-500">
             Session
           </p>
           <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">

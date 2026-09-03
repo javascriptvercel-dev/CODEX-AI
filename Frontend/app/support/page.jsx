@@ -58,7 +58,7 @@ export default function SupportPage() {
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-azure-500 via-azure-300 to-azure-500" />
             <div className="grid gap-8 p-5 sm:p-8 lg:grid-cols-[1.2fr_.8fr] lg:p-10">
               <div className="max-w-2xl">
-                <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-azure-500/20 bg-azure-500/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-azure-500">
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-azure-500/20 bg-azure-500/10 px-3 py-1.5 text-sm font-semibold uppercase tracking-[0.18em] text-azure-500">
                   <LifeBuoy size={13} aria-hidden="true" /> Support
                 </div>
                 <h1 className="font-display text-3xl font-bold tracking-tight text-fg sm:text-5xl">
@@ -92,7 +92,7 @@ export default function SupportPage() {
         <section className="mx-auto w-full max-w-6xl px-4 pb-12 sm:px-6 lg:px-8">
           <div className="mb-4 flex items-end justify-between gap-4">
             <div>
-              <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-azure-500">Community</p>
+              <p className="font-mono text-sm font-semibold uppercase tracking-[0.18em] text-azure-500">Community</p>
               <h2 className="mt-1 font-display text-xl font-bold sm:text-2xl">Talk to other users</h2>
             </div>
             <span className="hidden text-xs text-muted sm:block">Choose any channel</span>
@@ -105,7 +105,7 @@ export default function SupportPage() {
         <section className="mx-auto grid w-full max-w-6xl gap-8 px-4 pb-16 sm:px-6 lg:grid-cols-2 lg:px-8">
           <div>
             <div className="mb-4">
-              <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-azure-500">Updates & learning</p>
+              <p className="font-mono text-sm font-semibold uppercase tracking-[0.18em] text-azure-500">Updates & learning</p>
               <h2 className="mt-1 font-display text-xl font-bold sm:text-2xl">Stay in the loop</h2>
             </div>
             <div className="grid gap-3">
@@ -115,7 +115,7 @@ export default function SupportPage() {
 
           <div>
             <div className="mb-4">
-              <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-azure-500">Quick answers</p>
+              <p className="font-mono text-sm font-semibold uppercase tracking-[0.18em] text-azure-500">Quick answers</p>
               <h2 className="mt-1 font-display text-xl font-bold sm:text-2xl">Before you reach out</h2>
             </div>
             <div className="divide-y divide-edge overflow-hidden rounded-2xl border border-edge bg-surface">

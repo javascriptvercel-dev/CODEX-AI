@@ -23,7 +23,7 @@ export default function PluginNavbar() {
           onClick={() => setOpen(false)}
           className="focus-ring min-w-0 whitespace-nowrap rounded-md font-display text-lg font-bold tracking-tight text-fg"
         >
-          CODEX <span className="text-azure-500">AI</span>
+          CODEX <span className="text-fg">AI BOT</span>
         </Link>
 
         <nav className="hidden items-center gap-1 xl:flex">

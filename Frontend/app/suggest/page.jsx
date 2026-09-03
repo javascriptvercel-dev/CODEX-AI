@@ -37,7 +37,7 @@ export default function SuggestPage() {
               <Lightbulb size={18} />
             </span>
             <div>
-              <p className="font-mono text-xs font-semibold uppercase tracking-[0.2em] text-azure-500">Suggest</p>
+              <p className="font-mono text-sm font-semibold uppercase tracking-[0.2em] text-azure-500">Suggest</p>
               <h1 className="font-display text-3xl font-bold uppercase tracking-tight text-fg">Share an idea</h1>
             </div>
           </div>

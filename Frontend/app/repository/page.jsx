@@ -13,7 +13,7 @@ export default function RepositoryPage() {
         <div className="rounded-2xl border border-edge bg-surface p-8 shadow-glow sm:p-10">
           <div className="mb-5 flex items-center gap-3 text-azure-500">
             <Github size={24} />
-            <p className="font-mono text-xs font-semibold uppercase tracking-[0.2em]">Repository</p>
+            <p className="font-mono text-sm font-semibold uppercase tracking-[0.2em]">Repository</p>
           </div>
 
           <h1 className="font-display text-4xl font-bold uppercase tracking-tight text-fg">Explore the project</h1>
