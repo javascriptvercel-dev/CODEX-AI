@@ -1,7 +1,7 @@
 "use client";
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { MessageSquareText, Settings, ShieldCheck } from "lucide-react";
+import { MessageSquareText, PackagePlus, Settings, ShieldCheck } from "lucide-react";
 import ConsoleNavbar from "@/components/layout/ConsoleNavbar";
 import SubmissionCard from "@/components/admin/SubmissionCard";
 import SuggestionCard from "@/components/admin/SuggestionCard";
@@ -9,10 +9,11 @@ import SettingsTab from "@/components/admin/SettingsTab";
 import AdminEmailOptInModal, {
   shouldShowEmailPrompt,
 } from "@/components/admin/AdminEmailOptInModal";
+import PluginSubmitForm from "@/components/plugins/PluginSubmitForm";
 import AuthModal from "@/components/auth/AuthModal";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
-const TABS = ["submissions", "suggestions"];
+const TABS = ["submissions", "suggestions", "create"];
 function ConsolePageInner() {
   const { user, isAdmin, loading: authLoading, refresh } = useAuth();
   const router = useRouter();
@@ -49,6 +50,10 @@ function ConsolePageInner() {
     const { suggestions: data } = await api.adminSuggestions();
     setSuggestions(data);
     setLoading(false);
+  };
+  const handlePluginSubmitted = () => {
+    setStatusFilter("pending");
+    setTab("submissions");
   };
   useEffect(() => {
     if (!isAdmin) return;
@@ -157,6 +162,15 @@ function ConsolePageInner() {
                     <MessageSquareText size={14} /> Suggestions
                   </span>
                 </button>
+                <button
+                  type="button"
+                  onClick={() => setTab("create")}
+                  className={`focus-ring flex flex-shrink-0 items-center justify-center rounded-full px-3.5 py-2 text-sm font-semibold transition active:scale-95 sm:px-4 ${tab === "create" ? "bg-azure-500 text-white" : "bg-surface2 text-muted hover:text-fg"}`}
+                >
+                  <span className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap">
+                    <PackagePlus size={14} /> Create plugin
+                  </span>
+                </button>
               </div>
             </div>
           )}
@@ -189,7 +203,13 @@ function ConsolePageInner() {
           )}
           <div className="mt-6">
 
-            {loading ? (
+            {tab === "create" ? (
+              <PluginSubmitForm
+                onSubmitted={handlePluginSubmitted}
+                onBack={() => setTab("submissions")}
+                submitLabel="Submit"
+              />
+            ) : loading ? (
               <div className="grid gap-3">
 
                 {Array.from({ length: 3 }).map((_, i) => (

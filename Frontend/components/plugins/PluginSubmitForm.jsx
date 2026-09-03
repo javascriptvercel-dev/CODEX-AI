@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { PackagePlus, UploadCloud } from "lucide-react";
+import { ArrowLeft, PackagePlus, UploadCloud } from "lucide-react";
 import { api } from "@/lib/api";
 
-export default function PluginSubmitForm() {
+export default function PluginSubmitForm({ onSubmitted, onBack, submitLabel = "Submit for review" }) {
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -33,6 +33,7 @@ export default function PluginSubmitForm() {
       if (hasCode) formData.append("code", code);
       if (file) formData.append("file", file);
       await api.submitPlugin(formData);
+      onSubmitted?.();
       setStatus({ state: "success", message: "Submitted — you'll see it in the library once it's approved by our team." });
     } catch (err) {
       setStatus({ state: "error", message: err?.message || "We could not submit this plugin for review. Please check the form and try again." });
@@ -44,13 +45,23 @@ export default function PluginSubmitForm() {
       <div className="flex flex-col items-center gap-4 rounded-xl border border-edge bg-surface px-5 py-20 text-center">
         <span className="grid h-12 w-12 place-items-center rounded-full bg-azure-500/10 text-azure-500"><PackagePlus size={21} /></span>
         <p className="max-w-sm text-sm leading-6 text-muted [overflow-wrap:anywhere]">{status.message}</p>
-        <button type="button" onClick={() => router.push("/plugins")} className="focus-ring mt-2 rounded-lg bg-azure-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-azure-600">Back to plugins</button>
+        <button type="button" onClick={() => (onSubmitted ? onSubmitted() : router.push("/plugins"))} className="focus-ring mt-2 rounded-lg bg-azure-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-azure-600">{onSubmitted ? "Review submissions" : "Back to plugins"}</button>
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-xl border border-edge bg-surface p-6 sm:p-8 lg:p-8 xl:p-9">
+    <div>
+      {onBack ? (
+        <button
+          type="button"
+          onClick={onBack}
+          className="focus-ring mb-6 inline-flex items-center gap-2 rounded-md text-sm font-semibold text-fg transition hover:text-azure-500 sm:text-[15px]"
+        >
+          <ArrowLeft size={18} /> Back to submissions
+        </button>
+      ) : null}
+      <form onSubmit={handleSubmit} className="rounded-xl border border-edge bg-surface p-6 sm:p-8 lg:p-8 xl:p-9">
       <div className="mb-8">
         <h1 className="font-display text-[30px] font-bold tracking-[-0.025em] sm:text-4xl">Create a New Plugin</h1>
       </div>
@@ -93,9 +104,10 @@ export default function PluginSubmitForm() {
         {status.message ? <p className="text-sm leading-6 text-red-400">{status.message}</p> : null}
 
         <button type="submit" disabled={status.state === "loading" || !canSubmit} className="focus-ring mt-1 h-12 rounded-lg bg-azure-500 text-sm font-semibold text-white transition hover:bg-azure-600 disabled:cursor-not-allowed disabled:opacity-45">
-          {status.state === "loading" ? "Submitting…" : "Submit for review"}
+          {status.state === "loading" ? "Submitting…" : submitLabel}
         </button>
       </div>
-    </form>
+      </form>
+    </div>
   );
 }
