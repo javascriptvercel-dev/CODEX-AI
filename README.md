@@ -1,4 +1,4 @@
-# CODEX AI — v2
+# CODEX AI — v3
 
 A rebuild from scratch (new UI, new architecture, new auth model). Two services:
 
