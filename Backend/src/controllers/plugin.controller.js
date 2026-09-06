@@ -20,7 +20,7 @@ const toPublicPlugin = (p) => {
     id: p.public_id,
     name: p.name,
     authorName: p.author_name,
-    authorAvatarUrl: p.author?.avatar_url || null,
+    authorAvatarUrl: p.authorAvatarUrl || null,
     description: p.description,
     code: p.code,
     rawUrl,
@@ -34,7 +34,7 @@ export const listPlugins = async (req, res) => {
   const { q } = req.query;
   let query = supabase
     .from("plugins")
-    .select("*, author:users!plugins_author_id_fkey(avatar_url)")
+    .select("*")
     .order("created_at", { ascending: false });
   if (q && q.trim()) {
     const term = q.trim();
@@ -45,8 +45,17 @@ export const listPlugins = async (req, res) => {
     console.error("listPlugins failed", error);
     return res.status(500).json({ error: "Could not load plugins." });
   }
+  const authorIds = [...new Set(data.map((plugin) => plugin.author_id).filter(Boolean))];
+  const { data: authors } = authorIds.length
+    ? await supabase.from("users").select("id, avatar_url").in("id", authorIds)
+    : { data: [] };
+  const avatarsByAuthorId = new Map(
+    (authors || []).map((author) => [author.id, author.avatar_url]),
+  );
+
   res.json({
     plugins: data.map((p) => {
+      p.authorAvatarUrl = avatarsByAuthorId.get(p.author_id) || null;
       const { code, ...rest } = toPublicPlugin(p);
       return rest;
     }),
@@ -55,7 +64,7 @@ export const listPlugins = async (req, res) => {
 export const getPluginById = async (req, res) => {
   const { data, error } = await supabase
     .from("plugins")
-    .select("*, author:users!plugins_author_id_fkey(avatar_url)")
+    .select("*")
     .eq("public_id", req.params.id)
     .maybeSingle();
   if (error) {
@@ -63,6 +72,14 @@ export const getPluginById = async (req, res) => {
     return res.status(500).json({ error: "Could not load that plugin." });
   }
   if (!data) return res.status(404).json({ error: "Plugin not found." });
+  if (data.author_id) {
+    const { data: author } = await supabase
+      .from("users")
+      .select("avatar_url")
+      .eq("id", data.author_id)
+      .maybeSingle();
+    data.authorAvatarUrl = author?.avatar_url || null;
+  }
   res.json({ plugin: toPublicPlugin(data) });
 };
 export const getPluginRaw = async (req, res) => {
