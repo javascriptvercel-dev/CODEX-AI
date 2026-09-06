@@ -13,6 +13,41 @@ const CATEGORIES = [
 const buildPluginUrl = (publicId) => `${env.publicFrontendUrl}/plugins/${publicId}`;
 const buildPluginRawUrl = (publicId) =>
   `${env.publicFrontendUrl}/api/plugins/${publicId}/raw`;
+const addAuthorAvatars = async (plugins) => {
+  const submissionIds = plugins
+    .map((plugin) => plugin.submission_id)
+    .filter(Boolean);
+  const { data: submissions } = submissionIds.length
+    ? await supabase
+        .from("plugin_submissions")
+        .select("id, user_id")
+        .in("id", submissionIds)
+    : { data: [] };
+  const submissionOwners = new Map(
+    (submissions || []).map((submission) => [submission.id, submission.user_id]),
+  );
+  const authorIds = [
+    ...new Set(
+      plugins
+        .map((plugin) => plugin.author_id || submissionOwners.get(plugin.submission_id))
+        .filter(Boolean),
+    ),
+  ];
+  const { data: authors } = authorIds.length
+    ? await supabase.from("users").select("id, avatar_url").in("id", authorIds)
+    : { data: [] };
+  const avatarsByAuthorId = new Map(
+    (authors || []).map((author) => [author.id, author.avatar_url]),
+  );
+
+  return plugins.map((plugin) => {
+    const authorId = plugin.author_id || submissionOwners.get(plugin.submission_id);
+    return {
+      ...plugin,
+      authorAvatarUrl: avatarsByAuthorId.get(authorId) || null,
+    };
+  });
+};
 const toPublicPlugin = (p) => {
   const url = buildPluginUrl(p.public_id);
   const rawUrl = buildPluginRawUrl(p.public_id);
@@ -45,17 +80,10 @@ export const listPlugins = async (req, res) => {
     console.error("listPlugins failed", error);
     return res.status(500).json({ error: "Could not load plugins." });
   }
-  const authorIds = [...new Set(data.map((plugin) => plugin.author_id).filter(Boolean))];
-  const { data: authors } = authorIds.length
-    ? await supabase.from("users").select("id, avatar_url").in("id", authorIds)
-    : { data: [] };
-  const avatarsByAuthorId = new Map(
-    (authors || []).map((author) => [author.id, author.avatar_url]),
-  );
+  const pluginsWithAvatars = await addAuthorAvatars(data);
 
   res.json({
-    plugins: data.map((p) => {
-      p.authorAvatarUrl = avatarsByAuthorId.get(p.author_id) || null;
+    plugins: pluginsWithAvatars.map((p) => {
       const { code, ...rest } = toPublicPlugin(p);
       return rest;
     }),
@@ -72,15 +100,8 @@ export const getPluginById = async (req, res) => {
     return res.status(500).json({ error: "Could not load that plugin." });
   }
   if (!data) return res.status(404).json({ error: "Plugin not found." });
-  if (data.author_id) {
-    const { data: author } = await supabase
-      .from("users")
-      .select("avatar_url")
-      .eq("id", data.author_id)
-      .maybeSingle();
-    data.authorAvatarUrl = author?.avatar_url || null;
-  }
-  res.json({ plugin: toPublicPlugin(data) });
+  const [pluginWithAvatar] = await addAuthorAvatars([data]);
+  res.json({ plugin: toPublicPlugin(pluginWithAvatar) });
 };
 export const getPluginRaw = async (req, res) => {
   const { data, error } = await supabase
