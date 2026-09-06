@@ -21,7 +21,15 @@ export default function PluginCard({ plugin }) {
 
     <div className="mt-4 flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2 pt-4 text-sm text-muted">
       <span className="flex min-w-0 items-center gap-1.5">
-        <User size={14} aria-hidden="true" />
+        {plugin.authorAvatarUrl ? (
+          <img
+            src={plugin.authorAvatarUrl}
+            alt=""
+            className="h-5 w-5 shrink-0 rounded-full object-cover"
+          />
+        ) : (
+          <User size={14} aria-hidden="true" />
+        )}
         <span className="max-w-[150px] truncate">by {plugin.authorName || "Unknown author"}</span>
       </span>
       <span className="flex min-w-0 items-center gap-1.5">

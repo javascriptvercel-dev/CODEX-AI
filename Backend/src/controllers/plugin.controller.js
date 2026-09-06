@@ -20,6 +20,7 @@ const toPublicPlugin = (p) => {
     id: p.public_id,
     name: p.name,
     authorName: p.author_name,
+    authorAvatarUrl: p.author?.avatar_url || null,
     description: p.description,
     code: p.code,
     rawUrl,
@@ -33,7 +34,7 @@ export const listPlugins = async (req, res) => {
   const { q } = req.query;
   let query = supabase
     .from("plugins")
-    .select("*")
+    .select("*, author:users!plugins_author_id_fkey(avatar_url)")
     .order("created_at", { ascending: false });
   if (q && q.trim()) {
     const term = q.trim();
@@ -54,7 +55,7 @@ export const listPlugins = async (req, res) => {
 export const getPluginById = async (req, res) => {
   const { data, error } = await supabase
     .from("plugins")
-    .select("*")
+    .select("*, author:users!plugins_author_id_fkey(avatar_url)")
     .eq("public_id", req.params.id)
     .maybeSingle();
   if (error) {
