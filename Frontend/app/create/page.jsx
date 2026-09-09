@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import PluginNavbar from "@/components/layout/PluginNavbar";
+import Footer from "@/components/layout/Footer";
 import AuthModal from "@/components/auth/AuthModal";
 import PluginSubmitForm from "@/components/plugins/PluginSubmitForm";
 import { useAuth } from "@/context/AuthContext";
@@ -52,6 +53,7 @@ export default function CreatePluginPage() {
           <PluginSubmitForm />
         </section>
       </main>
+      <Footer />
     </div>
   );
 }

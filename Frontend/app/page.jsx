@@ -49,8 +49,7 @@ export default function HomePage() {
                 CODEX AI
               </h1>
               <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-muted lg:mx-0 sm:text-base">
-                A multifunctional WhatsApp bot with a plugin marketplace. Pair
-                your number, deploy in minutes.
+                A multifunctional WhatsApp bot. Pair your number and deploy in minutes
               </p>
               <div className="mt-7 flex flex-wrap justify-center gap-2.5 lg:justify-start">
               </div>

@@ -10,6 +10,7 @@ import {
   TriangleAlert,
 } from "lucide-react";
 import { API_URL } from "@/lib/api";
+import Button from "@/components/ui/Button";
 const FAIL_PATTERN = /unavailable|failed|invalid|error/i;
 export default function PairConsole() {
   const [mode, setMode] = useState("pair");
@@ -179,20 +180,14 @@ export default function PairConsole() {
               className="focus-ring rounded-lg border border-edge bg-surface2 px-3 py-2.5 text-sm outline-none placeholder:text-muted/70"
             />
           </label>
-          <button
-            type="button"
-            onClick={requestPairCode}
-            disabled={loading || !canRequestPairCode}
-            className="focus-ring mb-4 flex w-full items-center justify-center gap-2 rounded-lg bg-azure-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-azure-600 disabled:cursor-not-allowed disabled:opacity-45"
-          >
-
+          <Button size="lg" full className="mb-4" onClick={requestPairCode} disabled={loading || !canRequestPairCode}>
             {loading ? (
               <Loader2 size={15} className="animate-spin" />
             ) : (
               <Satellite size={15} />
             )}
             Request Pairing Code
-          </button>
+          </Button>
         </>
       )}
       {loading && (
@@ -249,20 +244,14 @@ export default function PairConsole() {
         </div>
       )}
       {mode === "pair" && (
-        <button
-          type="button"
-          onClick={copyCode}
-          disabled={result.state !== "ok"}
-          className="focus-ring flex w-full items-center justify-center gap-2 rounded-lg border border-edge bg-surface2 px-4 py-2.5 text-sm font-semibold transition hover:border-azure-500/60 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-
+        <Button variant="secondary" size="lg" full onClick={copyCode} disabled={result.state !== "ok"}>
           {copied ? (
             <Check size={14} className="text-green-400" />
           ) : (
             <Copy size={14} />
           )}
           {copied ? "Copied" : "Copy Code"}
-        </button>
+        </Button>
       )}
     </div>
   );

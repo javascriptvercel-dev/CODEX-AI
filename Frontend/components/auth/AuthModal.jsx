@@ -10,6 +10,7 @@ import {
   Send,
 } from "lucide-react";
 import Modal from "@/components/modals/Modal";
+import Button from "@/components/ui/Button";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
 export default function AuthModal({ onClose, onSuccess, message }) {
@@ -126,14 +127,10 @@ export default function AuthModal({ onClose, onSuccess, message }) {
             {status.message && (
               <p className="text-sm text-red-400">{status.message}</p>
             )}
-            <button
-              type="submit"
-              disabled={status.state === "loading"}
-              className="focus-ring mt-1 flex items-center justify-center gap-2 rounded-lg bg-azure-500 py-2.5 text-sm font-semibold text-white transition hover:bg-azure-600 disabled:opacity-60"
-            >
+            <Button type="submit" size="lg" full disabled={status.state === "loading"} className="mt-1">
               <Send size={15} />
               {status.state === "loading" ? "Sending…" : "Send reset link"}
-            </button>
+            </Button>
             <button
               type="button"
               onClick={() => switchMode("login")}
@@ -215,18 +212,13 @@ export default function AuthModal({ onClose, onSuccess, message }) {
             {status.message && (
               <p className="text-sm text-red-400">{status.message}</p>
             )}
-            <button
-              type="submit"
-              disabled={status.state === "loading"}
-              className="focus-ring mt-1 rounded-lg bg-azure-500 py-2.5 text-sm font-semibold text-white transition hover:bg-azure-600 disabled:opacity-60"
-            >
-
+            <Button type="submit" size="lg" full disabled={status.state === "loading"} className="mt-1">
               {status.state === "loading"
                 ? "Please wait…"
                 : mode === "login"
                   ? "Log in"
                   : "Create account"}
-            </button>
+            </Button>
           </form>
           <div className="my-5 flex items-center gap-3 text-xs text-muted">
 
@@ -234,13 +226,14 @@ export default function AuthModal({ onClose, onSuccess, message }) {
             <span>or continue with</span>
             <span className="h-px flex-1 bg-edge" />
           </div>
-          <a
+          <Button
             href={api.githubUrl(pathname)}
-            className="focus-ring flex items-center justify-center gap-2 rounded-lg border border-edge bg-surface2 py-2.5 text-sm font-semibold transition hover:border-azure-500/60 hover:bg-surface2/80"
+            variant="secondary"
+            size="lg"
+            full
           >
-
             <Github size={16} /> Continue with GitHub
-          </a>
+          </Button>
           <p className="mt-4 text-center text-sm text-muted">
 
             {mode === "login" ? "New here?" : "Already have an account?"}{" "}

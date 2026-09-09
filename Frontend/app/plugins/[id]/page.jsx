@@ -5,6 +5,8 @@ import { useParams, useRouter } from "next/navigation";
 import { TriangleAlert } from "lucide-react";
 import PluginFullView from "@/components/plugins/PluginFullView";
 import PluginNavbar from "@/components/layout/PluginNavbar";
+import Footer from "@/components/layout/Footer";
+import Button from "@/components/ui/Button";
 import { api } from "@/lib/api";
 
 export default function PluginDetailPage() {
@@ -41,33 +43,49 @@ export default function PluginDetailPage() {
       <PluginNavbar />
 
       {loading ? (
-        <main className="mx-auto w-full max-w-[1408px] flex-1 px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
-          <div className="mb-7 h-5 w-36 animate-pulse rounded bg-surface2" />
-          <div className="animate-pulse rounded-xl border border-edge bg-surface p-6 sm:p-8 lg:p-10">
-            <div className="h-10 w-2/3 rounded bg-surface2" />
-            <div className="mt-4 h-4 w-1/3 rounded bg-surface2" />
-            <div className="mt-10 h-24 rounded bg-surface2" />
-            <div className="mt-8 h-64 rounded bg-surface2" />
+        <main
+          aria-busy="true"
+          className="mx-auto w-full max-w-[1408px] flex-1 px-4 py-7 sm:px-6 sm:py-9 lg:px-8 lg:py-10"
+        >
+          <span className="sr-only">Loading plugin…</span>
+          <div className="mb-7 h-6 w-36 animate-pulse rounded bg-surface2" />
+          <div className="animate-pulse overflow-hidden rounded-xl border border-edge bg-surface p-6 sm:p-8 lg:p-10">
+            <div className="flex flex-col gap-7 lg:flex-row lg:items-start lg:justify-between">
+              <div className="min-w-0 flex-1">
+                <div className="h-9 w-2/3 rounded bg-surface2 sm:h-10 lg:h-12" />
+                <div className="mt-4 h-4 w-1/3 rounded bg-surface2" />
+              </div>
+              <div className="flex w-full gap-2 sm:w-auto">
+                <div className="h-9 w-28 rounded-lg bg-surface2 sm:h-11" />
+                <div className="h-9 w-32 rounded-lg bg-surface2 sm:h-11" />
+              </div>
+            </div>
+            <div className="mt-9 border-t border-edge pt-8">
+              <div className="h-5 w-28 rounded bg-surface2" />
+              <div className="mt-3 h-20 rounded bg-surface2" />
+            </div>
+            <div className="mt-9 border-t border-edge pt-8">
+              <div className="h-5 w-28 rounded bg-surface2" />
+              <div className="mt-4 h-64 rounded bg-surface2" />
+            </div>
           </div>
         </main>
       ) : error || !plugin ? (
         <main className="flex flex-1 items-center justify-center px-4 py-12 sm:px-6">
           <div className="w-full max-w-md rounded-xl border border-edge bg-surface p-7 text-center">
-            <TriangleAlert className="mx-auto text-amber-400" size={24} />
+            <TriangleAlert className="mx-auto text-amber-400" size={24} aria-hidden="true" />
             <h1 className="mt-4 font-display text-xl font-bold">Plugin unavailable</h1>
             <p className="mt-2 text-sm leading-6 text-muted">{error || "This plugin could not be found."}</p>
-            <button
-              type="button"
-              onClick={() => router.push("/plugins")}
-              className="focus-ring mt-6 rounded-lg bg-azure-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-azure-600"
-            >
+            <Button size="lg" className="mt-6" onClick={() => router.push("/plugins")}>
               Back to plugins
-            </button>
+            </Button>
           </div>
         </main>
       ) : (
         <PluginFullView plugin={plugin} />
       )}
+
+      <Footer />
     </div>
   );
 }

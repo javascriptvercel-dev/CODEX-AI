@@ -10,6 +10,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import ConsoleNavbar from "@/components/layout/ConsoleNavbar";
+import Footer from "@/components/layout/Footer";
 import SubmissionCard from "@/components/admin/SubmissionCard";
 import SuggestionCard from "@/components/admin/SuggestionCard";
 import SettingsTab from "@/components/admin/SettingsTab";
@@ -190,9 +191,9 @@ function ConsolePageInner() {
   const isListTab = tab === "submissions" || tab === "suggestions";
 
   return (
-    <div className="min-h-screen bg-bg text-fg">
+    <div className="flex min-h-screen flex-col bg-bg text-fg">
       <ConsoleNavbar />
-      <main className="mx-auto w-full max-w-6xl px-5 py-6 sm:py-8">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-5 py-6 sm:py-8">
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
           <h1 className="font-display text-xl font-bold tracking-tight sm:text-2xl">
             Console
@@ -274,6 +275,7 @@ function ConsolePageInner() {
               onSubmitted={handlePluginSubmitted}
               onBack={() => selectTab("submissions")}
               submitLabel="Submit"
+              headingLevel="h2"
             />
           ) : loading ? (
             <div className="grid gap-2.5">
@@ -350,6 +352,8 @@ function ConsolePageInner() {
           )}
         </div>
       </main>
+
+      <Footer />
 
       {showEmailPrompt && (
         <AdminEmailOptInModal onClose={() => setShowEmailPrompt(false)} />

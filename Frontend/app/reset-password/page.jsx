@@ -10,6 +10,7 @@ import {
   TerminalSquare,
 } from "lucide-react";
 import { api } from "@/lib/api";
+import Button from "@/components/ui/Button";
 function ResetPasswordInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -90,14 +91,9 @@ function ResetPasswordInner() {
 
             <CheckCircle2 size={26} className="text-green-400" />
             <p className="text-sm text-muted">Your password has been reset.</p>
-            <button
-              type="button"
-              onClick={() => router.push("/plugins")}
-              className="focus-ring mt-1 w-full rounded-lg bg-azure-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-azure-600"
-            >
-
+            <Button size="lg" full className="mt-1" onClick={() => router.push("/plugins")}>
               Continue to CODEX AI
-            </button>
+            </Button>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col gap-3">
@@ -143,16 +139,11 @@ function ResetPasswordInner() {
             {status.message && (
               <p className="text-sm text-red-400">{status.message}</p>
             )}
-            <button
-              type="submit"
-              disabled={status.state === "loading"}
-              className="focus-ring mt-1 rounded-lg bg-azure-500 py-2.5 text-sm font-semibold text-white transition hover:bg-azure-600 disabled:opacity-60"
-            >
-
+            <Button type="submit" size="lg" full disabled={status.state === "loading"} className="mt-1">
               {status.state === "loading"
                 ? "Resetting…"
                 : "Reset password"}
-            </button>
+            </Button>
           </form>
         )}
       </div>

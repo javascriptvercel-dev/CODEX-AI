@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Mail } from "lucide-react";
 import Modal from "@/components/modals/Modal";
+import Button from "@/components/ui/Button";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
 const SNOOZE_KEY = "codex_admin_email_prompt_snoozed_until";
@@ -59,23 +60,12 @@ export default function AdminEmailOptInModal({ onClose }) {
       </div>
       <div className="mt-5 flex gap-2">
 
-        <button
-          type="button"
-          onClick={snooze}
-          className="focus-ring flex-1 rounded-lg border border-edge bg-surface2 py-2.5 text-sm font-semibold transition hover:border-azure-500/60 active:scale-95"
-        >
-
+        <Button variant="secondary" size="lg" full className="flex-1" onClick={snooze}>
           {isRepeatPrompt ? "Remind me later" : "Not now"}
-        </button>
-        <button
-          type="button"
-          onClick={subscribe}
-          disabled={loading}
-          className="focus-ring flex-1 rounded-lg bg-azure-500 py-2.5 text-sm font-semibold text-white transition hover:bg-azure-600 active:scale-95 disabled:opacity-60"
-        >
-
+        </Button>
+        <Button size="lg" full className="flex-1" disabled={loading} onClick={subscribe}>
           {loading ? "…" : "Subscribe"}
-        </button>
+        </Button>
       </div>
     </Modal>
   );

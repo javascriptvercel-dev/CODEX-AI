@@ -2,6 +2,14 @@ import { ArrowUpRight, CircleHelp, LifeBuoy, MessageCircle, ShieldCheck } from "
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { SUPPORT_CHANNELS } from "@/lib/supportChannels";
+import { buildMetadata } from "@/lib/seo";
+
+export const metadata = buildMetadata({
+  title: "Support",
+  description:
+    "Get help from the CODEX AI community, follow release updates, and find quick answers before you reach out.",
+  path: "/support",
+});
 
 const FAQS = [
   {

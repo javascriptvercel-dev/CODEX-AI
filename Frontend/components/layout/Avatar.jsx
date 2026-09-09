@@ -48,7 +48,7 @@ export default function Avatar({ size = 36, editable = true }) {
         {user.avatarUrl ? (
           <img
             src={user.avatarUrl}
-            alt=""
+            alt={`${user.fullName || user.email || "Your"} profile photo`}
             className="h-full w-full object-cover"
           />
         ) : (

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Trash2 } from "lucide-react";
 import Modal from "@/components/modals/Modal";
+import Button from "@/components/ui/Button";
 import { useAuth } from "@/context/AuthContext";
 export default function DeleteAccountModal({ onClose }) {
   const { deleteAccount } = useAuth();
@@ -42,24 +43,12 @@ export default function DeleteAccountModal({ onClose }) {
       )}
       <div className="mt-5 flex gap-2">
 
-        <button
-          type="button"
-          onClick={onClose}
-          disabled={loading}
-          className="focus-ring flex-1 rounded-lg border border-edge bg-surface2 py-2.5 text-sm font-semibold transition hover:border-azure-500/60 active:scale-95 disabled:opacity-60"
-        >
-
+        <Button variant="secondary" size="lg" full className="flex-1" disabled={loading} onClick={onClose}>
           Cancel
-        </button>
-        <button
-          type="button"
-          onClick={handleDelete}
-          disabled={loading}
-          className="focus-ring flex-1 rounded-lg bg-red-500 py-2.5 text-sm font-semibold text-white transition hover:bg-red-600 active:scale-95 disabled:opacity-60"
-        >
-
+        </Button>
+        <Button variant="danger" size="lg" full className="flex-1" disabled={loading} onClick={handleDelete}>
           {loading ? "Deleting…" : "Delete account"}
-        </button>
+        </Button>
       </div>
     </Modal>
   );

@@ -54,7 +54,7 @@ export default function PluginFullView({ plugin }) {
       <button
         type="button"
         onClick={() => router.push("/plugins")}
-        className="mb-7 inline-flex items-center gap-4 rounded-lg px-5 py-3 text-[15px] font-semibold text-fg transition-colors hover:bg-[#1c273b] hover:text-white focus-visible:bg-[#1c273b] focus-visible:text-white active:bg-[#25334b] focus:outline-none focus-visible:ring-2 focus-visible:ring-azure-500/40"
+        className="focus-ring mb-7 inline-flex items-center gap-4 rounded-lg px-5 py-3 text-[15px] font-semibold text-fg transition-colors hover:bg-surface2 hover:text-azure-500 focus-visible:bg-surface2 focus-visible:text-azure-500 active:bg-surface2"
       >
         <ArrowLeft size={20} strokeWidth={2} aria-hidden="true" />
         <span>Back to plugins</span>

@@ -9,21 +9,29 @@ import PluginGrid from "@/components/plugins/PluginGrid";
 import { api } from "@/lib/api";
 import { robot } from "@/lib/robot";
 import Footer from "@/components/layout/Footer";
+import Container from "@/components/ui/Container";
+import PageHeader from "@/components/ui/PageHeader";
+import Button from "@/components/ui/Button";
+import StateBlock from "@/components/ui/StateBlock";
+import { sortPluginsByDate } from "@/lib/sortPlugins";
 
 export default function PluginsPage() {
   const router = useRouter();
   const [plugins, setPlugins] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [query, setQuery] = useState("");
   const [sortNewestFirst, setSortNewestFirst] = useState(true);
 
   const loadPlugins = async (q) => {
     setLoading(true);
+    setError("");
     try {
       const { plugins: data } = await api.listPlugins(q);
       setPlugins(data);
-    } catch {
+    } catch (err) {
       setPlugins([]);
+      setError(err?.message || "We could not load plugins. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -38,25 +46,27 @@ export default function PluginsPage() {
     return () => window.clearTimeout(timer);
   }, [query]);
 
-  const visiblePlugins = sortNewestFirst ? plugins : [...plugins].reverse();
+  // Real date-based sort — previously this just reversed whatever
+  // order the API happened to return, which only looked correct
+  // when the API's default order was already newest-first.
+  const visiblePlugins = sortPluginsByDate(plugins, sortNewestFirst);
 
   return (
     <div className="flex min-h-dvh flex-col bg-bg text-fg">
       <PluginNavbar />
 
       <main className="flex-1">
-        <section className="mx-auto w-full max-w-[1408px] px-4 pb-7 pt-10 text-center sm:px-6 lg:px-8">
-          <div className="mx-auto mb-8 max-w-md">
-            <p className="mb-3 font-mono text-sm uppercase tracking-normal text-azure-500">
-              Plugins
-            </p>
-            <p className="mt-3 text-sm text-muted">
-            Discover and install plugins for your WhatsApp Bot Or Create your own plugins and share them with the community.
-            </p>
-          </div>
-        </section>
+        <Container size="wide" className="pb-7 pt-10 text-center">
+          <PageHeader
+            kicker="Plugins"
+            title="Plugins"
+            description="Discover and install plugins for your WhatsApp Bot, or create your own plugins and share them with the community."
+            titleClassName="sr-only"
+            className="mx-auto max-w-md"
+          />
+        </Container>
 
-        <section className="relative -mt-5 mx-auto w-full max-w-[1408px] px-4 pb-16 sm:-mt-6 sm:px-6 lg:px-8">
+        <Container size="wide" className="relative -mt-5 pb-16 sm:-mt-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-center">
             <SearchBar value={query} onChange={setQuery} />
 
@@ -70,21 +80,26 @@ export default function PluginsPage() {
               >
                 {sortNewestFirst ? <ArrowDownWideNarrow size={16} /> : <ArrowUpNarrowWide size={16} />}
               </button>
-              <button
-                type="button"
-                onClick={() => router.push("/create")}
-                className="focus-ring inline-flex h-10 w-auto shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-md bg-azure-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-azure-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-500 focus-visible:ring-offset-2 focus-visible:ring-offset-bg active:scale-[0.98]"
-              >
+              <Button onClick={() => router.push("/create")}>
                 <Plus size={16} />
                 Create Plugin
-              </button>
+              </Button>
             </div>
           </div>
 
           <div className="mt-10 sm:mt-12">
-            <PluginGrid plugins={visiblePlugins} loading={loading} />
+            {error ? (
+              <StateBlock
+                tone="error"
+                title="Couldn't load plugins"
+                message={error}
+                onRetry={() => loadPlugins(query)}
+              />
+            ) : (
+              <PluginGrid plugins={visiblePlugins} loading={loading} />
+            )}
           </div>
-        </section>
+        </Container>
       </main>
       <Footer />
     </div>

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Lightbulb, Send } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import Button from "@/components/ui/Button";
 import { api } from "@/lib/api";
 
 export default function SuggestPage() {
@@ -75,14 +76,10 @@ export default function SuggestPage() {
               </p>
             ) : null}
 
-            <button
-              type="submit"
-              disabled={status.state === "loading"}
-              className="focus-ring mt-2 inline-flex items-center justify-center gap-2 rounded-lg bg-azure-500 py-2.5 text-sm font-semibold text-white transition hover:bg-azure-600 disabled:opacity-60"
-            >
+            <Button type="submit" size="lg" full disabled={status.state === "loading"} className="mt-2">
               <Send size={15} />
               {status.state === "loading" ? "Sending…" : "Send suggestion"}
-            </button>
+            </Button>
           </form>
         </div>
       </main>

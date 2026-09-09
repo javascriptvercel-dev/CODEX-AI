@@ -2,6 +2,7 @@
 import { Github } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import Button from "@/components/ui/Button";
 
 const REPO_URL = "https://github.com/codexverified/CODEX-AI";
 
@@ -21,15 +22,17 @@ export default function RepositoryPage() {
             Review the codebase, keep up with updates, report issues, and contribute improvements to the CODEX AI ecosystem.
           </p>
 
-          <a
+          <Button
             href={REPO_URL}
             target="_blank"
             rel="noreferrer noopener"
-            className="focus-ring mt-8 inline-flex items-center justify-center gap-2 rounded-xl border border-edge bg-surface2 px-4 py-3 text-sm font-semibold text-fg transition hover:border-azure-500/60"
+            variant="secondary"
+            size="lg"
+            className="mt-8"
           >
             <Github size={17} />
             View on GitHub
-          </a>
+          </Button>
         </div>
       </main>
       <Footer />

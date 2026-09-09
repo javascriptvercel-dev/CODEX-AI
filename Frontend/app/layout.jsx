@@ -14,7 +14,10 @@ const mono = JetBrains_Mono({
   variable: "--font-mono",
   weight: ["400", "600"],
 });
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+
 export const metadata = {
+  ...(siteUrl ? { metadataBase: new URL(siteUrl) } : {}),
   title: "CODEX AI — Multifunctional WhatsApp Bot",
   description:
     "A multifunctional WhatsApp bot with fun plugins and community support.",
@@ -26,7 +29,11 @@ export const metadata = {
 };
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      data-scroll-behavior="smooth"
+      suppressHydrationWarning
+    >
 
       <body
         className={`${display.variable} ${body.variable} ${mono.variable} antialiased`}

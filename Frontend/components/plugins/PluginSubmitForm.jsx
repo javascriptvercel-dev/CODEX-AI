@@ -4,8 +4,15 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, PackagePlus, UploadCloud } from "lucide-react";
 import { api } from "@/lib/api";
+import Button from "@/components/ui/Button";
 
-export default function PluginSubmitForm({ onSubmitted, onBack, submitLabel = "Submit for review" }) {
+export default function PluginSubmitForm({
+  onSubmitted,
+  onBack,
+  submitLabel = "Submit for review",
+  headingLevel = "h1",
+}) {
+  const Heading = headingLevel;
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -45,7 +52,7 @@ export default function PluginSubmitForm({ onSubmitted, onBack, submitLabel = "S
       <div className="flex flex-col items-center gap-4 rounded-xl border border-edge bg-surface px-5 py-20 text-center">
         <span className="grid h-12 w-12 place-items-center rounded-full bg-azure-500/10 text-azure-500"><PackagePlus size={21} /></span>
         <p className="max-w-sm text-sm leading-6 text-muted [overflow-wrap:anywhere]">{status.message}</p>
-        <button type="button" onClick={() => (onSubmitted ? onSubmitted() : router.push("/plugins"))} className="focus-ring mt-2 rounded-lg bg-azure-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-azure-600">{onSubmitted ? "Review submissions" : "Back to plugins"}</button>
+        <Button size="lg" className="mt-2" onClick={() => (onSubmitted ? onSubmitted() : router.push("/plugins"))}>{onSubmitted ? "Review submissions" : "Back to plugins"}</Button>
       </div>
     );
   }
@@ -63,7 +70,7 @@ export default function PluginSubmitForm({ onSubmitted, onBack, submitLabel = "S
       ) : null}
       <form onSubmit={handleSubmit} className="rounded-xl border border-edge bg-surface p-6 sm:p-8 lg:p-8 xl:p-9">
       <div className="mb-8">
-        <h1 className="font-display text-[30px] font-bold tracking-[-0.025em] sm:text-4xl">Create a New Plugin</h1>
+        <Heading className="font-display text-[30px] font-bold tracking-[-0.025em] sm:text-4xl">Create a New Plugin</Heading>
       </div>
 
       <div className="grid gap-6">
@@ -103,9 +110,9 @@ export default function PluginSubmitForm({ onSubmitted, onBack, submitLabel = "S
 
         {status.message ? <p className="text-sm leading-6 text-red-400">{status.message}</p> : null}
 
-        <button type="submit" disabled={status.state === "loading" || !canSubmit} className="focus-ring mt-1 h-12 rounded-lg bg-azure-500 text-sm font-semibold text-white transition hover:bg-azure-600 disabled:cursor-not-allowed disabled:opacity-45">
+        <Button type="submit" size="lg" full disabled={status.state === "loading" || !canSubmit} className="mt-1">
           {status.state === "loading" ? "Submitting…" : submitLabel}
-        </button>
+        </Button>
       </div>
       </form>
     </div>

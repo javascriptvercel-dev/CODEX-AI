@@ -11,6 +11,7 @@ import {
   TriangleAlert,
 } from "lucide-react";
 import Switch from "@/components/ui/Switch";
+import Button from "@/components/ui/Button";
 import { API_URL } from "@/lib/api";
 function buildScript({
   name,
@@ -191,18 +192,9 @@ export default function GenerateConsole() {
           />
         </div>
       </div>
-      <button
-        type="button"
-        onClick={generate}
-        disabled={!canGenerate}
-        className="focus-ring mt-5 flex w-full items-center justify-center rounded-lg bg-azure-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-azure-600 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-45"
-      >
-
-        <span className="inline-flex items-center gap-2">
-
-          <Wand2 size={15} /> Generate index.js
-        </span>
-      </button>
+      <Button size="lg" full className="mt-5" onClick={generate} disabled={!canGenerate}>
+        <Wand2 size={15} /> Generate index.js
+      </Button>
       <div className="mt-4 overflow-hidden rounded-xl border border-edge">
 
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-edge bg-surface2 px-3.5 py-2">

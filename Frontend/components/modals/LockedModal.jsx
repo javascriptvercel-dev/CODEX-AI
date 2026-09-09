@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { Lock, Wrench } from "lucide-react";
 import Modal from "./Modal";
+import Button from "@/components/ui/Button";
 import {
   LOCKED_PAGE_STATUS,
   getLockedPageMessage,
@@ -32,7 +33,7 @@ export default function LockedModal({
 
   return (
     <Modal
-      title={isRepair ? `${label} is being updated` : `${label} is not available yet`}
+      title={isRepair ? `The page ${label} is under repair` : `The page ${label} is not available yet`}
       icon={<Icon size={18} className="text-azure-500" aria-hidden="true" />}
       onClose={handleClose}
       closeLabel={dismissible ? "Close dialog" : "Return to home"}
@@ -44,13 +45,9 @@ export default function LockedModal({
         <p className="mx-auto max-w-md text-sm leading-6 text-muted [overflow-wrap:anywhere]">
           {body}
         </p>
-        <button
-          type="button"
-          onClick={handleClose}
-          className="focus-ring mt-6 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-azure-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-azure-600 active:scale-[0.98] sm:w-auto"
-        >
+        <Button size="lg" full className="mt-6 sm:w-auto" onClick={handleClose}>
           {dismissible ? "Got it" : "Return home"}
-        </button>
+        </Button>
       </div>
     </Modal>
   );

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Lightbulb, Send } from "lucide-react";
 import Modal from "./Modal";
+import Button from "@/components/ui/Button";
 import { api } from "@/lib/api";
 export default function SuggestModal({ onClose }) {
   const [email, setEmail] = useState("");
@@ -66,14 +67,10 @@ export default function SuggestModal({ onClose }) {
             {status.message}
           </p>
         )}
-        <button
-          type="submit"
-          disabled={status.state === "loading"}
-          className="focus-ring mt-1 flex items-center justify-center gap-2 rounded-lg bg-azure-500 py-2.5 text-sm font-semibold text-white transition hover:bg-azure-600 disabled:opacity-60"
-        >
+        <Button type="submit" size="lg" full disabled={status.state === "loading"} className="mt-1">
           <Send size={15} />
           {status.state === "loading" ? "Sending…" : "Send suggestion"}
-        </button>
+        </Button>
       </form>
     </Modal>
   );
