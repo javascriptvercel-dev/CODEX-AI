@@ -51,7 +51,7 @@ export default function PluginsPage() {
               Plugins
             </p>
             <p className="mt-3 text-sm text-muted">
-            Discover and install plugins for your Codex WhatsApp Bot. Create your own plugins and share them with the community.
+            Discover and install plugins for your WhatsApp Bot Or Create your own plugins and share them with the community.
             </p>
           </div>
         </section>

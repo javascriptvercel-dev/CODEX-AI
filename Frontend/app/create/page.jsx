@@ -31,7 +31,7 @@ export default function CreatePluginPage() {
       <div className="min-h-dvh bg-bg">
         <PluginNavbar />
         <AuthModal
-          message={!user ? "Sign in to submit a plugin." : "For your security, please sign in again to continue."}
+          message={!user ? "Sign in to create a plugin." : "For your security, please sign in again to continue."}
           onClose={() => router.push("/plugins")}
         />
       </div>

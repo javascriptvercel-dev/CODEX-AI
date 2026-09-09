@@ -43,7 +43,7 @@ export default function HeroTerminal() {
     return () => clearTimeout(timeout);
   }, [text, phase, commandIndex]);
   return (
-    <div className="w-full max-w-md overflow-hidden rounded-2xl border border-edge bg-ink-950 shadow-glow">
+    <div className="w-full max-w-lg overflow-hidden rounded-2xl border border-edge bg-ink-950 shadow-glow">
 
       <div className="flex items-center gap-1.5 border-b border-white/10 px-4 py-3">
 
@@ -52,7 +52,7 @@ export default function HeroTerminal() {
         <span className="h-2.5 w-2.5 rounded-full bg-green-400/70" />
         <span className="ml-2 font-mono text-xs text-white/40">panel</span>
       </div>
-      <div className="min-h-[140px] p-4 font-mono text-sm text-azure-300">
+      <div className="min-h-[152px] p-4 font-mono text-sm text-azure-300">
 
         <p className="break-all">
 

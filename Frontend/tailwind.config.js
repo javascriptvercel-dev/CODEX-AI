@@ -4,6 +4,16 @@ module.exports = {
   content: ["./app/**/*.{js,jsx}", "./components/**/*.{js,jsx}", "./context/**/*.{js,jsx}"],
   theme: {
     extend: {
+      borderRadius: {
+        none: "0px",
+        sm: "2px",
+        DEFAULT: "3px",
+        md: "3px",
+        lg: "4px",
+        xl: "4px",
+        "2xl": "5px",
+        "3xl": "6px",
+      },
       colors: {
         ink: {
           950: "var(--ink-950)",

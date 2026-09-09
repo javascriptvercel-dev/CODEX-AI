@@ -13,7 +13,7 @@ export default function SuggestionCard({ suggestion }) {
           </span>
           <p className="min-w-0 break-words text-sm font-semibold [overflow-wrap:anywhere]">{suggestion.email}</p>
         </div>
-        <span className="flex-shrink-0 rounded-full border border-edge bg-surface2 px-2.5 py-1 text-[11px] text-muted">
+        <span className="flex-shrink-0 rounded-[3px] border border-edge bg-surface2 px-2.5 py-1 text-[11px] text-muted">
 
           {new Date(suggestion.createdAt).toLocaleDateString()}
         </span>

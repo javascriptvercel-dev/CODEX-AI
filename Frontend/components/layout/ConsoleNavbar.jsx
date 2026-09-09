@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Home, LogOut, Plus, Settings } from "lucide-react";
+import { Home, LogOut } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import ThemeToggle from "./ThemeToggle";
 import Avatar from "./Avatar";
@@ -16,16 +16,6 @@ export default function ConsoleNavbar() {
   };
   const links = [
     { label: "Home", icon: Home, onClick: () => router.push("/") },
-    {
-      label: "Create plugin",
-      icon: Plus,
-      onClick: () => router.push("/console?tab=create"),
-    },
-    {
-      label: "Settings",
-      icon: Settings,
-      onClick: () => router.push("/console?view=settings"),
-    },
   ];
   return (
     <header className="sticky top-0 z-40 border-b border-edge bg-surface/95 shadow-sm shadow-black/5 backdrop-blur-sm">
@@ -37,7 +27,7 @@ export default function ConsoleNavbar() {
           <span className="truncate font-display text-base font-bold tracking-tight sm:text-lg">
             CODEX <span className="text-azure-500">AI</span>
           </span>
-          <span className="ml-1 hidden rounded-full border border-azure-500/40 bg-azure-500/10 px-2 py-0.5 text-[11px] font-semibold text-azure-500 sm:inline">
+          <span className="ml-1 hidden rounded-[3px] border border-azure-500/40 bg-azure-500/10 px-2 py-0.5 text-[11px] font-semibold text-azure-500 sm:inline">
 
             Control
           </span>
@@ -62,7 +52,7 @@ export default function ConsoleNavbar() {
             type="button"
             onClick={handleLogout}
             disabled={loggingOut}
-            className="focus-ring flex items-center rounded-lg border border-edge bg-surface2 px-3 py-2 text-sm font-semibold text-red-400 transition hover:border-red-400/60 active:scale-95 disabled:opacity-60"
+            className="focus-ring flex items-center rounded-lg border border-edge bg-surface2 px-3 py-2 text-sm font-semibold text-muted transition hover:border-edge hover:text-fg active:scale-95 disabled:opacity-60"
           >
 
             <span className="inline-flex items-center gap-1.5">
@@ -124,7 +114,7 @@ export default function ConsoleNavbar() {
               type="button"
               onClick={handleLogout}
               disabled={loggingOut}
-              className="focus-ring flex items-center gap-1.5 rounded-md px-2 py-2.5 text-left text-sm text-red-400 transition disabled:opacity-60"
+              className="focus-ring flex items-center gap-1.5 rounded-md px-2 py-2.5 text-left text-sm text-muted transition hover:text-fg disabled:opacity-60"
             >
 
               <LogOut size={15} /> Logout

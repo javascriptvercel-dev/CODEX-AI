@@ -49,7 +49,7 @@ export default function SubmissionCard({ submission, onApprove, onReject, onSave
           )}
           <p className="mt-1 break-words text-xs text-muted [overflow-wrap:anywhere]">by {submission.authorName}</p>
         </div>
-        <span className="flex-shrink-0 rounded-full border border-edge bg-surface2 px-2.5 py-1 text-[11px] text-muted">
+        <span className="flex-shrink-0 rounded-[3px] border border-edge bg-surface2 px-2.5 py-1 text-[11px] text-muted">
           {new Date(submission.createdAt).toLocaleDateString()}
         </span>
       </div>
@@ -178,7 +178,7 @@ export default function SubmissionCard({ submission, onApprove, onReject, onSave
         </div>
       ) : (
         <span
-          className={`mt-4 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide ${
+          className={`mt-4 inline-flex items-center gap-1.5 rounded-[3px] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide ${
             submission.status === "approved"
               ? "bg-green-500/15 text-green-400"
               : "bg-red-500/15 text-red-400"

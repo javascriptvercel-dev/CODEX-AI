@@ -39,20 +39,29 @@ export default function HomePage() {
     <div className="flex min-h-screen animate-rise flex-col">
       <Navbar />
       <main className="flex-1">
-        <section className="mx-auto max-w-6xl px-5 pb-10 pt-8 text-center sm:pt-12">
-          <h1 className="font-display text-4xl font-bold uppercase leading-[1.05] tracking-tight sm:text-6xl">
-            CODEX AI
-          </h1>
-          <p className="mx-auto mt-4 max-w-2xl font-mono text-xs font-semibold uppercase tracking-[0.18em] text-azure-500 sm:text-sm">
-            MULTIFUNCTIONAL WHATSAPP BOT BUILT WITH BAILEYS
-          </p>
+        <section className="border-b border-edge bg-surface/40">
+          <div className="mx-auto grid max-w-6xl items-center gap-10 px-5 py-14 lg:grid-cols-[1.05fr_1fr] lg:py-20">
+            <div className="text-center lg:text-left">
+              <span className="inline-flex items-center gap-2 rounded-[3px] border border-azure-500/30 bg-azure-500/10 px-2.5 py-1 font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-azure-500">
+                Built with Baileys
+              </span>
+              <h1 className="mt-4 font-display text-4xl font-bold uppercase leading-[1.05] tracking-tight sm:text-6xl">
+                CODEX AI
+              </h1>
+              <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-muted lg:mx-0 sm:text-base">
+                A multifunctional WhatsApp bot with a plugin marketplace. Pair
+                your number, deploy in minutes.
+              </p>
+              <div className="mt-7 flex flex-wrap justify-center gap-2.5 lg:justify-start">
+              </div>
+            </div>
+            <div className="flex justify-center lg:justify-end">
+              <HeroTerminal />
+            </div>
+          </div>
         </section>
 
-        <section className="mx-auto flex max-w-6xl justify-center px-5 pb-16">
-          <HeroTerminal />
-        </section>
-
-        <section className="mx-auto max-w-6xl px-5 pb-24">
+        <section className="mx-auto max-w-6xl px-5 py-14">
           <FeatureGrid onSelect={handleSelect} />
         </section>
       </main>
