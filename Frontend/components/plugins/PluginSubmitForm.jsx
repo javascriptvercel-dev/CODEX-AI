@@ -9,7 +9,7 @@ import Button from "@/components/ui/Button";
 export default function PluginSubmitForm({
   onSubmitted,
   onBack,
-  submitLabel = "Submit for review",
+  submitLabel = "Submit",
   headingLevel = "h1",
 }) {
   const Heading = headingLevel;
@@ -41,9 +41,9 @@ export default function PluginSubmitForm({
       if (file) formData.append("file", file);
       await api.submitPlugin(formData);
       onSubmitted?.();
-      setStatus({ state: "success", message: "Submitted — you'll see it in the library once it's approved by our team." });
+      setStatus({ state: "success", message: "Submitted — you'll see it in the library once it's tested and approved." });
     } catch (err) {
-      setStatus({ state: "error", message: err?.message || "We could not submit this plugin for review. Please check the form and try again." });
+      setStatus({ state: "error", message: err?.message || "We could not submit this plugin. Please check the form and try again." });
     }
   };
 
@@ -90,7 +90,7 @@ export default function PluginSubmitForm({
         </label>
 
         <label className="flex cursor-pointer flex-col gap-2 text-base">
-          <span className="font-semibold">Plugin File <span className="font-normal text-muted">(optional, max 5MB)</span></span>
+          <span className="font-semibold">Code File <span className="font-normal text-muted">(optional, max 5MB)</span></span>
           <span className="focus-ring flex min-w-0 items-center gap-3 rounded-lg border border-dashed border-edge bg-ink-950 px-3.5 py-3.5 text-sm text-muted">
             <UploadCloud size={17} className="shrink-0" />
             <span className="min-w-0 truncate">{file ? file.name : "Attach a zip, script, or asset"}</span>
