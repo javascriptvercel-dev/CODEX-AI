@@ -1,9 +1,8 @@
 "use client";
 import { useState } from "react";
-import { Mail, Trash2 } from "lucide-react";
+import { Check, Mail, Trash2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
-import Switch from "@/components/ui/Switch";
 import DeleteAccountModal from "./DeleteAccountModal";
 export default function SettingsTab() {
   const { user, refresh } = useAuth();
@@ -21,7 +20,14 @@ export default function SettingsTab() {
   return (
     <div className="flex flex-col gap-4">
 
-      <div className="flex flex-col items-start gap-4 rounded-2xl border border-edge bg-surface p-5 sm:flex-row sm:items-center sm:justify-between">
+      <button
+        type="button"
+        aria-pressed={Boolean(user?.emailNotificationsEnabled)}
+        aria-busy={updating}
+        disabled={updating}
+        onClick={() => toggleEmails(!user?.emailNotificationsEnabled)}
+        className="group flex w-full select-none items-center justify-between gap-4 rounded-lg border border-edge bg-surface2 p-5 text-left transition hover:border-azure-500/40 active:scale-[0.995] disabled:cursor-wait disabled:opacity-70"
+      >
 
         <div className="flex items-start gap-3">
 
@@ -39,13 +45,17 @@ export default function SettingsTab() {
             </p>
           </div>
         </div>
-        <Switch
-          label="Email notifications"
-          checked={Boolean(user?.emailNotificationsEnabled)}
-          onChange={toggleEmails}
-          disabled={updating}
-        />
-      </div>
+        <span
+          className={`grid h-6 w-6 shrink-0 place-items-center rounded-md border transition-all ${
+            user?.emailNotificationsEnabled
+              ? "border-azure-500 bg-azure-500 text-white"
+              : "border-slate-400/60 bg-transparent text-transparent"
+          }`}
+          aria-hidden="true"
+        >
+          <Check size={15} strokeWidth={3} />
+        </span>
+      </button>
       <div className="flex flex-col items-start gap-4 rounded-2xl border border-red-500/30 bg-red-500/5 p-5 sm:flex-row sm:items-center sm:justify-between">
 
         <div className="flex items-start gap-3">

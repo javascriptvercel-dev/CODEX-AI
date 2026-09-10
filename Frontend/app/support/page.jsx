@@ -1,4 +1,5 @@
-import { ArrowUpRight, CircleHelp, LifeBuoy, MessageCircle, ShieldCheck } from "lucide-react";
+import { ArrowUpRight, CircleHelp, LifeBuoy, ShieldCheck } from "lucide-react";
+import { SiWhatsapp } from "react-icons/si";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { SUPPORT_CHANNELS } from "@/lib/supportChannels";
@@ -37,9 +38,7 @@ function SupportCard({ channel }) {
       aria-label={`${channel.name} — opens in a new tab`}
       className="focus-ring group flex min-h-[108px] items-center gap-4 rounded-2xl border border-edge bg-surface p-4 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-azure-500/60 hover:shadow-glow sm:p-5"
     >
-      <span className="grid h-11 w-11 flex-none place-items-center rounded-xl bg-azure-500/10 text-azure-500 sm:h-12 sm:w-12">
-        <Icon size={19} aria-hidden="true" />
-      </span>
+      <Icon size={24} className="flex-none" style={{ color: channel.color }} aria-hidden="true" />
       <span className="min-w-0 flex-1">
         <span className="flex items-start justify-between gap-3">
           <span className="block text-sm font-semibold text-fg sm:text-base">{channel.name}</span>
@@ -80,7 +79,7 @@ export default function SupportPage() {
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
                 <div className="rounded-2xl border border-edge bg-surface2 p-4">
                   <div className="flex items-center gap-2 text-sm font-semibold">
-                    <MessageCircle size={16} className="text-azure-500" aria-hidden="true" />
+                    <SiWhatsapp size={16} color="#25D366" aria-hidden="true" />
                     Community first
                   </div>
                   <p className="mt-1.5 text-xs leading-5 text-muted">Ask questions, compare solutions, and keep up with other users.</p>

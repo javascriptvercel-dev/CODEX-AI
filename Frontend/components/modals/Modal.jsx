@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useId, useRef } from "react";
+import { useEffect, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
 function getFocusableElements(container) {
@@ -16,12 +17,19 @@ function getFocusableElements(container) {
 }
 
 export default function Modal({ title, icon, onClose, children, closeLabel = "Close" }) {
+  const [mounted, setMounted] = useState(false);
   const closeRef = useRef(null);
   const panelRef = useRef(null);
   const titleId = useId();
   const previousFocusRef = useRef(null);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return undefined;
+
     previousFocusRef.current = document.activeElement;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -68,9 +76,9 @@ export default function Modal({ title, icon, onClose, children, closeLabel = "Cl
         previousFocusRef.current.focus({ preventScroll: true });
       }
     };
-  }, [onClose]);
+  }, [mounted, onClose]);
 
-  return (
+  const modal = (
     <div
       className="fixed inset-0 z-[100] flex min-h-dvh items-center justify-center overflow-y-auto bg-black/65 px-3 py-4 backdrop-blur-sm sm:px-5 sm:py-6"
       role="presentation"
@@ -110,4 +118,6 @@ export default function Modal({ title, icon, onClose, children, closeLabel = "Cl
       </div>
     </div>
   );
+
+  return mounted ? createPortal(modal, document.body) : null;
 }
