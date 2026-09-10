@@ -12,16 +12,21 @@ export const verifySession = (token) => {
     return null;
   }
 };
+const SESSION_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: env.nodeEnv === "production",
+  sameSite: env.nodeEnv === "production" ? "none" : "lax",
+  path: "/",
+};
 export const setSessionCookie = (res, token) => {
   res.cookie(COOKIE_NAME, token, {
-    httpOnly: true,
-    secure: env.nodeEnv === "production",
-    sameSite: env.nodeEnv === "production" ? "none" : "lax",
+    ...SESSION_COOKIE_OPTIONS,
     maxAge: 30 * 24 * 60 * 60 * 1000,
-    path: "/",
   });
 };
 export const clearSessionCookie = (res) => {
-  res.clearCookie(COOKIE_NAME, { path: "/" });
+  // Must match setSessionCookie's options exactly (minus maxAge/expires) or
+  // browsers will treat this as a different cookie and won't clear it.
+  res.clearCookie(COOKIE_NAME, SESSION_COOKIE_OPTIONS);
 };
 export { COOKIE_NAME };
