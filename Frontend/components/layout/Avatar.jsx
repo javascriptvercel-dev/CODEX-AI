@@ -74,6 +74,8 @@ export default function Avatar({ size = 36, editable = true }) {
       {editable && (
         <input
           ref={inputRef}
+          id="avatar-upload"
+          name="avatar"
           type="file"
           accept="image/*"
           className="hidden"

@@ -11,6 +11,8 @@ export default function SuggestPage() {
   const [idea, setIdea] = useState("");
   const [status, setStatus] = useState({ state: "idle", message: "" });
 
+  const canSubmit = email.trim().length > 0 && idea.trim().length > 0;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus({ state: "loading", message: "" });
@@ -50,6 +52,8 @@ export default function SuggestPage() {
               <span className="font-medium text-fg">Your email</span>
               <input
                 type="email"
+                id="suggestion-email"
+                name="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -61,6 +65,8 @@ export default function SuggestPage() {
             <label className="flex flex-col gap-1.5 text-sm">
               <span className="font-medium text-fg">Your idea</span>
               <textarea
+                id="suggestion-idea"
+                name="idea"
                 required
                 rows={5}
                 value={idea}
@@ -76,7 +82,13 @@ export default function SuggestPage() {
               </p>
             ) : null}
 
-            <Button type="submit" size="lg" full disabled={status.state === "loading"} className="mt-2">
+            <Button
+              type="submit"
+              size="lg"
+              full
+              disabled={!canSubmit || status.state === "loading"}
+              className="mt-2"
+            >
               <Send size={15} />
               {status.state === "loading" ? "Sending…" : "Send suggestion"}
             </Button>

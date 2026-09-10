@@ -92,7 +92,9 @@ export default function AuthModal({ onClose, onSuccess, message }) {
               <MailCheck size={20} />
             </span>
             <p className="text-sm text-muted [overflow-wrap:anywhere]">
-              A reset link has been sent to <span className="text-fg">{email}</span>.
+
+              If <span className="text-fg">{email}</span> has an account, a
+              reset link is on its way. It&apos;s valid for 1 hour.
             </p>
             <button
               type="button"
@@ -107,13 +109,16 @@ export default function AuthModal({ onClose, onSuccess, message }) {
           <form onSubmit={handleSubmit} className="flex flex-col gap-3">
 
             <p className="text-sm text-muted">
-              Enter your email and we&apos;ll send you a link to reset your password.
+              Enter your email and we&apos;ll send you a link to reset your
+              password.
             </p>
             <label className="flex flex-col gap-1.5 text-sm">
 
               <span className="font-medium">Email</span>
               <input
                 type="email"
+                id="auth-forgot-email"
+                name="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -121,13 +126,6 @@ export default function AuthModal({ onClose, onSuccess, message }) {
                 className="focus-ring rounded-lg border border-edge bg-surface2 px-3 py-2.5 text-sm outline-none placeholder:text-muted/70"
               />
             </label>
-            {status.message && (
-              <p className="text-sm text-red-400">{status.message}</p>
-            )}
-            <Button type="submit" size="lg" full disabled={status.state === "loading"} className="mt-1">
-              <Send size={15} />
-              {status.state === "loading" ? "Sending…" : "Send reset link"}
-            </Button>
             <button
               type="button"
               onClick={() => switchMode("login")}
@@ -149,6 +147,8 @@ export default function AuthModal({ onClose, onSuccess, message }) {
                 <span className="font-medium">Name</span>
                 <input
                   type="text"
+                  id="auth-full-name"
+                  name="name"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   placeholder="Ada Lovelace"
@@ -161,6 +161,8 @@ export default function AuthModal({ onClose, onSuccess, message }) {
               <span className="font-medium">Email</span>
               <input
                 type="email"
+                id="auth-email"
+                name="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -188,6 +190,8 @@ export default function AuthModal({ onClose, onSuccess, message }) {
 
                 <input
                   type={showPassword ? "text" : "password"}
+                  id="auth-password"
+                  name="password"
                   required
                   minLength={8}
                   value={password}

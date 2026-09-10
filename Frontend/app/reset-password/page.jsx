@@ -105,6 +105,8 @@ function ResetPasswordInner() {
 
                 <input
                   type={showPassword ? "text" : "password"}
+                  id="reset-new-password"
+                  name="password"
                   required
                   minLength={8}
                   value={password}
@@ -128,6 +130,8 @@ function ResetPasswordInner() {
               <span className="font-medium">Confirm password</span>
               <input
                 type={showPassword ? "text" : "password"}
+                id="reset-confirm-password"
+                name="confirmPassword"
                 required
                 minLength={8}
                 value={confirm}

@@ -40,6 +40,8 @@ export default function SubmissionCard({ submission, onApprove, onReject, onSave
         <div className="min-w-0">
           {editing ? (
             <input
+              id={`submission-title-${submission.id}`}
+              name="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="focus-ring w-full rounded-lg border border-edge bg-surface2 px-3 py-2 text-sm font-bold outline-none"
@@ -56,6 +58,8 @@ export default function SubmissionCard({ submission, onApprove, onReject, onSave
 
       {editing ? (
         <textarea
+          id={`submission-description-${submission.id}`}
+          name="description"
           rows={2}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
@@ -67,6 +71,8 @@ export default function SubmissionCard({ submission, onApprove, onReject, onSave
 
       {editing ? (
         <textarea
+          id={`submission-code-${submission.id}`}
+          name="code"
           rows={7}
           spellCheck={false}
           value={code}
@@ -108,6 +114,8 @@ export default function SubmissionCard({ submission, onApprove, onReject, onSave
         <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           {!editing && (
             <input
+              id={`submission-note-${submission.id}`}
+              name="rejectionNote"
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder="Optional note for rejection"

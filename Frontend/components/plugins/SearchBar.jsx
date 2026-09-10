@@ -10,6 +10,8 @@ export default function SearchBar({ value, onChange }) {
       />
       <input
         type="search"
+        id="plugin-search"
+        name="search"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Search plugins by name or creator…"

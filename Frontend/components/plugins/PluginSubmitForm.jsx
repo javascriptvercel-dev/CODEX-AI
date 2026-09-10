@@ -76,17 +76,17 @@ export default function PluginSubmitForm({
       <div className="grid gap-6">
         <label className="flex flex-col gap-2 text-base">
           <span className="font-semibold">Plugin Name</span>
-          <input required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g., weather-forecast" className="focus-ring h-[50px] rounded-lg border border-edge bg-surface2 px-3.5 text-base outline-none placeholder:text-muted/80" />
+          <input id="plugin-title" name="title" required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g., weather-forecast" className="focus-ring h-[50px] rounded-lg border border-edge bg-surface2 px-3.5 text-base outline-none placeholder:text-muted/80" />
         </label>
 
         <label className="flex flex-col gap-2 text-base">
           <span className="font-semibold">Description</span>
-          <textarea required rows={3} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Describe what your plugin does..." className="focus-ring min-h-[108px] resize-y rounded-lg border border-edge bg-surface2 px-3.5 py-3 text-base outline-none placeholder:text-muted/80" />
+          <textarea id="plugin-description" name="description" required rows={3} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Describe what your plugin does..." className="focus-ring min-h-[108px] resize-y rounded-lg border border-edge bg-surface2 px-3.5 py-3 text-base outline-none placeholder:text-muted/80" />
         </label>
 
         <label className="flex flex-col gap-2 text-base">
           <span className="font-semibold">Plugin Code</span>
-          <textarea rows={14} value={code} onChange={(e) => setCode(e.target.value)} placeholder="Paste your plugin's source here, or upload a file instead" spellCheck={false} className="focus-ring min-h-[260px] resize-y rounded-lg border border-edge bg-ink-950 px-3.5 py-3 font-mono text-sm leading-6 text-azure-300 outline-none placeholder:text-white/30" />
+          <textarea id="plugin-code" name="code" rows={14} value={code} onChange={(e) => setCode(e.target.value)} placeholder="Paste your plugin's source here, or upload a file instead" spellCheck={false} className="focus-ring min-h-[260px] resize-y rounded-lg border border-edge bg-ink-950 px-3.5 py-3 font-mono text-sm leading-6 text-azure-300 outline-none placeholder:text-white/30" />
         </label>
 
         <label className="flex cursor-pointer flex-col gap-2 text-base">
@@ -94,7 +94,7 @@ export default function PluginSubmitForm({
           <span className="focus-ring flex min-w-0 items-center gap-3 rounded-lg border border-dashed border-edge bg-ink-950 px-3.5 py-3.5 text-sm text-muted">
             <UploadCloud size={17} className="shrink-0" />
             <span className="min-w-0 truncate">{file ? file.name : "Attach a zip, script, or asset"}</span>
-            <input type="file" className="hidden" onChange={(e) => {
+            <input id="plugin-file" name="file" type="file" className="hidden" onChange={(e) => {
               const selected = e.target.files?.[0] || null;
               if (selected && selected.size > MAX_FILE_SIZE) {
                 setFile(null);

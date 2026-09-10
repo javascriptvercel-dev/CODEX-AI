@@ -173,6 +173,8 @@ export default function PairConsole() {
             </span>
             <input
               type="tel"
+              id="pair-number"
+              name="number"
               value={number}
               onChange={(e) => setNumber(e.target.value)}
               placeholder="e.g. 2347019135989"
