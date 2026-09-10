@@ -12,6 +12,7 @@ export default function SearchBar({ value, onChange }) {
         type="search"
         id="plugin-search"
         name="search"
+        autoComplete="off"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Search plugins by name or creator…"

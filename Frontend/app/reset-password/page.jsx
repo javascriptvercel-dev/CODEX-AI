@@ -107,6 +107,7 @@ function ResetPasswordInner() {
                   type={showPassword ? "text" : "password"}
                   id="reset-new-password"
                   name="password"
+                  autoComplete="new-password"
                   required
                   minLength={8}
                   value={password}
@@ -132,6 +133,7 @@ function ResetPasswordInner() {
                 type={showPassword ? "text" : "password"}
                 id="reset-confirm-password"
                 name="confirmPassword"
+                autoComplete="new-password"
                 required
                 minLength={8}
                 value={confirm}

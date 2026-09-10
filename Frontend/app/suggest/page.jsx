@@ -54,6 +54,7 @@ export default function SuggestPage() {
                 type="email"
                 id="suggestion-email"
                 name="email"
+                autoComplete="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -67,6 +68,7 @@ export default function SuggestPage() {
               <textarea
                 id="suggestion-idea"
                 name="idea"
+                autoComplete="off"
                 required
                 rows={5}
                 value={idea}

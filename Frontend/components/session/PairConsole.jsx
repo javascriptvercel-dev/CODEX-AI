@@ -175,6 +175,7 @@ export default function PairConsole() {
               type="tel"
               id="pair-number"
               name="number"
+              autoComplete="tel"
               value={number}
               onChange={(e) => setNumber(e.target.value)}
               placeholder="e.g. 2347019135989"

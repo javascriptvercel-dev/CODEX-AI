@@ -119,13 +119,9 @@ export default function AuthModal({ onClose, onSuccess, message }) {
                 type="email"
                 id="auth-forgot-email"
                 name="email"
+                autoComplete="email"
                 required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                className="focus-ring rounded-lg border border-edge bg-surface2 px-3 py-2.5 text-sm outline-none placeholder:text-muted/70"
-              />
-            </label>
             <button
               type="button"
               onClick={() => switchMode("login")}
@@ -149,6 +145,7 @@ export default function AuthModal({ onClose, onSuccess, message }) {
                   type="text"
                   id="auth-full-name"
                   name="name"
+                  autoComplete="name"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   placeholder="Ada Lovelace"
@@ -163,6 +160,7 @@ export default function AuthModal({ onClose, onSuccess, message }) {
                 type="email"
                 id="auth-email"
                 name="email"
+                autoComplete="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -192,6 +190,7 @@ export default function AuthModal({ onClose, onSuccess, message }) {
                   type={showPassword ? "text" : "password"}
                   id="auth-password"
                   name="password"
+                  autoComplete={mode === "signup" ? "new-password" : "current-password"}
                   required
                   minLength={8}
                   value={password}

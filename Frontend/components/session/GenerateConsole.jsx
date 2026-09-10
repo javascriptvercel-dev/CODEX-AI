@@ -110,6 +110,7 @@ export default function GenerateConsole() {
           <input
             id="gen-name"
             name="name"
+            autoComplete="off"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g. CODEX"
@@ -126,6 +127,7 @@ export default function GenerateConsole() {
             type="tel"
             id="gen-number"
             name="number"
+            autoComplete="tel"
             value={number}
             onChange={(e) => setNumber(e.target.value)}
             placeholder="e.g. 2347019135989"
@@ -140,6 +142,7 @@ export default function GenerateConsole() {
         <input
           id="gen-session"
           name="sessionId"
+          autoComplete="off"
           value={session}
           onChange={(e) => setSession(e.target.value)}
           placeholder="Optional — paste it here, or leave blank to set it up later"
@@ -178,6 +181,7 @@ export default function GenerateConsole() {
               <input
                 id="gen-botname"
                 name="botname"
+                autoComplete="off"
                 value={botname}
                 onChange={(e) => setBotname(e.target.value)}
                 placeholder="CODEX AI"
@@ -191,6 +195,7 @@ export default function GenerateConsole() {
               <input
                 id="gen-prefix"
                 name="prefix"
+                autoComplete="off"
                 value={prefix}
                 onChange={(e) => setPrefix(e.target.value)}
                 placeholder=". or /"

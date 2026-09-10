@@ -76,17 +76,17 @@ export default function PluginSubmitForm({
       <div className="grid gap-6">
         <label className="flex flex-col gap-2 text-base">
           <span className="font-semibold">Plugin Name</span>
-          <input id="plugin-title" name="title" required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g., weather-forecast" className="focus-ring h-[50px] rounded-lg border border-edge bg-surface2 px-3.5 text-base outline-none placeholder:text-muted/80" />
+          <input id="plugin-title" name="title" autoComplete="off" required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g., weather-forecast" className="focus-ring h-[50px] rounded-lg border border-edge bg-surface2 px-3.5 text-base outline-none placeholder:text-muted/80" />
         </label>
 
         <label className="flex flex-col gap-2 text-base">
           <span className="font-semibold">Description</span>
-          <textarea id="plugin-description" name="description" required rows={3} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Describe what your plugin does..." className="focus-ring min-h-[108px] resize-y rounded-lg border border-edge bg-surface2 px-3.5 py-3 text-base outline-none placeholder:text-muted/80" />
+          <textarea id="plugin-description" name="description" autoComplete="off" required rows={3} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Describe what your plugin does..." className="focus-ring min-h-[108px] resize-y rounded-lg border border-edge bg-surface2 px-3.5 py-3 text-base outline-none placeholder:text-muted/80" />
         </label>
 
         <label className="flex flex-col gap-2 text-base">
           <span className="font-semibold">Plugin Code</span>
-          <textarea id="plugin-code" name="code" rows={14} value={code} onChange={(e) => setCode(e.target.value)} placeholder="Paste your plugin's source here, or upload a file instead" spellCheck={false} className="focus-ring min-h-[260px] resize-y rounded-lg border border-edge bg-ink-950 px-3.5 py-3 font-mono text-sm leading-6 text-azure-300 outline-none placeholder:text-white/30" />
+          <textarea id="plugin-code" name="code" autoComplete="off" rows={14} value={code} onChange={(e) => setCode(e.target.value)} placeholder="Paste your plugin's source here, or upload a file instead" spellCheck={false} className="focus-ring min-h-[260px] resize-y rounded-lg border border-edge bg-ink-950 px-3.5 py-3 font-mono text-sm leading-6 text-azure-300 outline-none placeholder:text-white/30" />
         </label>
 
         <label className="flex cursor-pointer flex-col gap-2 text-base">

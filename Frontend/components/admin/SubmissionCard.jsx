@@ -42,6 +42,7 @@ export default function SubmissionCard({ submission, onApprove, onReject, onSave
             <input
               id={`submission-title-${submission.id}`}
               name="title"
+              autoComplete="off"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="focus-ring w-full rounded-lg border border-edge bg-surface2 px-3 py-2 text-sm font-bold outline-none"
@@ -60,6 +61,7 @@ export default function SubmissionCard({ submission, onApprove, onReject, onSave
         <textarea
           id={`submission-description-${submission.id}`}
           name="description"
+          autoComplete="off"
           rows={2}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
@@ -73,6 +75,7 @@ export default function SubmissionCard({ submission, onApprove, onReject, onSave
         <textarea
           id={`submission-code-${submission.id}`}
           name="code"
+          autoComplete="off"
           rows={7}
           spellCheck={false}
           value={code}
@@ -116,6 +119,7 @@ export default function SubmissionCard({ submission, onApprove, onReject, onSave
             <input
               id={`submission-note-${submission.id}`}
               name="rejectionNote"
+              autoComplete="off"
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder="Optional note for rejection"
