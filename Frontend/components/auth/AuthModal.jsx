@@ -92,9 +92,7 @@ export default function AuthModal({ onClose, onSuccess, message }) {
               <MailCheck size={20} />
             </span>
             <p className="text-sm text-muted [overflow-wrap:anywhere]">
-
-              If <span className="text-fg">{email}</span> has an account, a
-              reset link is on its way. It&apos;s valid for 1 hour.
+              A reset link has been sent to <span className="text-fg">{email}</span>.
             </p>
             <button
               type="button"
@@ -109,8 +107,7 @@ export default function AuthModal({ onClose, onSuccess, message }) {
           <form onSubmit={handleSubmit} className="flex flex-col gap-3">
 
             <p className="text-sm text-muted">
-              Enter your email and we&apos;ll send you a link to reset your
-              password.
+              Enter your email and we&apos;ll send you a link to reset your password.
             </p>
             <label className="flex flex-col gap-1.5 text-sm">
 
