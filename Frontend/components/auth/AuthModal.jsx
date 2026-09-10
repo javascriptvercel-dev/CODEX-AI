@@ -122,6 +122,18 @@ export default function AuthModal({ onClose, onSuccess, message }) {
                 autoComplete="email"
                 required
                 value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                className="focus-ring rounded-lg border border-edge bg-surface2 px-3 py-2.5 text-sm outline-none placeholder:text-muted/70"
+              />
+            </label>
+            {status.message && (
+              <p className="text-sm text-red-400">{status.message}</p>
+            )}
+            <Button type="submit" size="lg" full disabled={status.state === "loading"} className="mt-1">
+              <Send size={15} />
+              {status.state === "loading" ? "Sending…" : "Send reset link"}
+            </Button>
             <button
               type="button"
               onClick={() => switchMode("login")}
