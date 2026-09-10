@@ -22,6 +22,12 @@ export default function CreatePluginPage() {
     if (user?.role === "admin" && !fromConsole) router.replace("/console");
   }, [user, router]);
 
+  useEffect(() => {
+    if (!loading && user && !hasFreshSession()) {
+      router.replace("/plugins");
+    }
+  }, [loading, user, hasFreshSession, router]);
+
   if (loading) {
     return <div className="flex min-h-dvh items-center justify-center bg-bg"><div className="h-8 w-8 animate-pulse rounded-full bg-azure-500/30" /></div>;
   }

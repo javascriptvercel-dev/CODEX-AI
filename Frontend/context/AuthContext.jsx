@@ -49,9 +49,12 @@ export function AuthProvider({ children }) {
     return created;
   };
   const logout = async () => {
-    await api.logout();
-    setUser(null);
-    router.push("/plugins");
+    try {
+      await api.logout();
+    } finally {
+      setUser(null);
+      router.replace("/plugins");
+    }
   };
   const deleteAccount = async () => {
     await api.deleteAccount();
