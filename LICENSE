@@ -1,0 +1,44 @@
+Copyright (c) 2026 CODEX AI. All Rights Reserved.
+
+This repository and all of its contents — including but not limited to
+source code, documentation, design assets, configuration files, and
+associated materials (collectively, the "Software") — are the
+proprietary property of the copyright holder(s) named above.
+
+## Permissions
+
+Unless you have received prior **written** permission from the copyright
+holder, you are **NOT permitted** to:
+
+- Copy, reproduce, or redistribute the Software, in whole or in part
+- Modify, adapt, translate, or create derivative works based on the Software
+- Sublicense, sell, rent, lease, or otherwise commercially exploit the
+  Software
+- Deploy, host, or operate the Software (or any derivative of it) as a
+  public or private service
+- Use any part of the Software's source code, architecture, or design in
+  another project
+
+Viewing the source code (where access has been explicitly granted, e.g. to
+an invited collaborator) does **not** constitute a license to use it for
+any of the purposes listed above.
+
+## No Warranty
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR
+OTHER LIABILITY ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE
+OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+## Contact
+
+For licensing inquiries, collaboration requests, or permission to use any
+part of this project, please contact the copyright holder directly.
+
+---
+
+*This is a source-available license, not an open-source license as defined
+by the Open Source Initiative. All rights not expressly granted are
+reserved.*
