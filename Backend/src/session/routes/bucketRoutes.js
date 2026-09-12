@@ -15,7 +15,7 @@ export default function createBucketRoutes({
         return res
           .status(502)
           .json({
-            error: "Bucket created but no bucket id was returned by MinIO",
+            error: "Bucket created but no bucket id was returned by Supabase Storage",
             response: created,
           });
       }

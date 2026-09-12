@@ -40,7 +40,7 @@ class SessionStore {
   ensureBucketId() {
     if (!this.bucketId) {
       throw new Error(
-        "Bucket is not configured. Set MINIO_BUCKET or create one via /buckets/init.",
+        "Bucket is not configured. Set SUPABASE_SESSION_BUCKET or create one via /buckets/init.",
       );
     }
   }

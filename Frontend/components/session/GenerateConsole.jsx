@@ -145,7 +145,6 @@ export default function GenerateConsole() {
           autoComplete="off"
           value={session}
           onChange={(e) => setSession(e.target.value)}
-          placeholder="Optional — paste it here, or leave blank to set it up later"
           spellCheck={false}
           className="focus-ring rounded-lg border border-edge bg-surface2 px-3 py-2.5 font-mono text-xs outline-none placeholder:text-muted/70"
         />

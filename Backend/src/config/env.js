@@ -41,12 +41,7 @@ export const env = {
     from: process.env.MAIL_FROM || "CODEX AI <no-reply@codex-ai.dev>",
   },
   session: {
-    minioEndPoint: process.env.MINIO_ENDPOINT || "localhost",
-    minioPort: Number(process.env.MINIO_PORT || 9000),
-    minioUseSSL: parseBool(process.env.MINIO_USE_SSL, false),
-    minioAccessKey: process.env.MINIO_ACCESS_KEY || "",
-    minioSecretKey: process.env.MINIO_SECRET_KEY || "",
-    minioBucket: process.env.MINIO_BUCKET || "",
+    supabaseBucket: process.env.SUPABASE_SESSION_BUCKET || process.env.DEFAULT_BUCKET_NAME || "sessions",
     defaultBucketName: process.env.DEFAULT_BUCKET_NAME || "sessions",
     defaultBucketPublic: parseBool(process.env.DEFAULT_BUCKET_PUBLIC, false),
     indexFilePath: path.join(
