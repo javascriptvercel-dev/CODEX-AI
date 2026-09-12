@@ -17,10 +17,10 @@ export default function SessionPage() {
             titleClassName="text-2xl sm:text-3xl"
             description={
               <>
-                Choose a secure linking method to connect your number. Once
+                Choose a secure linking method to connect your WhatsApp account. Once
                 linked, continue to{" "}
                 <span className="text-fg">Deploy</span> to configure your
-                workspace.
+                bot script.
               </>
             }
           />

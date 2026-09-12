@@ -133,7 +133,7 @@ export default function PairConsole() {
 
           <h2 className="font-display text-base font-bold">Link device</h2>
           <p className="text-xs text-muted">
-            Securely link a WhatsApp number to your workspace
+            Securely link your WhatsApp number 
           </p>
         </div>
       </div>
@@ -179,7 +179,6 @@ export default function PairConsole() {
               value={number}
               onChange={(e) => setNumber(e.target.value)}
               placeholder="e.g. 2347019135989"
-              autoComplete="off"
               className="focus-ring rounded-lg border border-edge bg-surface2 px-3 py-2.5 text-sm outline-none placeholder:text-muted/70"
             />
           </label>

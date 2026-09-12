@@ -18,7 +18,7 @@ const sessCache = new NodeCache({ stdTTL: 600 });
 const sessions = new Map();
 
 const THUMB_URL =
-  "https://cdn.crysnovax.link/files/1782641945104-66399a32-3e86-4e1f-9a13-32c3b4031dd4.jpeg";
+  "https://cdn.kord.live/serve/xyzD2yksdyys.jpg";
 let cachedThumbBuffer = null;
 
 async function getThumbBuffer() {
@@ -267,9 +267,9 @@ export default function createWhatsappRoutes({ sessionStore }) {
       const sess = await sock.sendMessage(sock.user.id, { text: botId });
 
       const GROUP_LINK =
-        "https://chat.whatsapp.com/K7R4qGt8Z7E2PjWr4OvQeG";
+        "https://chat.whatsapp.com/If0d4XKHITO2NUf6YvQ3Eg?s=cl&p=a&mlu=4&ilr=4";
       const CHANNEL_LINK = "https://whatsapp.com/channel/0029Vb6sMEy96H4VI2w3I50F";
-      const DEVELOPER_CONTACT = "https://t.me/DEV_CODEXV3";
+      const DEVELOPER_CONTACT = "https://t.me/CODEXVERIFIED";
       const NEWSLETTER_JID = "120363424311426745@newsletter";
       const NEWSLETTER_NAME = "𝗖𝗢𝗗𝗘𝗫 𝗩𝗘𝗥𝗜𝗙𝗜𝗘𝗗";
 

@@ -19,10 +19,9 @@ export default function DeployPage() {
               <>
                 Fill in your details and generate a ready-to-run{" "}
                 <code className="rounded bg-surface2 px-1.5 py-0.5 font-mono text-xs">
-                  index.js
+                  index.js script
                 </code>
-                . Pair your device and the session details will be sent to
-                your WhatsApp DM.
+                . Pair your device and the session details will be sent to you
               </>
             }
           />

@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Check, Mail, Trash2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
@@ -7,25 +7,42 @@ import DeleteAccountModal from "./DeleteAccountModal";
 export default function SettingsTab() {
   const { user, refresh } = useAuth();
   const [updating, setUpdating] = useState(false);
+  const [optimisticEnabled, setOptimisticEnabled] = useState(
+    Boolean(user?.emailNotificationsEnabled),
+  );
   const [showDelete, setShowDelete] = useState(false);
+
+  useEffect(() => {
+    if (!updating) {
+      setOptimisticEnabled(Boolean(user?.emailNotificationsEnabled));
+    }
+  }, [user?.emailNotificationsEnabled, updating]);
+
   const toggleEmails = async (enabled) => {
+    const nextValue = Boolean(enabled);
+    setOptimisticEnabled(nextValue);
     setUpdating(true);
     try {
-      await api.setNotifications(enabled);
+      await api.setNotifications(nextValue);
       await refresh();
+    } catch {
+      setOptimisticEnabled(!nextValue);
     } finally {
       setUpdating(false);
     }
   };
+
+  const enabled = optimisticEnabled;
+
   return (
     <div className="flex flex-col gap-4">
 
       <button
         type="button"
-        aria-pressed={Boolean(user?.emailNotificationsEnabled)}
+        aria-pressed={enabled}
         aria-busy={updating}
         disabled={updating}
-        onClick={() => toggleEmails(!user?.emailNotificationsEnabled)}
+        onClick={() => toggleEmails(!enabled)}
         className="group flex w-full select-none items-center justify-between gap-4 rounded-lg border border-edge bg-surface2 p-5 text-left transition hover:border-azure-500/40 active:scale-[0.995] disabled:cursor-wait disabled:opacity-70"
       >
 
@@ -47,7 +64,7 @@ export default function SettingsTab() {
         </div>
         <span
           className={`grid h-6 w-6 shrink-0 place-items-center rounded-md border transition-all ${
-            user?.emailNotificationsEnabled
+            enabled
               ? "border-azure-500 bg-azure-500 text-white"
               : "border-slate-400/60 bg-transparent text-transparent"
           }`}

@@ -146,6 +146,7 @@ export default function GenerateConsole() {
           value={session}
           onChange={(e) => setSession(e.target.value)}
           spellCheck={false}
+          placeholder="codex_ai-xxxx......"
           className="focus-ring rounded-lg border border-edge bg-surface2 px-3 py-2.5 font-mono text-xs outline-none placeholder:text-muted/70"
         />
       </label>
