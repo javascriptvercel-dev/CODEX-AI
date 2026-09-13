@@ -16,8 +16,10 @@ export const createSuggestion = async (req, res) => {
     console.error("createSuggestion failed", error);
     return res.status(500).json({ error: "Could not submit your suggestion." });
   }
-  notifyAdminsOfSuggestion(suggestion).catch((err) =>
-    console.error("notifyAdminsOfSuggestion failed", err),
-  );
+  if (req.user?.role !== "admin") {
+    notifyAdminsOfSuggestion(suggestion, req.user).catch((err) =>
+      console.error("notifyAdminsOfSuggestion failed", err),
+    );
+  }
   res.status(201).json({ ok: true });
 };

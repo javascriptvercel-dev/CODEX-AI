@@ -121,9 +121,11 @@ export const submitPlugin = async (req, res) => {
     console.error("submitPlugin: insert failed", error);
     return res.status(500).json({ error: "Could not submit your plugin." });
   }
-  notifyAdminsOfSubmission(submission).catch((err) =>
-    console.error("notifyAdminsOfSubmission failed", err),
-  );
+  if (req.user.role !== "admin") {
+    notifyAdminsOfSubmission(submission, req.user).catch((err) =>
+      console.error("notifyAdminsOfSubmission failed", err),
+    );
+  }
   res
     .status(201)
     .json({

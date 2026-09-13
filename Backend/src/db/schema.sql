@@ -69,9 +69,19 @@ alter table public.plugin_submissions enable row level security;
 alter table public.plugins enable row level security;
 alter table public.suggestions enable row level security;
 
--- No policies are created on purpose: default-deny for anon/authenticated
--- Supabase roles. Only the service-role key (used exclusively by the
--- backend) bypasses RLS.
+-- Explicit deny-all policies make the backend-only access model visible to
+-- security scanners. Only the service-role key bypasses RLS.
+create policy plugin_submissions_backend_only on public.plugin_submissions
+  for all to anon, authenticated using (false) with check (false);
+
+create policy plugins_backend_only on public.plugins
+  for all to anon, authenticated using (false) with check (false);
+
+create policy users_backend_only on public.users
+  for all to anon, authenticated using (false) with check (false);
+
+create policy suggestions_backend_only on public.suggestions
+  for all to anon, authenticated using (false) with check (false);
 
 insert into storage.buckets (id, name, public)
 values ('plugin-files', 'plugin-files', false)
