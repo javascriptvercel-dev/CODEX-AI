@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LogOut } from "lucide-react";
 import NavShell from "./NavShell";
+import Avatar from "./Avatar";
 import { useAuth } from "@/context/AuthContext";
 
 const navLinks = [
@@ -62,6 +63,7 @@ export default function PluginNavbar() {
       }
       links={navLinks}
       renderLink={renderLink}
+      persistentExtra={<Avatar size={34} />}
       desktopExtra={
         showLogout ? (
           <button

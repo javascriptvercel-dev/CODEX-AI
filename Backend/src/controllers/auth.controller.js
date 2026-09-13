@@ -286,7 +286,7 @@ export const githubCallback = async (req, res) => {
         .from("users")
         .update({
           github_id: String(profile.id),
-          avatar_url: profile.avatar_url,
+          avatar_url: existing.avatar_url || profile.avatar_url,
           full_name: existing.full_name || profile.name || profile.login,
           role,
         })
