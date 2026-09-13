@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import GithubStats from "@/components/home/GithubStats";
 import HeroTerminal from "@/components/home/HeroTerminal";
 import FeatureGrid from "@/components/home/FeatureGrid";
 import LockedModal from "@/components/modals/LockedModal";
@@ -55,7 +56,10 @@ export default function HomePage() {
               </div>
             </div>
             <div className="flex justify-center lg:justify-end">
-              <HeroTerminal />
+              <div className="w-full max-w-lg">
+                <GithubStats />
+                <HeroTerminal />
+              </div>
             </div>
           </div>
         </section>
