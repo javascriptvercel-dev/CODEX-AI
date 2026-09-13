@@ -18,7 +18,7 @@ const sessCache = new NodeCache({ stdTTL: 600 });
 const sessions = new Map();
 
 const THUMB_URL =
-  "https://cdn.kord.live/serve/xyzD2yksdyys.jpg";
+  "https://cdn.crysnova.qzz.io/files/1789325147298-88f7995e-9d59-48eb-a1b1-8791f440173f.jpeg";
 let cachedThumbBuffer = null;
 
 async function getThumbBuffer() {
@@ -471,5 +471,3 @@ export default function createWhatsappRoutes({ sessionStore }) {
 
   return router;
 }
-
-    
