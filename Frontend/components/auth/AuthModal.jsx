@@ -93,8 +93,7 @@ export default function AuthModal({ onClose, onSuccess, message }) {
             </span>
             <p className="text-sm text-muted [overflow-wrap:anywhere]">
 
-              If <span className="text-fg">{email}</span> has an account, a
-              reset link is on its way. It&apos;s valid for 1 hour.
+              A link has been sent to <span className="text-fg">{email}</span>, It&apos;s valid for 1 hour.
             </p>
             <button
               type="button"
