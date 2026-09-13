@@ -63,7 +63,7 @@ export default function PluginNavbar() {
       }
       links={navLinks}
       renderLink={renderLink}
-      persistentExtra={<Avatar size={34} />}
+      persistentExtra={showLogout ? <Avatar size={34} /> : null}
       desktopExtra={
         showLogout ? (
           <button

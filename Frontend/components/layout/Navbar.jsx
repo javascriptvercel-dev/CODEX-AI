@@ -2,7 +2,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import NavShell from "./NavShell";
-import Avatar from "./Avatar";
 import LockedModal from "@/components/modals/LockedModal";
 import { getLockedPage } from "@/lib/lockedPages";
 
@@ -80,7 +79,6 @@ export default function Navbar({ navLinks = links, onOpenSection }) {
         }
         links={navLinks}
         renderLink={renderLink}
-        persistentExtra={<Avatar size={34} />}
       />
       {lockedPage ? (
         <LockedModal
