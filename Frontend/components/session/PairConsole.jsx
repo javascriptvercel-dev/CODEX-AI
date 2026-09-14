@@ -30,26 +30,56 @@ export default function PairConsole() {
       const res = await fetch(`${API_URL}/api/whatsapp/qr`, { signal });
       const data = await res.json().catch(() => ({}));
       if (data.qr) {
+        const sessionId = data.sessionId || data.id;
         setQr({
           image: data.qr,
           hint: data.message || "Scan this code with WhatsApp to continue",
+          sessionId,
         });
+        if (sessionId) pollQRStatus(sessionId, signal);
       } else {
         setResult({
           state: "error",
-          text: "We could not generate a QR code right now. Please try again.",
+          text: data.error || "We could not generate a QR code right now. Please try again.",
         });
       }
     } catch (error) {
       if (error?.name === "AbortError") return;
       setResult({
         state: "error",
-        text: "We could not reach the session service. Please try again.",
+        text: error?.message || "We could not reach the session service. Please try again.",
       });
     } finally {
       if (requestController.current?.signal === signal) {
         requestController.current = null;
         setLoading(false);
+      }
+    }
+  };
+  const pollQRStatus = async (sessionId, signal) => {
+    while (!signal.aborted) {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      if (signal.aborted) return;
+      try {
+        const res = await fetch(`${API_URL}/api/whatsapp/qr/status/${encodeURIComponent(sessionId)}`, { signal });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.qr && data.qr !== qr?.image) {
+          setQr({ image: data.qr, hint: data.message || "Scan this code with WhatsApp to continue", sessionId });
+        }
+        if (data.state === "connected") {
+          setQr(null);
+          setLoading(false);
+          setResult({ state: "ok", text: "Connected successfully. Check WhatsApp for your session ID." });
+          return;
+        }
+        if (data.state === "failed") {
+          setLoading(false);
+          setResult({ state: "error", text: "WhatsApp connection failed. Please try again." });
+          return;
+        }
+      } catch (error) {
+        if (error?.name === "AbortError") return;
       }
     }
   };
@@ -90,14 +120,14 @@ export default function PairConsole() {
       setResult({
         state: failed ? "error" : "ok",
         text: failed
-          ? "We could not generate a pairing code. Please verify the number and try again."
+          ? data.error || "We could not generate a pairing code. Please verify the number and try again."
           : code,
       });
     } catch (error) {
       if (error?.name === "AbortError") return;
       setResult({
         state: "error",
-        text: "We could not reach the session service. Please try again.",
+        text: error?.message || "We could not reach the session service. Please try again.",
       });
     } finally {
       if (requestController.current === controller) {
@@ -225,7 +255,9 @@ export default function PairConsole() {
       {!loading && mode === "qr" && (
         <div className="mb-4 rounded-xl border border-edge bg-surface2 p-5 text-center">
 
-          {qr ? (
+          {result.state === "ok" ? (
+            <span className="text-sm font-semibold text-green-400">{result.text}</span>
+          ) : qr ? (
             <>
 
               <img

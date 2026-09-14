@@ -47,7 +47,9 @@ export default function AuthModal({ onClose, onSuccess, message }) {
             : "We could not sign you in. Please check your credentials and try again.";
       const raw = String(err?.message || "").trim();
       const safeMessages = [
-        ["invalid credentials", "The email or password is incorrect."],
+        ["no account exists", "No account exists for that email."],
+        ["password is incorrect", "The email is recognized, but the password is incorrect."],
+        ["uses github login", "This account uses GitHub login. Continue with GitHub instead."],
         ["invalid email", "Enter a valid email address."],
         ["email already", "An account with this email already exists."],
         ["already exists", "An account with this email already exists."],
@@ -57,7 +59,7 @@ export default function AuthModal({ onClose, onSuccess, message }) {
       const matched = safeMessages.find(([needle]) =>
         raw.toLowerCase().includes(needle),
       );
-      setStatus({ state: "error", message: matched?.[1] || fallback });
+      setStatus({ state: "error", message: matched?.[1] || raw || fallback });
     }
   };
   const switchMode = (next) => {

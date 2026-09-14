@@ -16,6 +16,7 @@ import { kordid } from "../lib/kordid.js";
 const msgCache = new NodeCache();
 const sessCache = new NodeCache({ stdTTL: 600 });
 const sessions = new Map();
+const qrStates = new NodeCache({ stdTTL: 600 });
 
 const THUMB_URL =
   "https://cdn.crysnova.qzz.io/files/1789325147298-88f7995e-9d59-48eb-a1b1-8791f440173f.jpeg";
@@ -48,10 +49,10 @@ function createSessDir(sessId) {
   return dir;
 }
 
-async function cleanup(sessId) {
+async function cleanup(sessId, { removeAuth = true } = {}) {
   try {
     const dir = path.join(getTempDir(), `kordai_${sessId}`);
-    if (fs.existsSync(dir)) {
+    if (removeAuth && fs.existsSync(dir)) {
       fs.rmSync(dir, { recursive: true, force: true });
     }
 
@@ -262,6 +263,12 @@ export default function createWhatsappRoutes({ sessionStore }) {
         objectId: result.objectId,
         uploadedAt: new Date().toISOString(),
       });
+      qrStates.set(sessId, {
+        state: "connected",
+        sessionId: sessId,
+        id: sessId,
+        objectId: result.objectId || null,
+      });
 
       const sess = await sock.sendMessage(sock.user.id, { text: botId });
 
@@ -311,6 +318,7 @@ export default function createWhatsappRoutes({ sessionStore }) {
       return result.directoryId;
     } catch (error) {
       console.error("Connection handling error:", error);
+      qrStates.set(sessId, { state: "failed", error: error.message });
       if (res && !res.headersSent) {
         res.status(500).json({
           success: false,
@@ -343,7 +351,7 @@ export default function createWhatsappRoutes({ sessionStore }) {
           connection === "close" &&
           lastDisconnect?.error?.output?.statusCode !== 401
         ) {
-          await cleanup(sessId);
+          await cleanup(sessId, { removeAuth: false });
           await delay(10000);
           await handlePair(sessId, phone, res).catch((error) => {
             console.error(`Pairing reconnect failed for ${sessId}:`, error);
@@ -373,6 +381,13 @@ export default function createWhatsappRoutes({ sessionStore }) {
           qrGenerated = true;
           try {
             const qrImage = await QRCode.toDataURL(qr);
+            qrStates.set(sessId, {
+              state: "waiting",
+              qr: qrImage,
+              sessionId: sessId,
+              id: sessId,
+              message: "Scan this code with WhatsApp to continue",
+            });
             if (!res.headersSent) {
               res.json({
                 qr: qrImage,
@@ -395,7 +410,7 @@ export default function createWhatsappRoutes({ sessionStore }) {
           connection === "close" &&
           lastDisconnect?.error?.output?.statusCode !== 401
         ) {
-          await cleanup(sessId);
+          await cleanup(sessId, { removeAuth: false });
           await delay(10000);
           await handleQR(sessId, res).catch((error) => {
             console.error(`QR reconnect failed for ${sessId}:`, error);
@@ -443,6 +458,7 @@ export default function createWhatsappRoutes({ sessionStore }) {
   router.get("/qr", async (req, res) => {
     const sessId = kordid(16, "codex_ai-");
     const timeout = setTimeout(() => cleanup(sessId), 600000);
+    qrStates.set(sessId, { state: "starting", sessionId: sessId, id: sessId });
 
     try {
       await handleQR(sessId, res);
@@ -454,6 +470,12 @@ export default function createWhatsappRoutes({ sessionStore }) {
         res.status(500).json({ error: "QR process failed" });
       }
     }
+  });
+
+  router.get("/qr/status/:sessId", (req, res) => {
+    const state = qrStates.get(req.params.sessId);
+    if (!state) return res.status(404).json({ error: "QR session not found" });
+    res.json(state);
   });
 
   router.get("/fetch-example/:dirId", async (req, res) => {

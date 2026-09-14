@@ -9,6 +9,7 @@ import {
 import { sendPasswordResetEmail } from "../utils/mailer.js";
 import crypto from "crypto";
 const RESET_TOKEN_TTL_MS = 60 * 60 * 1000;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const publicUser = (user, authenticatedAt) =>
   user && {
     id: user.id,
@@ -21,18 +22,25 @@ const publicUser = (user, authenticatedAt) =>
   };
 export const signup = async (req, res) => {
   const { email, password, fullName } = req.body || {};
-  if (!email || !password || password.length < 8) {
+  if (!email || !EMAIL_PATTERN.test(email.trim())) {
+    return res.status(400).json({ error: "Enter a valid email address." });
+  }
+  if (!password || password.length < 8) {
     return res
       .status(400)
       .json({
         error: "Enter an email and a password of at least 8 characters.",
       });
   }
-  const { data: existing } = await supabase
+  const { data: existing, error: existingError } = await supabase
     .from("users")
     .select("id")
     .eq("email", email.toLowerCase())
     .maybeSingle();
+  if (existingError) {
+    console.error("signup: lookup failed", existingError);
+    return res.status(500).json({ error: "We could not check that email right now." });
+  }
   if (existing)
     return res
       .status(409)
@@ -66,12 +74,23 @@ export const login = async (req, res) => {
     .select("*")
     .eq("email", email.toLowerCase())
     .maybeSingle();
-  if (fetchError) console.error("login: fetch failed", fetchError);
-  const valid = user && (await comparePassword(password, user.password_hash));
+  if (fetchError) {
+    console.error("login: fetch failed", fetchError);
+    return res.status(500).json({ error: "We could not verify your login right now." });
+  }
+  if (!user)
+    return res
+      .status(401)
+      .json({ error: "Invalid login credentials. No account exists for that email." });
+  if (!user.password_hash)
+    return res
+      .status(401)
+      .json({ error: "This account uses GitHub login. Continue with GitHub instead." });
+  const valid = await comparePassword(password, user.password_hash);
   if (!valid)
     return res
       .status(401)
-      .json({ error: "That email and password don't match." });
+      .json({ error: "The email is recognized, but the password is incorrect." });
   const role = isAdminEmail(user.email) ? "admin" : user.role;
   if (role !== user.role) {
     await supabase.from("users").update({ role }).eq("id", user.id);
