@@ -182,7 +182,6 @@ async function initWA(sessId, useQR = false) {
 
   const sock = makeWASocket({
     auth: state,
-    printQRInTerminal: useQR,
     version,
     logger: pino({ level: "fatal" }).child({ level: "fatal" }),
     msgRetryCounterCache: msgCache,
@@ -344,8 +343,11 @@ export default function createWhatsappRoutes({ sessionStore }) {
           connection === "close" &&
           lastDisconnect?.error?.output?.statusCode !== 401
         ) {
+          await cleanup(sessId);
           await delay(10000);
-          await handlePair(sessId, phone, res);
+          await handlePair(sessId, phone, res).catch((error) => {
+            console.error(`Pairing reconnect failed for ${sessId}:`, error);
+          });
         }
       });
     } catch (error) {
@@ -393,8 +395,11 @@ export default function createWhatsappRoutes({ sessionStore }) {
           connection === "close" &&
           lastDisconnect?.error?.output?.statusCode !== 401
         ) {
+          await cleanup(sessId);
           await delay(10000);
-          await handleQR(sessId, res);
+          await handleQR(sessId, res).catch((error) => {
+            console.error(`QR reconnect failed for ${sessId}:`, error);
+          });
         }
       });
 
