@@ -8,6 +8,8 @@ import makeWASocket, {
   useMultiFileAuthState,
   delay,
   fetchLatestBaileysVersion,
+  prepareWAMessageMedia,
+  generateMessageIDV2,
 } from "baileys";
 import NodeCache from "node-cache";
 import { kordid } from "../lib/kordid.js";
@@ -17,8 +19,86 @@ const sessCache = new NodeCache({ stdTTL: 600 });
 const sessions = new Map();
 const qrStates = new NodeCache({ stdTTL: 600 });
 
-async function sendWithLinkPreview(sock, jid, text, options = {}) {
-  return sock.sendMessage(jid, { text, linkPreview: true }, options);
+// Sends `text` with a native WhatsApp group-invite preview card attached to
+// `groupLink` inside it — the actual group icon, name and member count as
+// fetched live from the invite code, exactly like pasting the link yourself.
+// No hosted thumbnail, no forwarded/"view channel" tag — just the same card
+// WhatsApp itself renders for any group-invite link. Falls back to plain
+// text if the invite can't be resolved (offline, revoked, etc.) so the
+// message still goes out either way.
+async function sendAsGroupInviteCard(sock, jid, text, groupLink, options = {}) {
+  const inviteCode = groupLink.split("chat.whatsapp.com/")[1]?.split(/[?\s]/)[0];
+  if (!inviteCode) {
+    return sock.sendMessage(jid, { text }, options);
+  }
+
+  try {
+    const info = await sock.groupGetInviteInfo(inviteCode);
+    const groupJid = info.id;
+    const groupName = info.subject || "WhatsApp Group";
+    const memberCount = info.size ?? info.participants?.length;
+
+    let photoUrl = null;
+    try {
+      photoUrl = await sock.profilePictureUrl(groupJid, "image");
+    } catch {}
+
+    let hq = null;
+    let smallThumb = null;
+    if (photoUrl) {
+      try {
+        const prepared = await prepareWAMessageMedia(
+          { image: { url: photoUrl } },
+          { upload: sock.waUploadToServer, mediaTypeOverride: "thumbnail-link" },
+        );
+        hq = prepared.imageMessage;
+        smallThumb = hq?.jpegThumbnail ? Buffer.from(hq.jpegThumbnail) : null;
+      } catch (err) {
+        console.warn("Group thumb upload failed:", err.message);
+      }
+    }
+
+    const quoted = options.quoted;
+    const message = {
+      extendedTextMessage: {
+        text,
+        matchedText: groupLink,
+        canonicalUrl: groupLink,
+        title: groupName,
+        description: memberCount != null
+          ? `${memberCount} members · WhatsApp Group Invite`
+          : "WhatsApp Group Invite",
+        previewType: 5, // IMAGE
+        jpegThumbnail: smallThumb || undefined,
+        ...(hq
+          ? {
+              thumbnailDirectPath: hq.directPath,
+              mediaKey: hq.mediaKey,
+              mediaKeyTimestamp: hq.mediaKeyTimestamp,
+              thumbnailWidth: hq.width,
+              thumbnailHeight: hq.height,
+              thumbnailSha256: hq.fileSha256,
+              thumbnailEncSha256: hq.fileEncSha256,
+            }
+          : {}),
+        ...(quoted
+          ? {
+              contextInfo: {
+                stanzaId: quoted.key.id,
+                participant: quoted.key.participant || quoted.key.remoteJid,
+                quotedMessage: quoted.message,
+              },
+            }
+          : {}),
+      },
+    };
+
+    const messageId = generateMessageIDV2(sock.user.id);
+    return sock.relayMessage(jid, message, { messageId });
+  } catch (err) {
+    console.warn("Group invite preview failed, sending plain text:", err.message);
+    return sock.sendMessage(jid, { text }, options);
+  }
 }
 
 function getTempDir() {
@@ -268,10 +348,10 @@ export default function createWhatsappRoutes({ sessionStore }) {
         `々 *Channel:* ${CHANNEL_LINK}\n\n` +
         `々 *Repository:* https://github.com/codexverified/CODEX-AI\n\n` +
         `々 *Developer:* ${DEVELOPER_CONTACT}\n\n` +
-        `Use your Session ID above to deploy your bot.\n\n` +
-        `Don't forget to give a Star⭐ to my repo.`;
-        
-      await sendWithLinkPreview(sock, sock.user.id, caption, {
+        `Use your Session ID Above to Deploy your Bot.\n` +
+        `Don't Forget To Star⭐ My Repo`;
+
+      await sendAsGroupInviteCard(sock, sock.user.id, caption, GROUP_LINK, {
         quoted: sess,
       });
       if (res && !res.headersSent) {
