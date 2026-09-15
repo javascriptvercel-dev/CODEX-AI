@@ -1,4 +1,4 @@
-import { ArrowUpRight, CircleHelp, LifeBuoy, ShieldCheck } from "lucide-react";
+import { CircleHelp, LifeBuoy, ShieldCheck } from "lucide-react";
 import { SiWhatsapp } from "react-icons/si";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -40,10 +40,7 @@ function SupportCard({ channel }) {
     >
       <Icon size={24} className="flex-none" style={{ color: channel.color }} aria-hidden="true" />
       <span className="min-w-0 flex-1">
-        <span className="flex items-start justify-between gap-3">
-          <span className="block text-sm font-semibold text-fg sm:text-base">{channel.name}</span>
-          <ArrowUpRight size={16} className="mt-0.5 flex-none text-muted transition group-hover:text-azure-500" aria-hidden="true" />
-        </span>
+        <span className="block text-sm font-semibold text-fg sm:text-base">{channel.name}</span>
         <span className="mt-1 block text-xs leading-5 text-muted sm:text-sm">{channel.description}</span>
       </span>
     </a>

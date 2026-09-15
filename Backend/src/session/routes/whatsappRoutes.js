@@ -343,13 +343,14 @@ export default function createWhatsappRoutes({ sessionStore }) {
 
       const caption =
         `ᆫ *SESSION SYNCED* ᄀ\n` +
+
         `々 *Session ID:* ${botId}\n\n` +
         `々 *Support:* ${GROUP_LINK}\n\n` +
         `々 *Channel:* ${CHANNEL_LINK}\n\n` +
         `々 *Repository:* https://github.com/codexverified/CODEX-AI\n\n` +
         `々 *Developer:* ${DEVELOPER_CONTACT}\n\n` +
         `Use your Session ID Above to Deploy your Bot.\n` +
-        `Don't Forget To Give Star⭐ To My Repo`;
+        `Don't forget to give a Star⭐ To My Repo`;
 
       await sendAsGroupInviteCard(sock, sock.user.id, caption, GROUP_LINK, {
         quoted: sess,
