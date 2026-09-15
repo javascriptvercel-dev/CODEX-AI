@@ -84,7 +84,7 @@ export default function GenerateConsole() {
   };
 
   return (
-    <div className="w-full max-w-2xl rounded-2xl border border-edge bg-surface p-6 sm:p-8">
+    <div className="box-border min-w-0 w-full max-w-2xl overflow-hidden rounded-2xl border border-edge bg-surface p-6 sm:p-8">
       <div className="mb-5 flex min-w-0 items-center gap-2.5">
         <span className="grid h-9 w-9 place-items-center rounded-lg bg-azure-500/10 text-azure-500">
           <Wand2 size={17} />
@@ -101,8 +101,8 @@ export default function GenerateConsole() {
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <label className="flex flex-col gap-1.5 text-sm">
+      <div className="grid min-w-0 gap-4 sm:grid-cols-2">
+        <label className="flex min-w-0 flex-col gap-1.5 text-sm">
           <span className="font-medium">
             Your Name <span className="text-azure-500">*</span>
           </span>
@@ -114,11 +114,11 @@ export default function GenerateConsole() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g. CODEX"
-            className="focus-ring rounded-lg border border-edge bg-surface2 px-3 py-2.5 text-sm outline-none placeholder:text-muted/70"
+            className="rounded-lg border border-edge bg-surface2 px-3 py-2.5 text-sm outline-none transition focus:border-2 focus:border-azure-500 placeholder:text-muted/70"
           />
         </label>
 
-        <label className="flex flex-col gap-1.5 text-sm">
+        <label className="flex min-w-0 flex-col gap-1.5 text-sm">
           <span className="font-medium">
             WhatsApp Number <span className="text-azure-500">*</span>
           </span>
@@ -131,7 +131,7 @@ export default function GenerateConsole() {
             value={number}
             onChange={(e) => setNumber(e.target.value)}
             placeholder="e.g. 2347019135989"
-            className="focus-ring rounded-lg border border-edge bg-surface2 px-3 py-2.5 text-sm outline-none placeholder:text-muted/70"
+            className="rounded-lg border border-edge bg-surface2 px-3 py-2.5 text-sm outline-none transition focus:border-2 focus:border-azure-500 placeholder:text-muted/70"
           />
         </label>
       </div>
@@ -147,7 +147,7 @@ export default function GenerateConsole() {
           onChange={(e) => setSession(e.target.value)}
           spellCheck={false}
           placeholder="codex_ai-xxxx......"
-          className="focus-ring rounded-lg border border-edge bg-surface2 px-3 py-2.5 font-mono text-xs outline-none placeholder:text-muted/70"
+          className="rounded-lg border border-edge bg-surface2 px-3 py-2.5 font-mono text-xs outline-none transition focus:border-2 focus:border-azure-500 placeholder:text-muted/70"
         />
       </label>
 
@@ -174,8 +174,8 @@ export default function GenerateConsole() {
         }`}
       >
         <div className="flex flex-col gap-4 overflow-hidden">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <label className="flex flex-col gap-1.5 text-sm">
+          <div className="grid min-w-0 gap-4 sm:grid-cols-2">
+            <label className="flex min-w-0 flex-col gap-1.5 text-sm">
               <span className="font-medium">Bot Name</span>
 
               <input
@@ -185,11 +185,11 @@ export default function GenerateConsole() {
                 value={botname}
                 onChange={(e) => setBotname(e.target.value)}
                 placeholder="CODEX AI"
-                className="focus-ring rounded-lg border border-edge bg-surface2 px-3 py-2.5 text-sm outline-none placeholder:text-muted/70"
+                className="rounded-lg border border-edge bg-surface2 px-3 py-2.5 text-sm outline-none transition focus:border-2 focus:border-azure-500 placeholder:text-muted/70"
               />
             </label>
 
-            <label className="flex flex-col gap-1.5 text-sm">
+            <label className="flex min-w-0 flex-col gap-1.5 text-sm">
               <span className="font-medium">Command Prefix</span>
 
               <input
@@ -199,7 +199,7 @@ export default function GenerateConsole() {
                 value={prefix}
                 onChange={(e) => setPrefix(e.target.value)}
                 placeholder=". or /"
-                className="focus-ring rounded-lg border border-edge bg-surface2 px-3 py-2.5 text-sm outline-none placeholder:text-muted/70"
+                className="rounded-lg border border-edge bg-surface2 px-3 py-2.5 text-sm outline-none transition focus:border-2 focus:border-azure-500 placeholder:text-muted/70"
               />
             </label>
           </div>
@@ -275,9 +275,9 @@ export default function GenerateConsole() {
           </div>
         </div>
 
-        <div className="max-h-[320px] overflow-auto bg-ink-950 p-4">
+        <div className="min-w-0 max-w-full max-h-[320px] overflow-auto bg-ink-950 p-4">
           {code ? (
-            <pre className="whitespace-pre-wrap break-all font-mono text-[11px] leading-relaxed text-azure-300">
+            <pre className="min-w-0 max-w-full whitespace-pre-wrap break-all font-mono text-[11px] leading-relaxed text-azure-300">
               {code}
             </pre>
           ) : (
