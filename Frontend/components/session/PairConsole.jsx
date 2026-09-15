@@ -163,7 +163,7 @@ export default function PairConsole() {
 
           <h2 className="font-display text-base font-bold">Link device</h2>
           <p className="text-xs text-muted">
-            Securely link your WhatsApp number 
+            Securely link your WhatsApp account
           </p>
         </div>
       </div>

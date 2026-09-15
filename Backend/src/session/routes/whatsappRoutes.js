@@ -8,7 +8,6 @@ import makeWASocket, {
   useMultiFileAuthState,
   delay,
   fetchLatestBaileysVersion,
-  generateMessageIDV2,
 } from "baileys";
 import NodeCache from "node-cache";
 import { kordid } from "../lib/kordid.js";
@@ -18,54 +17,8 @@ const sessCache = new NodeCache({ stdTTL: 600 });
 const sessions = new Map();
 const qrStates = new NodeCache({ stdTTL: 600 });
 
-// Sends `text` with a native WhatsApp group-invite preview card attached to
-// `groupLink` inside it — the actual group icon, name and member count as
-// fetched live from the invite code, exactly like pasting the link yourself.
-// No hosted thumbnail, no forwarded/"view channel" tag — just the same card
-// WhatsApp itself renders for any group-invite link. Falls back to plain
-// text if the invite can't be resolved (offline, revoked, etc.) so the
-// message still goes out either way.
-async function sendAsGroupInviteCard(sock, jid, text, groupLink, options = {}) {
-  const inviteCode = groupLink.match(/chat\.whatsapp\.com\/([A-Za-z0-9_-]+)/)?.[1];
-  if (!inviteCode) {
-    return sock.sendMessage(jid, { text }, options);
-  }
-
-  try {
-    const info = await sock.groupGetInviteInfo(inviteCode);
-    const groupJid = info.id;
-    const groupName = info.subject || "WhatsApp Group";
-    const memberCount = info.size ?? info.participants?.length;
-
-    const quoted = options.quoted;
-    const message = {
-      extendedTextMessage: {
-        text,
-        matchedText: groupLink,
-        canonicalUrl: groupLink,
-        title: groupName,
-        description: memberCount != null
-          ? `${memberCount} members · WhatsApp Group Invite`
-          : "WhatsApp Group Invite",
-        previewType: 5, // IMAGE
-        ...(quoted
-          ? {
-              contextInfo: {
-                stanzaId: quoted.key.id,
-                participant: quoted.key.participant || quoted.key.remoteJid,
-                quotedMessage: quoted.message,
-              },
-            }
-          : {}),
-      },
-    };
-
-    const messageId = generateMessageIDV2(sock.user.id);
-    return sock.relayMessage(jid, message, { messageId });
-  } catch (err) {
-    console.warn("Group invite preview failed, sending plain text:", err.message);
-    return sock.sendMessage(jid, { text }, options);
-  }
+async function sendWithLinkPreview(sock, jid, text, options = {}) {
+  return sock.sendMessage(jid, { text, linkPreview: true }, options);
 }
 
 function getTempDir() {
@@ -318,7 +271,7 @@ export default function createWhatsappRoutes({ sessionStore }) {
         `Use your Session ID above to deploy your bot.\n\n` +
         `Don't forget to give a Star⭐ to my repo.`;
         
-      await sendAsGroupInviteCard(sock, sock.user.id, caption, GROUP_LINK, {
+      await sendWithLinkPreview(sock, sock.user.id, caption, {
         quoted: sess,
       });
       if (res && !res.headersSent) {
