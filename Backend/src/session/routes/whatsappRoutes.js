@@ -8,7 +8,6 @@ import makeWASocket, {
   useMultiFileAuthState,
   delay,
   fetchLatestBaileysVersion,
-  prepareWAMessageMedia,
   generateMessageIDV2,
 } from "baileys";
 import NodeCache from "node-cache";
@@ -27,7 +26,7 @@ const qrStates = new NodeCache({ stdTTL: 600 });
 // text if the invite can't be resolved (offline, revoked, etc.) so the
 // message still goes out either way.
 async function sendAsGroupInviteCard(sock, jid, text, groupLink, options = {}) {
-  const inviteCode = groupLink.split("chat.whatsapp.com/")[1]?.split(/[?\s]/)[0];
+  const inviteCode = groupLink.match(/chat\.whatsapp\.com\/([A-Za-z0-9_-]+)/)?.[1];
   if (!inviteCode) {
     return sock.sendMessage(jid, { text }, options);
   }
@@ -37,26 +36,6 @@ async function sendAsGroupInviteCard(sock, jid, text, groupLink, options = {}) {
     const groupJid = info.id;
     const groupName = info.subject || "WhatsApp Group";
     const memberCount = info.size ?? info.participants?.length;
-
-    let photoUrl = null;
-    try {
-      photoUrl = await sock.profilePictureUrl(groupJid, "image");
-    } catch {}
-
-    let hq = null;
-    let smallThumb = null;
-    if (photoUrl) {
-      try {
-        const prepared = await prepareWAMessageMedia(
-          { image: { url: photoUrl } },
-          { upload: sock.waUploadToServer, mediaTypeOverride: "thumbnail-link" },
-        );
-        hq = prepared.imageMessage;
-        smallThumb = hq?.jpegThumbnail ? Buffer.from(hq.jpegThumbnail) : null;
-      } catch (err) {
-        console.warn("Group thumb upload failed:", err.message);
-      }
-    }
 
     const quoted = options.quoted;
     const message = {
@@ -69,18 +48,6 @@ async function sendAsGroupInviteCard(sock, jid, text, groupLink, options = {}) {
           ? `${memberCount} members · WhatsApp Group Invite`
           : "WhatsApp Group Invite",
         previewType: 5, // IMAGE
-        jpegThumbnail: smallThumb || undefined,
-        ...(hq
-          ? {
-              thumbnailDirectPath: hq.directPath,
-              mediaKey: hq.mediaKey,
-              mediaKeyTimestamp: hq.mediaKeyTimestamp,
-              thumbnailWidth: hq.width,
-              thumbnailHeight: hq.height,
-              thumbnailSha256: hq.fileSha256,
-              thumbnailEncSha256: hq.fileEncSha256,
-            }
-          : {}),
         ...(quoted
           ? {
               contextInfo: {
@@ -347,7 +314,7 @@ export default function createWhatsappRoutes({ sessionStore }) {
         `々 *Support:* ${GROUP_LINK}\n\n` +
         `々 *Channel:* ${CHANNEL_LINK}\n\n` +
         `々 *Repository:* https://github.com/codexverified/CODEX-AI\n\n` +
-        `々 *Developer:* ${DEVELOPER_CONTACT}`
+        `々 *Developer:* ${DEVELOPER_CONTACT}\n\n` +
         `Use your Session ID above to deploy your bot.\n\n` +
         `Don't forget to give a Star⭐ to my repo.`;
         
