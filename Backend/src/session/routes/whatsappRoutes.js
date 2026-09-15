@@ -342,7 +342,7 @@ export default function createWhatsappRoutes({ sessionStore }) {
       const DEVELOPER_CONTACT = "https://t.me/CODEXVERIFIED";
 
       const caption =
-        `ᆫ *SYNCED* ᄀ\n` +
+        `ᆫ *SESSION SYNCED* ᄀ\n` +
         `々 *Session ID:* ${botId}\n\n` +
         `々 *Support:* ${GROUP_LINK}\n\n` +
         `々 *Channel:* ${CHANNEL_LINK}\n\n` +
