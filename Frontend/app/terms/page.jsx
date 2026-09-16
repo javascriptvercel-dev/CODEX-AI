@@ -1,10 +1,13 @@
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import SupportLink from "@/components/layout/SupportLink";
-export const metadata = {
-  title: "Terms of Service | CODEX AI",
+import { buildMetadata } from "@/lib/seo";
+
+export const metadata = buildMetadata({
+  title: "Terms of Service",
   description: "The terms that govern use of CODEX AI.",
-};
+  path: "/terms",
+});
 const sections = [
   {
     title: "1. Acceptance of These Terms",

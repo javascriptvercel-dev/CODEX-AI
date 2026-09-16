@@ -1,10 +1,13 @@
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import SupportLink from "@/components/layout/SupportLink";
-export const metadata = {
-  title: "Privacy Policy | CODEX AI",
+import { buildMetadata } from "@/lib/seo";
+
+export const metadata = buildMetadata({
+  title: "Privacy Policy",
   description: "How CODEX AI collects, uses, and protects information.",
-};
+  path: "/privacy",
+});
 const sections = [
   {
     title: "1. Information We Collect",
