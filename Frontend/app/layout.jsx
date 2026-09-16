@@ -26,6 +26,9 @@ export const metadata = {
     shortcut: "/codex-robot.png",
     apple: "/codex-robot.png",
   },
+  other: {
+    "google-adsense-account": "ca-pub-5108480355141022",
+  },
 };
 export default function RootLayout({ children }) {
   return (
