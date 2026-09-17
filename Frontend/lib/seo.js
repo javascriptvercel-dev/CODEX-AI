@@ -1,6 +1,6 @@
-const SITE_NAME = "CODEX AI";
+const SITE_NAME = "CODEX AI WA BOT";
 const DEFAULT_DESCRIPTION =
-  "A multifunctional WhatsApp bot with fun plugins and community support.";
+  "A multifunctional WhatsApp bot built with baileys.";
 // Fall back to the production domain so canonical/OG tags are always absolute,
 // even when NEXT_PUBLIC_SITE_URL is missing in a build environment.
 const SITE_URL = (
