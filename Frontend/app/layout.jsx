@@ -41,6 +41,9 @@ export const metadata = {
     "deploy WhatsApp bot",
   ],
   alternates: { canonical: siteUrl },
+  verification: {
+    google: "cyqYA6TZYfiaLt20QYRr1-Vw3QjRJkg47ACroMzy8yU",
+  },
   robots: {
     index: true,
     follow: true,
