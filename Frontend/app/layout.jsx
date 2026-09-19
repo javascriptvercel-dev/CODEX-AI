@@ -3,6 +3,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { AuthProvider } from "@/context/AuthContext";
 import RobotWidget from "@/components/robot/RobotWidget";
+import Script from "next/script";
 const display = Space_Grotesk({
   subsets: ["latin"],
   variable: "--font-display",
@@ -125,6 +126,11 @@ export default function RootLayout({ children }) {
 
             {children}
             <RobotWidget />
+            <Script
+              async
+              src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5108480355141022"
+              crossOrigin="anonymous"
+            />
             <script
               type="application/ld+json"
               dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
