@@ -18,7 +18,6 @@ import AdminEmailOptInModal, {
   shouldShowEmailPrompt,
 } from "@/components/admin/AdminEmailOptInModal";
 import PluginSubmitForm from "@/components/plugins/PluginSubmitForm";
-import AuthModal from "@/components/auth/AuthModal";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
 
@@ -60,7 +59,8 @@ function ConsolePageInner() {
   }, [searchParams]);
 
   useEffect(() => {
-    if (!authLoading && user && !isAdmin) router.replace("/");
+    if (!authLoading && !user) router.replace("/login?next=%2Fconsole");
+    else if (!authLoading && user && !isAdmin) router.replace("/");
   }, [authLoading, user, isAdmin, router]);
 
   useEffect(() => {
@@ -160,15 +160,7 @@ function ConsolePageInner() {
   }
 
   if (!user) {
-    return (
-      <div className="min-h-screen bg-bg">
-        <AuthModal
-          message="Sign in to enter the admin console."
-          onClose={() => router.push("/")}
-          onSuccess={refresh}
-        />
-      </div>
-    );
+    return <div className="min-h-screen bg-bg" />;
   }
 
   if (!isAdmin) {

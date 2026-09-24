@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import PluginNavbar from "@/components/layout/PluginNavbar";
 import Footer from "@/components/layout/Footer";
-import AuthModal from "@/components/auth/AuthModal";
 import PluginSubmitForm from "@/components/plugins/PluginSubmitForm";
 import { useAuth } from "@/context/AuthContext";
 
@@ -22,21 +21,19 @@ export default function CreatePluginPage() {
     if (user?.role === "admin" && !fromConsole) router.replace("/console");
   }, [user, router]);
 
+  useEffect(() => {
+    if (!loading && (!user || !hasFreshSession())) {
+      router.replace("/login?next=%2Fcreate");
+    }
+  }, [loading, user, hasFreshSession, router]);
+
   if (loading) {
     return <div className="flex min-h-dvh items-center justify-center bg-bg"><div className="h-8 w-8 animate-pulse rounded-full bg-azure-500/30" /></div>;
   }
 
   const needsAuth = !user || !hasFreshSession();
   if (needsAuth) {
-    return (
-      <div className="min-h-dvh bg-bg">
-        <PluginNavbar />
-        <AuthModal
-          message={!user ? "Sign in to create a plugin." : "For your security, please sign in again to continue."}
-          onClose={() => router.push("/plugins")}
-        />
-      </div>
-    );
+    return <div className="min-h-dvh bg-bg" />;
   }
 
   return (
