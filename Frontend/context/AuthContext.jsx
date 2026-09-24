@@ -28,26 +28,24 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     refresh();
   }, [refresh]);
-  const goToConsoleIfAdmin = (signedInUser, nextPath) => {
-    if (signedInUser.role === "admin" && !nextPath && pathname !== "/console")
+  const goToConsoleIfAdmin = (signedInUser) => {
+    if (signedInUser.role === "admin" && pathname !== "/console")
       router.push("/console");
   };
   const login = async (credentials) => {
-    const { nextPath, ...loginCredentials } = credentials;
-    const { user: signedIn } = await api.login(loginCredentials);
+    const { user: signedIn } = await api.login(credentials);
     setUser(signedIn);
     robot.say("Hey! Welcome.");
     robot.mood("happy");
-    goToConsoleIfAdmin(signedIn, nextPath);
+    goToConsoleIfAdmin(signedIn);
     return signedIn;
   };
   const signup = async (credentials) => {
-    const { nextPath, ...signupCredentials } = credentials;
-    const { user: created } = await api.signup(signupCredentials);
+    const { user: created } = await api.signup(credentials);
     setUser(created);
     robot.say("Hey! Welcome.");
     robot.mood("happy");
-    goToConsoleIfAdmin(created, nextPath);
+    goToConsoleIfAdmin(created);
     return created;
   };
   const logout = async () => {

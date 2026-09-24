@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Check, X, FileDown, Pencil, Save } from "lucide-react";
 import { api } from "@/lib/api";
+import VerifiedBadge from "@/components/ui/VerifiedBadge";
 
 export default function SubmissionCard({ submission, onApprove, onReject, onSaved }) {
   const [note, setNote] = useState("");
@@ -50,7 +51,10 @@ export default function SubmissionCard({ submission, onApprove, onReject, onSave
           ) : (
             <h4 className="break-words font-display text-base font-bold [overflow-wrap:anywhere]">{submission.title}</h4>
           )}
-          <p className="mt-1 break-words text-xs text-muted [overflow-wrap:anywhere]">by {submission.authorName}</p>
+          <p className="mt-1 flex flex-wrap items-center gap-1 break-words text-xs text-muted [overflow-wrap:anywhere]">
+            by {submission.authorName}
+            {submission.authorIsAdmin && <VerifiedBadge size={12} />}
+          </p>
         </div>
         <span className="flex-shrink-0 rounded-[3px] border border-edge bg-surface2 px-2.5 py-1 text-[11px] text-muted">
           {new Date(submission.createdAt).toLocaleDateString()}

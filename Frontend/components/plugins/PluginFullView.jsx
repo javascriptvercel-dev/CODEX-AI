@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, CalendarDays, Check, Copy, User } from "lucide-react";
+import VerifiedBadge from "@/components/ui/VerifiedBadge";
 
 function formatDate(value) {
   if (!value) return "—";
@@ -70,6 +71,7 @@ export default function PluginFullView({ plugin }) {
                 <span className="inline-flex min-w-0 items-center gap-1.5">
                   <User size={15} />
                   <span className="truncate">by {plugin.authorName || "Unknown author"}</span>
+                  {plugin.authorIsAdmin && <VerifiedBadge size={14} />}
                 </span>
                 <span aria-hidden="true">•</span>
                 <span className="inline-flex items-center gap-1.5">
@@ -98,6 +100,7 @@ export default function PluginFullView({ plugin }) {
               {plugin.code ? (
                 <span className="inline-flex items-center gap-1.5 text-xs text-muted sm:text-sm">
                   <User size={14} /> {plugin.authorName || "Plugin author"}
+                  {plugin.authorIsAdmin && <VerifiedBadge size={12} />}
                 </span>
               ) : null}
             </div>

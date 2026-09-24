@@ -1,5 +1,5 @@
 "use client";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   AlertTriangle,
@@ -18,8 +18,18 @@ import AdminEmailOptInModal, {
   shouldShowEmailPrompt,
 } from "@/components/admin/AdminEmailOptInModal";
 import PluginSubmitForm from "@/components/plugins/PluginSubmitForm";
+import AuthModal from "@/components/auth/AuthModal";
+import VerifiedBadge from "@/components/ui/VerifiedBadge";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
+import { robot } from "@/lib/robot";
+
+const CONSOLE_GREETINGS = [
+  "Welcome back, {name}! Let's see what's waiting for review.",
+  "Good to see you, {name}. I'll keep an eye on things too.",
+  "Hey {name}! Ready when you are.",
+  "{name}, the console is all yours.",
+];
 
 const TABS = [
   { id: "submissions", label: "Submissions", icon: ShieldCheck },
@@ -50,6 +60,7 @@ function ConsolePageInner() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showEmailPrompt, setShowEmailPrompt] = useState(false);
+  const greetedRef = useRef(false);
 
   useEffect(() => {
     const t = searchParams.get("tab");
@@ -59,15 +70,22 @@ function ConsolePageInner() {
   }, [searchParams]);
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      router.replace("/login?next=%2Fconsole&cancel=%2Fplugins");
-    }
-    else if (!authLoading && user && !isAdmin) router.replace("/");
+    if (!authLoading && user && !isAdmin) router.replace("/");
   }, [authLoading, user, isAdmin, router]);
 
   useEffect(() => {
     if (!authLoading) setShowEmailPrompt(shouldShowEmailPrompt(user));
   }, [authLoading, user]);
+
+  useEffect(() => {
+    if (greetedRef.current || authLoading || !user || !isAdmin) return;
+    greetedRef.current = true;
+    const firstName = (user.fullName || user.email || "").trim().split(/\s+/)[0] || "boss";
+    const template =
+      CONSOLE_GREETINGS[Math.floor(Math.random() * CONSOLE_GREETINGS.length)];
+    robot.say(template.replace("{name}", firstName));
+    robot.mood("happy");
+  }, [authLoading, user, isAdmin]);
 
   const selectTab = (id) => {
     setTab(id);
@@ -162,7 +180,15 @@ function ConsolePageInner() {
   }
 
   if (!user) {
-    return <div className="min-h-screen bg-bg" />;
+    return (
+      <div className="min-h-screen bg-bg">
+        <AuthModal
+          message="Sign in to enter the admin console."
+          onClose={() => router.push("/")}
+          onSuccess={refresh}
+        />
+      </div>
+    );
   }
 
   if (!isAdmin) {
@@ -188,11 +214,20 @@ function ConsolePageInner() {
     <div className="flex min-h-screen flex-col bg-bg text-fg">
       <ConsoleNavbar />
       <main className="mx-auto w-full max-w-6xl flex-1 px-5 py-6 sm:py-8">
-        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-          <h1 className="font-display text-xl font-bold tracking-tight sm:text-2xl">
-            Console
-          </h1>
-          <p className="text-sm text-muted">
+        <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
+          <div className="min-w-0">
+            <h1 className="font-display text-xl font-bold tracking-tight sm:text-2xl">
+              Console
+            </h1>
+            <p className="mt-1 flex flex-wrap items-center gap-1.5 text-sm text-muted [overflow-wrap:anywhere]">
+              Welcome back,{" "}
+              <span className="font-semibold text-fg">
+                {user?.fullName || user?.email}
+              </span>
+              <VerifiedBadge size={14} />
+            </p>
+          </div>
+          <p className="max-w-xs text-sm text-muted sm:max-w-sm sm:text-right">
             Review submissions, triage feedback, and manage this workspace.
           </p>
         </div>

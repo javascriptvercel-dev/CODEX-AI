@@ -6,7 +6,7 @@ export const listSubmissions = async (req, res) => {
   let query = supabase
     .from("plugin_submissions")
     .select(
-      "public_id, title, description, code, file_path, category, status, admin_note, created_at, users(full_name, email)"
+      "public_id, title, description, code, file_path, category, status, admin_note, created_at, users(full_name, email, role)"
     )
     .order("created_at", { ascending: false });
 
@@ -36,6 +36,7 @@ export const listSubmissions = async (req, res) => {
         adminNote: submission.admin_note,
         createdAt: submission.created_at,
         authorName: submission.users?.full_name || submission.users?.email || "Unknown",
+        authorIsAdmin: submission.users?.role === "admin",
         fileUrl,
       };
     })

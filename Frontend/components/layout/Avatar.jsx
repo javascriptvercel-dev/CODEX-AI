@@ -1,6 +1,6 @@
 "use client";
 import { useRef, useState } from "react";
-import { Camera, Loader2 } from "lucide-react";
+import { BadgeCheck, Camera, Loader2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
 const getInitials = (user) => {
@@ -11,7 +11,7 @@ const getInitials = (user) => {
   return initials.toUpperCase();
 };
 export default function Avatar({ size = 36, editable = true }) {
-  const { user, refresh } = useAuth();
+  const { user, refresh, isAdmin } = useAuth();
   const inputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
@@ -71,6 +71,16 @@ export default function Avatar({ size = 36, editable = true }) {
           </span>
         )}
       </button>
+      {isAdmin && (
+        <span
+          title="Verified admin"
+          aria-label="Verified admin"
+          className="absolute -bottom-0.5 -right-0.5 grid place-items-center rounded-full border-2 border-surface bg-azure-500 text-white"
+          style={{ width: Math.max(size * 0.36, 14), height: Math.max(size * 0.36, 14) }}
+        >
+          <BadgeCheck size={Math.max(size * 0.24, 10)} strokeWidth={3} aria-hidden="true" />
+        </span>
+      )}
       {editable && (
         <input
           ref={inputRef}

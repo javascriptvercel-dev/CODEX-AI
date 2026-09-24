@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CalendarDays, User } from "lucide-react";
+import VerifiedBadge from "@/components/ui/VerifiedBadge";
 
 export default function PluginCard({ plugin }) {
   const id = plugin?.id;
@@ -23,6 +24,7 @@ export default function PluginCard({ plugin }) {
       <span className="flex min-w-0 items-center gap-1.5">
         <User size={14} aria-hidden="true" />
         <span className="max-w-[150px] truncate">by {plugin.authorName || "Unknown author"}</span>
+        {plugin.authorIsAdmin && <VerifiedBadge size={13} />}
       </span>
       <span className="flex min-w-0 items-center gap-1.5">
         <CalendarDays size={14} aria-hidden="true" />
