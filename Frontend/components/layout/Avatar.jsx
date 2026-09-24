@@ -73,8 +73,8 @@ export default function Avatar({ size = 36, editable = true }) {
       </button>
       {isAdmin && (
         <span
-          title="Verified admin"
-          aria-label="Verified admin"
+          title="Verified"
+          aria-label="Verified"
           className="absolute -bottom-0.5 -right-0.5 grid place-items-center rounded-full border-2 border-surface bg-azure-500 text-white"
           style={{ width: Math.max(size * 0.36, 14), height: Math.max(size * 0.36, 14) }}
         >
