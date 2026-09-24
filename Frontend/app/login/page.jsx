@@ -14,13 +14,14 @@ function LoginPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const nextPath = getSafeNextPath(searchParams.get("next"));
+  const cancelPath = getSafeNextPath(searchParams.get("cancel"));
 
   return (
     <div className="min-h-dvh bg-bg">
       <AuthModal
         message="Sign in to continue."
         nextPath={nextPath}
-        onClose={() => router.replace(nextPath)}
+        onClose={() => router.replace(cancelPath)}
         onSuccess={() => router.replace(nextPath)}
       />
     </div>

@@ -23,7 +23,7 @@ export default function CreatePluginPage() {
 
   useEffect(() => {
     if (!loading && (!user || !hasFreshSession())) {
-      router.replace("/login?next=%2Fcreate");
+      router.replace("/login?next=%2Fcreate&cancel=%2Fplugins");
     }
   }, [loading, user, hasFreshSession, router]);
 

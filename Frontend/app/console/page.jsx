@@ -59,7 +59,9 @@ function ConsolePageInner() {
   }, [searchParams]);
 
   useEffect(() => {
-    if (!authLoading && !user) router.replace("/login?next=%2Fconsole");
+    if (!authLoading && !user) {
+      router.replace("/login?next=%2Fconsole&cancel=%2Fplugins");
+    }
     else if (!authLoading && user && !isAdmin) router.replace("/");
   }, [authLoading, user, isAdmin, router]);
 
