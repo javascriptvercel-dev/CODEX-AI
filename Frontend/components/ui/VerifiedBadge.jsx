@@ -8,7 +8,7 @@ import { BadgeCheck } from "lucide-react";
 export default function VerifiedBadge({
   size = 14,
   className = "",
-  label = "Verified admin",
+  label = "Verified",
 }) {
   return (
     <span

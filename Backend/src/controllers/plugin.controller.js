@@ -13,6 +13,10 @@ const CATEGORIES = [
 const buildPluginUrl = (publicId) => `${env.publicFrontendUrl}/plugins/${publicId}`;
 const buildPluginRawUrl = (publicId) =>
   `${env.publicFrontendUrl}/api/plugins/${publicId}/raw`;
+const relationHasAdminRole = (relation) =>
+  Array.isArray(relation)
+    ? relation.some((user) => user?.role === "admin")
+    : relation?.role === "admin";
 const toPublicPlugin = (p) => {
   const url = buildPluginUrl(p.public_id);
   const rawUrl = buildPluginRawUrl(p.public_id);
@@ -20,7 +24,7 @@ const toPublicPlugin = (p) => {
     id: p.public_id,
     name: p.name,
     authorName: p.author_name,
-    authorIsAdmin: p.users?.role === "admin",
+    authorIsAdmin: relationHasAdminRole(p.users),
     description: p.description,
     code: p.code,
     rawUrl,
