@@ -13,7 +13,7 @@ import Modal from "@/components/modals/Modal";
 import Button from "@/components/ui/Button";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
-export default function AuthModal({ onClose, onSuccess, message }) {
+export default function AuthModal({ onClose, onSuccess, message, nextPath }) {
   const pathname = usePathname();
   const { login, signup } = useAuth();
   const [mode, setMode] = useState("login");
@@ -28,9 +28,9 @@ export default function AuthModal({ onClose, onSuccess, message }) {
     setStatus({ state: "loading", message: "" });
     try {
       if (mode === "login") {
-        await login({ email, password });
+        await login({ email, password, nextPath });
       } else if (mode === "signup") {
-        await signup({ email, password, fullName });
+        await signup({ email, password, fullName, nextPath });
       } else {
         await api.forgotPassword(email);
         setResetSent(true);
@@ -240,7 +240,7 @@ export default function AuthModal({ onClose, onSuccess, message }) {
             <span className="h-px flex-1 bg-edge" />
           </div>
           <Button
-            href={api.githubUrl(pathname)}
+            href={api.githubUrl(nextPath || pathname)}
             variant="secondary"
             size="lg"
             full
