@@ -6,6 +6,7 @@ import authRoutes from "./routes/auth.routes.js";
 import pluginRoutes from "./routes/plugin.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import suggestionRoutes from "./routes/suggestion.routes.js";
+import toolsRoutes from "./routes/tools.routes.js";
 import sessionRouter from "./session/router.js";
 const app = express();
 app.use(cors({ origin: env.frontendUrl, credentials: true }));
@@ -16,6 +17,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/plugins", pluginRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/suggestions", suggestionRoutes);
+app.use("/api/tools", toolsRoutes);
 app.use("/api", sessionRouter);
 app.use((err, _req, res, _next) => {
   console.error(err);

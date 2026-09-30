@@ -5,13 +5,6 @@ export const LOCKED_PAGE_STATUS = {
 
 export const lockedPages = [
   {
-    path: "/tools",
-    title: "Tools",
-    status: LOCKED_PAGE_STATUS.DEVELOPMENT,
-    message:
-      "Tools are not available yet. This section is still in development and will be unlocked soon.",
-  },
-  {
     path: "/apis",
     title: "APIs",
     status: LOCKED_PAGE_STATUS.DEVELOPMENT,

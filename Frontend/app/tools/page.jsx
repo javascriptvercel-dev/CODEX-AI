@@ -1,13 +1,23 @@
-import LockedRoutePage from "@/components/layout/LockedRoutePage";
-import { getLockedPage } from "@/lib/lockedPages";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import ToolsHub from "@/components/tools/ToolsHub";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata = buildMetadata({
   title: "Tools",
-  description: "Extra CODEX AI tooling is in development and will unlock soon.",
+  description:
+    "Free utilities for WhatsApp bot owners, including a WhatsApp ban checker.",
   path: "/tools",
 });
 
 export default function ToolsPage() {
-  return <LockedRoutePage page={getLockedPage("/tools")} />;
+  return (
+    <div className="flex min-h-dvh flex-col bg-bg text-fg">
+      <Navbar />
+      <main className="flex-1">
+        <ToolsHub />
+      </main>
+      <Footer />
+    </div>
+  );
 }

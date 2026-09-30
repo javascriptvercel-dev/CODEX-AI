@@ -1,3 +1,5 @@
+import { tools, isToolOpenable } from "@/lib/tools";
+
 const SITE_URL = (
   process.env.NEXT_PUBLIC_SITE_URL || "https://codex-ai.site"
 ).replace(/\/+$/, "");
@@ -10,7 +12,12 @@ const ROUTES = [
   { path: "/repository", changeFrequency: "weekly", priority: 0.8 },
   { path: "/support", changeFrequency: "monthly", priority: 0.7 },
   { path: "/suggest", changeFrequency: "monthly", priority: 0.6 },
-  { path: "/tools", changeFrequency: "monthly", priority: 0.5 },
+  { path: "/tools", changeFrequency: "weekly", priority: 0.6 },
+  ...tools.filter(isToolOpenable).map((tool) => ({
+    path: `/tools/${tool.slug}`,
+    changeFrequency: "monthly",
+    priority: 0.5,
+  })),
   { path: "/apis", changeFrequency: "monthly", priority: 0.5 },
   { path: "/privacy", changeFrequency: "yearly", priority: 0.3 },
   { path: "/terms", changeFrequency: "yearly", priority: 0.3 },

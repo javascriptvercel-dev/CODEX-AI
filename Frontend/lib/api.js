@@ -80,5 +80,11 @@ export const api = {
   adminSuggestions: () => request("/api/admin/suggestions"),
   submitSuggestion: (body) =>
     request("/api/suggestions", { method: "POST", body: JSON.stringify(body) }),
+  checkBan: (number) =>
+    request("/api/tools/ban-check", {
+      method: "POST",
+      body: JSON.stringify({ number }),
+      signal: AbortSignal.timeout(25000),
+    }),
 };
 export const CREATE_SESSION_MAX_AGE_MS = 45 * 60 * 1000;

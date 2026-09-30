@@ -40,6 +40,22 @@ export const env = {
     apiKey: process.env.RESEND_API_KEY,
     from: process.env.MAIL_FROM || "CODEX AI <no-reply@codex-ai.dev>",
   },
+  // WhatsApp ban checker tool (/api/tools/ban-check). The key stays on the
+  // server; without it the tool answers "not available right now".
+  banCheck: {
+    apiKey: (process.env.BANCHECK_API_KEY || process.env.BARON_API_KEY || "").trim(),
+    apiUrl: process.env.BANCHECK_API_URL || "https://baron0.com/api/v2/check",
+    rateLimitPerMin: Number(process.env.BANCHECK_RATE_LIMIT_PER_MIN) || 10,
+    cacheMs:
+      (process.env.BANCHECK_CACHE_SECONDS === undefined
+        ? 45
+        : Number(process.env.BANCHECK_CACHE_SECONDS) || 0) * 1000,
+    // Trusted reverse proxies in front of the API (Render = 1). Set 0 locally.
+    proxyHops: Number.isFinite(Number(process.env.BANCHECK_PROXY_HOPS))
+      && process.env.BANCHECK_PROXY_HOPS !== undefined
+      ? Number(process.env.BANCHECK_PROXY_HOPS)
+      : process.env.NODE_ENV === "production" ? 1 : 0,
+  },
   session: {
     supabaseBucket: process.env.SUPABASE_SESSION_BUCKET || process.env.DEFAULT_BUCKET_NAME || "sessions",
     defaultBucketName: process.env.DEFAULT_BUCKET_NAME || "sessions",

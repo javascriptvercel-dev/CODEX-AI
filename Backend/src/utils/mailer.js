@@ -50,8 +50,8 @@ export const notifyAdminsOfSubmission = (submission, creator) => {
   const creatorName = creator?.full_name || creator?.email || "Unknown user";
   const submittedAt = formatAlertDate(submission.created_at);
   return sendAdminAlert({
-    subject: `New plugin suggestion from ${creatorName} - ${submittedAt}`,
-    heading: `New plugin suggestion from ${creatorName}`,
+    subject: `New plugin submission from ${creatorName} - ${submittedAt}`,
+    heading: `New plugin submission from ${creatorName}`,
     body: `${submission.title}\n\n${submission.description}`,
     submittedAt: submission.created_at,
     tab: "submissions",

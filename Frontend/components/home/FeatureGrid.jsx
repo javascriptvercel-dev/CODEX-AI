@@ -19,7 +19,7 @@ const CARDS = [
   },
   { key: "plugins", icon: Puzzle, title: "Plugins", text: "Add-ons" },
   { key: "support", icon: Headset, title: "Support", text: "Community support" },
-  { key: "tools", icon: Wrench, title: "Tools", text: "Coming soon" },
+  { key: "tools", icon: Wrench, title: "Tools", text: "Free utilities" },
   { key: "apis", icon: Network, title: "APIs", text: "Coming soon" },
   {
     key: "repository",
