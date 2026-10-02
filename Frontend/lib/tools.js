@@ -29,6 +29,7 @@ export const tools = [
     status: TOOL_STATUS.LIVE,
     tags: ["WhatsApp", "Lookup"],
     keywords: ["WhatsApp ban checker", "check banned WhatsApp number"],
+    preview: "/tools/wa-ban-checker/bg.jpg",
     load: () => import("@/components/tools/wa-ban-checker/WaBanChecker"),
   },
 ];

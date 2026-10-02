@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Wrench } from "lucide-react";
 import { isToolOpenable } from "@/lib/tools";
 
 const MASK =
@@ -23,7 +24,11 @@ function Preview({ tool }) {
           }}
         />
       ) : (
-        <div className="absolute inset-0 -z-10 bg-gradient-to-br from-azure-500/25 to-transparent" />
+        <div className="absolute inset-0 -z-10 grid place-items-center bg-gradient-to-br from-azure-500/20 via-surface2 to-surface">
+          <span className="grid h-16 w-16 place-items-center rounded-2xl border border-azure-500/25 bg-azure-500/10 text-azure-500">
+            <Wrench size={34} strokeWidth={1.5} />
+          </span>
+        </div>
       )}
     </div>
   );
