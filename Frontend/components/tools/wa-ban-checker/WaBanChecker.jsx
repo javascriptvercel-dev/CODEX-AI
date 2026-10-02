@@ -16,40 +16,30 @@ import { api } from "@/lib/api";
 
 /* ------------------------------ constants ------------------------------ */
 
-const BG_MASK =
-  "radial-gradient(ellipse 75% 70% at 50% 40%, #000 45%, transparent 100%)";
-
-const FOCUS =
-  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white";
-
-// Black & white on purpose: status is shown by shape (solid / dashed / dotted) and icon, not colour.
 const TONES = {
   ok: {
     icon: CheckCircle2,
-    box: "border border-white bg-white/[.06] text-white",
-    ring: "border-current",
-    sub: "text-neutral-400",
+    box: "border border-azure-500/50 bg-azure-500/10 text-fg",
+    ring: "border-azure-500 text-azure-500",
+    sub: "text-muted",
   },
   bad: {
-    // Banned = solid white block, unmistakable
     icon: Ban,
-    box: "border border-white bg-white text-black",
-    ring: "border-current",
-    sub: "text-neutral-600",
+    box: "border border-azure-500 bg-azure-500 text-white",
+    ring: "border-white",
+    sub: "text-white/80",
   },
   warn: {
-    // Temporary = dashed
     icon: Clock,
-    box: "border-2 border-dashed border-white bg-white/[.06] text-white",
-    ring: "border-current",
-    sub: "text-neutral-400",
+    box: "border-2 border-dashed border-azure-500/70 bg-surface2 text-fg",
+    ring: "border-azure-500 text-azure-500",
+    sub: "text-muted",
   },
   info: {
-    // Not on WhatsApp / unknown = dotted, dim
     icon: Info,
-    box: "border-2 border-dotted border-white bg-transparent text-white",
-    ring: "border-current",
-    sub: "text-neutral-400",
+    box: "border-2 border-dotted border-edge bg-surface2 text-fg",
+    ring: "border-edge text-muted",
+    sub: "text-muted",
   },
 };
 
@@ -129,7 +119,8 @@ function Result({ r, onAgain }) {
     timer.current = setTimeout(() => setCopyLabel("Copy result"), 1800);
   }
 
-  const actionClass = `flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg border border-white/25 px-4 text-sm font-semibold text-neutral-100 transition hover:border-white hover:bg-white/10 active:translate-y-px ${FOCUS}`;
+  const actionClass =
+    "focus-ring flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg border border-edge px-4 text-sm font-semibold text-fg transition hover:border-azure-500/60 hover:bg-surface2 active:translate-y-px";
 
   return (
     <div
@@ -156,10 +147,10 @@ function Result({ r, onAgain }) {
       </div>
 
       {rows.length > 0 && (
-        <dl className="mt-3.5 divide-y divide-white/15 overflow-hidden rounded-xl border border-white/20 bg-black/30">
+        <dl className="mt-3.5 divide-y divide-edge overflow-hidden rounded-xl border border-edge bg-surface2">
           {rows.map(([label, value]) => (
             <div key={label} className="flex justify-between gap-4 px-3.5 py-2.5 text-[13.5px]">
-              <dt className="text-neutral-400">{label}</dt>
+              <dt className="text-muted">{label}</dt>
               <dd className="m-0 text-right font-mono text-[12.5px] [overflow-wrap:anywhere]">
                 {value}
               </dd>
@@ -184,7 +175,7 @@ function Result({ r, onAgain }) {
       </div>
 
       {r.requestId && !clean && (
-        <p className="mt-3 break-all text-center font-mono text-[11px] text-neutral-400">
+        <p className="mt-3 break-all text-center font-mono text-[11px] text-muted">
           Request {r.requestId}
         </p>
       )}
@@ -249,47 +240,33 @@ export default function WaBanChecker() {
   }
 
   return (
-    <div className="relative isolate overflow-hidden rounded-xl border border-edge bg-black text-neutral-100">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 -z-10 opacity-80"
-        style={{
-          backgroundImage: 'url("/tools/wa-ban-checker/bg.jpg")',
-          backgroundSize: "auto 100%",
-          backgroundPosition: "center top",
-          backgroundRepeat: "no-repeat",
-          filter: "grayscale(1) contrast(1.1)",
-          WebkitMaskImage: BG_MASK,
-          maskImage: BG_MASK,
-        }}
-      />
-
+    <div className="relative isolate overflow-hidden rounded-xl border border-edge bg-surface text-fg">
       <div className="mx-auto flex min-h-[520px] w-full max-w-md flex-col justify-center px-4 py-8 sm:min-h-[600px] sm:py-12">
         <div className="mb-5 flex items-center gap-2.5 font-mono text-xs font-semibold uppercase tracking-[0.14em]">
           <span
             aria-hidden="true"
-            className="grid h-[30px] w-[30px] place-items-center rounded-lg border border-white/25 bg-black/30 backdrop-blur-[6px]"
+            className="grid h-[30px] w-[30px] place-items-center rounded-lg border border-edge bg-surface2 text-azure-500"
           >
             <ShieldCheck size={18} strokeWidth={1.8} />
           </span>
           <span>WhatsApp Ban Checker</span>
         </div>
 
-        <div className="rounded-2xl border border-white/20 bg-black/30 p-5 backdrop-blur-[5px] sm:p-6">
+        <div className="rounded-2xl border border-edge bg-surface2 p-5 sm:p-6">
           <form onSubmit={handleSubmit} noValidate aria-busy={loading}>
             <label
               htmlFor={inputId}
-              className="mb-2 block font-mono text-[11px] uppercase tracking-[0.14em] text-neutral-400"
+              className="mb-2 block font-mono text-[11px] uppercase tracking-[0.14em] text-muted"
             >
               WhatsApp number
             </label>
 
             <div
-              className={`flex items-center rounded-lg border bg-transparent transition focus-within:border-white focus-within:ring-4 focus-within:ring-white/15 ${
-                hint ? "border-dashed border-white" : "border-white/25"
+              className={`flex items-center rounded-lg border bg-surface transition focus-within:border-azure-500 focus-within:ring-4 focus-within:ring-azure-500/15 ${
+                hint ? "border-dashed border-azure-500" : "border-edge"
               }`}
             >
-              <span aria-hidden="true" className="pl-3.5 font-mono text-base text-neutral-400">
+              <span aria-hidden="true" className="pl-3.5 font-mono text-base text-muted">
                 +
               </span>
               <input
@@ -305,11 +282,11 @@ export default function WaBanChecker() {
                 onChange={handleInput}
                 aria-invalid={Boolean(hint)}
                 aria-describedby={hintId}
-                className="min-w-0 flex-1 bg-transparent py-3.5 pl-1.5 pr-3.5 font-mono text-base tracking-[0.04em] text-neutral-100 outline-none placeholder:text-neutral-500"
+                className="min-w-0 flex-1 bg-transparent py-3.5 pl-1.5 pr-3.5 font-mono text-base tracking-[0.04em] text-fg outline-none placeholder:text-muted/70"
               />
             </div>
 
-            <p id={hintId} role="alert" className="mt-2 min-h-5 text-[13px] text-white">
+            <p id={hintId} role="alert" className="mt-2 min-h-5 text-[13px] text-azure-500">
               {hint}
             </p>
 
@@ -318,7 +295,7 @@ export default function WaBanChecker() {
               <button
                 type="submit"
                 disabled={loading}
-                className={`mt-1.5 flex min-h-12 w-full items-center justify-center gap-2.5 rounded-lg bg-white px-4 text-sm font-bold uppercase tracking-[0.04em] text-black transition hover:bg-neutral-200 active:translate-y-px disabled:cursor-progress disabled:opacity-70 ${FOCUS}`}
+                className="focus-ring mt-1.5 flex min-h-12 w-full items-center justify-center gap-2.5 rounded-lg bg-azure-500 px-4 text-sm font-bold uppercase tracking-[0.04em] text-white transition hover:bg-azure-600 active:translate-y-px disabled:cursor-progress disabled:opacity-70"
               >
                 {loading ? (
                   <Loader2 size={16} className="animate-spin" aria-hidden="true" />
@@ -333,7 +310,7 @@ export default function WaBanChecker() {
           {errorBox && (
             <div
               role="alert"
-              className="mt-6 animate-rise rounded-xl border-2 border-dashed border-white/70 bg-black/40 p-4 text-sm"
+              className="mt-6 animate-rise rounded-xl border-2 border-dashed border-azure-500/70 bg-surface p-4 text-sm"
             >
               {errorBox}
             </div>
@@ -342,7 +319,7 @@ export default function WaBanChecker() {
           {result && <Result r={result} onAgain={checkAnother} />}
         </div>
 
-        <p className="mt-4 px-1 text-center text-xs text-neutral-400 [text-shadow:0_1px_8px_#000]">
+        <p className="mt-4 px-1 text-center text-xs text-muted">
           Results come from a third-party lookup and may not always be accurate.
         </p>
       </div>
