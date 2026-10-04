@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   Check,
   X,
@@ -12,6 +13,7 @@ import {
   User,
   AlertCircle,
   Clock,
+  ShieldCheck,
 } from "lucide-react";
 import { api } from "@/lib/api";
 import VerifiedBadge from "@/components/ui/VerifiedBadge";
@@ -37,6 +39,33 @@ function SubmissionStatusBadge({ status }) {
   );
 }
 
+// Small centred dialog layered above the full view (used for approve / reject confirmations).
+function PromptDialog({ tone = "green", icon, title, children, onClose }) {
+  const ring = tone === "red" ? "border-red-500/30" : "border-emerald-500/30";
+  return (
+    <div
+      className="fixed inset-0 z-[120] flex items-center justify-center overflow-y-auto bg-black/60 p-4 backdrop-blur-sm"
+      role="presentation"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div
+        role="alertdialog"
+        aria-modal="true"
+        className={`animate-rise w-full max-w-md rounded-2xl border ${ring} bg-surface p-5 shadow-2xl sm:p-6`}
+        onMouseDown={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center gap-2.5">
+          {icon}
+          <h3 className="font-display text-lg font-bold leading-tight">{title}</h3>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+}
+
 export default function SubmissionCard({ submission, onApprove, onReject, onSaved }) {
   const [isOpen, setIsOpen] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -44,7 +73,8 @@ export default function SubmissionCard({ submission, onApprove, onReject, onSave
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
 
-  // Rejection modal state
+  // Second-step prompts
+  const [confirmApprove, setConfirmApprove] = useState(null); // null | "asis" | "edited"
   const [showRejectPrompt, setShowRejectPrompt] = useState(false);
   const [rejectionNote, setRejectionNote] = useState("");
 
@@ -60,16 +90,47 @@ export default function SubmissionCard({ submission, onApprove, onReject, onSave
     setCode(submission.code || "");
   }, [submission]);
 
-  // Split code into lines for syntax display
   const codeLines = useMemo(() => String(code || "").split("\n"), [code]);
+  const isPending = (submission.status || "pending") === "pending";
+
+  const closeAll = () => {
+    setIsOpen(false);
+    setEditing(false);
+    setShowRejectPrompt(false);
+    setConfirmApprove(null);
+    setError("");
+  };
+
+  // Lock page scroll while the full view is open + Escape handling
+  useEffect(() => {
+    if (!isOpen) return undefined;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const onKeyDown = (e) => {
+      if (e.key !== "Escape" || busy) return;
+      e.preventDefault();
+      if (confirmApprove) setConfirmApprove(null);
+      else if (showRejectPrompt) setShowRejectPrompt(false);
+      else closeAll();
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", onKeyDown);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, busy, confirmApprove, showRejectPrompt]);
 
   const act = async (fn) => {
     setBusy(true);
     setError("");
     try {
       await fn();
+      return true;
     } catch (err) {
-      setError(err.message || "Failed to complete this action. Please try again.");
+      setError(err?.message || "Failed to complete this action. Please try again.");
+      return false;
     } finally {
       setBusy(false);
     }
@@ -80,32 +141,33 @@ export default function SubmissionCard({ submission, onApprove, onReject, onSave
     try {
       await navigator.clipboard.writeText(code);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      setTimeout(() => setCopied(false), 1500);
     } catch {
       setCopied(false);
     }
   };
 
-  const handleSaveAndApprove = () =>
-    act(async () => {
-      await api.saveAndApproveSubmission(submission.id, { title, description, code });
-      setEditing(false);
-      setIsOpen(false);
-      if (onSaved) onSaved();
+  const handleConfirmApprove = async () => {
+    const mode = confirmApprove;
+    const ok = await act(async () => {
+      if (mode === "edited") {
+        await api.saveAndApproveSubmission(submission.id, { title, description, code });
+        if (onSaved) await onSaved();
+      } else {
+        await onApprove(submission.id);
+      }
     });
+    setConfirmApprove(null);
+    if (ok) closeAll();
+  };
 
-  const handleApproveAsIs = () =>
-    act(async () => {
-      await onApprove(submission.id);
-      setIsOpen(false);
-    });
-
-  const handleConfirmReject = () =>
-    act(async () => {
+  const handleConfirmReject = async () => {
+    const ok = await act(async () => {
       await onReject(submission.id, rejectionNote);
-      setShowRejectPrompt(false);
-      setIsOpen(false);
     });
+    setShowRejectPrompt(false);
+    if (ok) closeAll();
+  };
 
   // Handle Tab key indentation in textarea
   const handleCodeKeyDown = (e) => {
@@ -120,9 +182,330 @@ export default function SubmissionCard({ submission, onApprove, onReject, onSave
     }
   };
 
+  const fullView = (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/75 p-3 backdrop-blur-sm sm:p-6"
+      role="presentation"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget && !busy) closeAll();
+      }}
+    >
+      <div
+        className="relative flex max-h-[94dvh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-edge bg-surface shadow-2xl"
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Submission: ${submission.title || "Untitled plugin"}`}
+        onMouseDown={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between gap-3 border-b border-edge bg-surface2/50 px-4 py-3 sm:px-6 sm:py-4">
+          <div className="flex min-w-0 items-center gap-3">
+            <SubmissionStatusBadge status={submission.status} />
+            <span className="truncate text-xs text-muted">ID: {submission.id}</span>
+          </div>
+          <button
+            type="button"
+            onClick={closeAll}
+            disabled={busy}
+            aria-label="Close"
+            className="focus-ring grid h-9 w-9 flex-shrink-0 place-items-center rounded-lg text-muted transition hover:bg-surface2 hover:text-fg disabled:opacity-50"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-5 sm:p-8">
+          {error && (
+            <div className="mb-6 flex items-start gap-2 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">
+              <AlertCircle size={16} className="mt-0.5 flex-shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          {/* Title + meta */}
+          <div className="min-w-0">
+            {editing ? (
+              <>
+                <label className="text-xs font-semibold uppercase tracking-wider text-muted">
+                  Plugin Title
+                </label>
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="mt-1.5 w-full rounded-lg border border-edge bg-surface2 px-3 py-2.5 text-base font-semibold outline-none focus:border-azure-500"
+                />
+              </>
+            ) : (
+              <h2 className="break-words font-display text-3xl font-bold leading-tight tracking-[-0.025em] sm:text-4xl">
+                {title || "Untitled plugin"}
+              </h2>
+            )}
+            <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted">
+              <span className="inline-flex min-w-0 items-center gap-1.5">
+                <User size={15} />
+                <span className="truncate">by {submission.authorName || "Unknown author"}</span>
+                {submission.authorIsAdmin && <VerifiedBadge size={14} />}
+              </span>
+              <span aria-hidden="true">•</span>
+              <span className="inline-flex items-center gap-1.5">
+                <CalendarDays size={15} />
+                {submission.createdAt ? new Date(submission.createdAt).toLocaleString() : "—"}
+              </span>
+            </div>
+          </div>
+
+          {submission.status === "rejected" && submission.adminNote && (
+            <div className="mt-6 rounded-xl border border-rose-500/25 bg-rose-500/5 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wider text-rose-300">
+                Rejection reason
+              </p>
+              <p className="mt-1.5 whitespace-pre-wrap text-sm leading-6 text-muted">
+                {submission.adminNote}
+              </p>
+            </div>
+          )}
+
+          {/* Description */}
+          <section className="mt-8 border-t border-edge pt-7">
+            <h3 className="font-display text-xl font-bold">Description</h3>
+            {editing ? (
+              <textarea
+                rows={4}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="mt-3 w-full resize-y rounded-lg border border-edge bg-surface2 px-3 py-2.5 text-sm leading-6 outline-none focus:border-azure-500"
+              />
+            ) : (
+              <p className="mt-3 max-w-4xl whitespace-pre-wrap text-base leading-7 text-muted sm:text-lg sm:leading-8">
+                {description || "No description was provided for this plugin."}
+              </p>
+            )}
+
+            {submission.fileUrl && (
+              <a
+                href={submission.fileUrl}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="focus-ring mt-4 inline-flex items-center gap-2 rounded-lg border border-edge bg-surface2 px-3.5 py-2.5 text-xs font-semibold text-azure-400 transition hover:border-azure-500/60 sm:text-sm"
+              >
+                <FileDown size={15} />
+                Download plugin attachment
+              </a>
+            )}
+          </section>
+
+          {/* Plugin Code — same viewer as the public plugin page */}
+          <section className="mt-8 border-t border-edge pt-7">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+              <h3 className="font-display text-xl font-bold">
+                Plugin Code{editing && <span className="ml-2 text-xs font-normal text-muted">(Tab to indent)</span>}
+              </h3>
+              <div className="flex items-center gap-3">
+                {code && !editing && (
+                  <span className="inline-flex items-center gap-1.5 text-xs text-muted sm:text-sm">
+                    <User size={14} /> {submission.authorName || "Plugin author"}
+                    {submission.authorIsAdmin && <VerifiedBadge size={12} />}
+                  </span>
+                )}
+                {!editing && code && (
+                  <button
+                    type="button"
+                    onClick={handleCopyCode}
+                    className="focus-ring inline-flex h-9 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-edge bg-surface2 px-3 text-xs font-semibold transition hover:border-azure-500/60"
+                  >
+                    {copied ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
+                    <span>{copied ? "Copied" : "Copy code"}</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {editing ? (
+              <textarea
+                rows={18}
+                spellCheck={false}
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                onKeyDown={handleCodeKeyDown}
+                className="w-full resize-y rounded-xl border border-edge bg-ink-950 p-4 font-mono text-[12px] leading-6 text-azure-300 outline-none focus:border-azure-500 sm:p-5 sm:text-[13px]"
+              />
+            ) : code ? (
+              <div className="overflow-hidden rounded-xl border border-edge bg-ink-950">
+                <pre className="max-h-[60vh] overflow-auto p-4 font-mono text-[12px] leading-6 text-azure-300 sm:p-5 sm:text-[13px]">
+                  {codeLines.map((line, index) => (
+                    <div key={index} className="flex min-w-max">
+                      <span className="mr-5 inline-block w-8 select-none text-right text-slate-500">
+                        {index + 1}
+                      </span>
+                      <code>{line || " "}</code>
+                    </div>
+                  ))}
+                </pre>
+              </div>
+            ) : (
+              <div className="rounded-xl border border-dashed border-edge bg-surface2 px-5 py-12 text-center text-sm text-muted">
+                {submission.fileUrl
+                  ? "No inline code was submitted. Use the attachment above to review the plugin file."
+                  : "Plugin source code is not available for this submission."}
+              </div>
+            )}
+          </section>
+        </div>
+
+        {/* Footer actions */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-edge bg-surface2/50 px-4 py-3 sm:px-6 sm:py-4">
+          <button
+            type="button"
+            onClick={closeAll}
+            disabled={busy}
+            className="rounded-lg border border-edge bg-surface px-4 py-2 text-xs font-semibold transition hover:bg-surface2 disabled:opacity-60"
+          >
+            Close View
+          </button>
+
+          {isPending && (
+            <div className="flex flex-wrap items-center gap-2">
+              {editing ? (
+                <>
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => {
+                      setEditing(false);
+                      setTitle(submission.title || "");
+                      setDescription(submission.description || "");
+                      setCode(submission.code || "");
+                    }}
+                    className="rounded-lg border border-edge bg-surface px-4 py-2 text-xs font-semibold hover:bg-surface2"
+                  >
+                    Cancel Edit
+                  </button>
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => setConfirmApprove("edited")}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-azure-500 px-4 py-2 text-xs font-semibold text-white transition hover:bg-azure-600 disabled:opacity-60"
+                  >
+                    <Save size={14} />
+                    Save & Approve
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => setEditing(true)}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-edge bg-surface px-4 py-2 text-xs font-semibold transition hover:border-azure-500/50"
+                  >
+                    <Pencil size={14} />
+                    Edit Submission
+                  </button>
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => setShowRejectPrompt(true)}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-red-500/15 px-4 py-2 text-xs font-semibold text-red-400 transition hover:bg-red-500/25"
+                  >
+                    <X size={14} />
+                    Reject
+                  </button>
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => setConfirmApprove("asis")}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-green-500/15 px-4 py-2 text-xs font-semibold text-green-400 transition hover:bg-green-500/25"
+                  >
+                    <Check size={14} />
+                    Approve as-is
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Second confirmation: approve */}
+      {confirmApprove && (
+        <PromptDialog
+          tone="green"
+          icon={<ShieldCheck size={20} className="flex-shrink-0 text-emerald-400" />}
+          title="Approve this plugin?"
+          onClose={() => !busy && setConfirmApprove(null)}
+        >
+          <p className="mt-3 text-sm leading-6 text-muted">
+            <span className="font-semibold text-fg">{title || "Untitled plugin"}</span> will be
+            published to the plugin library right away
+            {confirmApprove === "edited" ? ", including your edits" : ""}. Please confirm you have
+            reviewed the code.
+          </p>
+          <div className="mt-5 flex justify-end gap-2">
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => setConfirmApprove(null)}
+              className="rounded-lg border border-edge px-4 py-2 text-xs font-semibold hover:bg-surface2 disabled:opacity-60"
+            >
+              Go back
+            </button>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={handleConfirmApprove}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-600 disabled:opacity-60"
+            >
+              <Check size={14} />
+              {busy ? "Approving…" : "Yes, approve"}
+            </button>
+          </div>
+        </PromptDialog>
+      )}
+
+      {/* Reject reason */}
+      {showRejectPrompt && (
+        <PromptDialog
+          tone="red"
+          icon={<X size={20} className="flex-shrink-0 text-red-400" />}
+          title="Reject this submission?"
+          onClose={() => !busy && setShowRejectPrompt(false)}
+        >
+          <input
+            type="text"
+            autoFocus
+            value={rejectionNote}
+            onChange={(e) => setRejectionNote(e.target.value)}
+            placeholder="Reason, e.g. Missing dependencies or broken syntax"
+            className="mt-4 w-full rounded-lg border border-edge bg-surface2 px-3 py-2 text-sm outline-none focus:border-red-500"
+          />
+          <div className="mt-5 flex justify-end gap-2">
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => setShowRejectPrompt(false)}
+              className="rounded-lg border border-edge px-4 py-2 text-xs font-semibold hover:bg-surface2 disabled:opacity-60"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={handleConfirmReject}
+              className="rounded-lg bg-red-500 px-4 py-2 text-xs font-semibold text-white hover:bg-red-600 disabled:opacity-60"
+            >
+              {busy ? "Rejecting…" : "Confirm Rejection"}
+            </button>
+          </div>
+        </PromptDialog>
+      )}
+    </div>
+  );
+
   return (
     <>
-      {/* --- 1. SHORT CARD (List View) --- */}
+      {/* --- Short card (list view) --- */}
       <div
         role="button"
         tabIndex={0}
@@ -151,289 +534,18 @@ export default function SubmissionCard({ submission, onApprove, onReject, onSave
         <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-edge/60 pt-3 text-xs text-muted">
           <span className="flex items-center gap-1.5">
             <User size={13} />
-            <span className="max-w-[140px] truncate">
-              by {submission.authorName || "Unknown author"}
-            </span>
+            <span className="max-w-[140px] truncate">by {submission.authorName || "Unknown author"}</span>
             {submission.authorIsAdmin && <VerifiedBadge size={12} />}
           </span>
           <span className="flex items-center gap-1.5">
             <CalendarDays size={13} />
-            {submission.createdAt
-              ? new Date(submission.createdAt).toLocaleDateString()
-              : "—"}
+            {submission.createdAt ? new Date(submission.createdAt).toLocaleDateString() : "—"}
           </span>
         </div>
       </div>
 
-      {/* --- 2. FULL VIEW MODAL / DETAIL DRAWER --- */}
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-3 sm:p-6 backdrop-blur-sm animate-in fade-in duration-200">
-          <div
-            className="relative flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-edge bg-surface shadow-2xl"
-            role="dialog"
-            aria-modal="true"
-          >
-            {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-edge px-6 py-4 bg-surface2/50">
-              <div className="flex items-center gap-3">
-                <SubmissionStatusBadge status={submission.status} />
-                <span className="text-xs text-muted">ID: {submission.id}</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsOpen(false);
-                  setEditing(false);
-                  setShowRejectPrompt(false);
-                }}
-                className="rounded-lg p-1.5 text-muted hover:bg-surface2 hover:text-fg transition"
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            {/* Modal Body */}
-            <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
-              {error && (
-                <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400 flex items-center gap-2">
-                  <AlertCircle size={16} />
-                  <span>{error}</span>
-                </div>
-              )}
-
-              {/* Submitter & Date Info */}
-              <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-edge bg-surface2 p-4">
-                <div className="flex items-center gap-2">
-                  <User size={16} className="text-azure-400" />
-                  <span className="text-sm font-medium">Submitted by:</span>
-                  <span className="text-sm font-bold text-fg">
-                    {submission.authorName || "Unknown"}
-                  </span>
-                  {submission.authorIsAdmin && <VerifiedBadge size={13} />}
-                </div>
-                <div className="flex items-center gap-2 text-xs text-muted">
-                  <CalendarDays size={14} />
-                  <span>
-                    {submission.createdAt
-                      ? new Date(submission.createdAt).toLocaleString()
-                      : "—"}
-                  </span>
-                </div>
-              </div>
-
-              {/* Title & Description Form */}
-              <div className="space-y-4">
-                <div>
-                  <label className="text-xs font-semibold uppercase tracking-wider text-muted">
-                    Plugin Title
-                  </label>
-                  {editing ? (
-                    <input
-                      type="text"
-                      value={title}
-                      onChange={(e) => setTitle(e.target.value)}
-                      className="mt-1.5 w-full rounded-lg border border-edge bg-surface2 px-3 py-2 text-sm font-semibold outline-none focus:border-azure-500"
-                    />
-                  ) : (
-                    <h2 className="mt-1 text-2xl font-bold font-display text-fg">
-                      {title}
-                    </h2>
-                  )}
-                </div>
-
-                <div>
-                  <label className="text-xs font-semibold uppercase tracking-wider text-muted">
-                    Description
-                  </label>
-                  {editing ? (
-                    <textarea
-                      rows={3}
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
-                      className="mt-1.5 w-full resize-none rounded-lg border border-edge bg-surface2 px-3 py-2 text-sm outline-none focus:border-azure-500"
-                    />
-                  ) : (
-                    <p className="mt-1 whitespace-pre-wrap text-sm text-muted leading-relaxed">
-                      {description || "No description provided."}
-                    </p>
-                  )}
-                </div>
-
-                {submission.fileUrl && (
-                  <div>
-                    <label className="text-xs font-semibold uppercase tracking-wider text-muted">
-                      Uploaded Attachment
-                    </label>
-                    <a
-                      href={submission.fileUrl}
-                      target="_blank"
-                      rel="noreferrer noopener"
-                      className="mt-1.5 inline-flex items-center gap-2 rounded-lg border border-edge bg-surface2 px-3 py-2 text-xs font-semibold text-azure-400 hover:border-azure-500/60"
-                    >
-                      <FileDown size={14} />
-                      Download plugin attachment
-                    </a>
-                  </div>
-                )}
-              </div>
-
-              {/* Code Viewer / Editor */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-muted">
-                    Plugin Code {editing && "(Tab to indent)"}
-                  </label>
-                  {!editing && code && (
-                    <button
-                      type="button"
-                      onClick={handleCopyCode}
-                      className="inline-flex items-center gap-1.5 text-xs text-azure-400 hover:text-azure-300 font-medium"
-                    >
-                      {copied ? (
-                        <>
-                          <Check size={13} className="text-green-400" /> Copied!
-                        </>
-                      ) : (
-                        <>
-                          <Copy size={13} /> Copy code
-                        </>
-                      )}
-                    </button>
-                  )}
-                </div>
-
-                {editing ? (
-                  <textarea
-                    rows={16}
-                    spellCheck={false}
-                    value={code}
-                    onChange={(e) => setCode(e.target.value)}
-                    onKeyDown={handleCodeKeyDown}
-                    className="w-full resize-y rounded-xl bg-ink-950 p-4 font-mono text-xs leading-5 text-azure-300 outline-none border border-edge focus:border-azure-500"
-                  />
-                ) : (
-                  <div className="overflow-hidden rounded-xl border border-edge bg-ink-950">
-                    <pre className="max-h-[50vh] overflow-auto p-4 font-mono text-xs leading-5 text-azure-300">
-                      {codeLines.map((line, index) => (
-                        <div key={index} className="flex min-w-max">
-                          <span className="mr-4 inline-block w-8 select-none text-right text-slate-500">
-                            {index + 1}
-                          </span>
-                          <code>{line || " "}</code>
-                        </div>
-                      ))}
-                    </pre>
-                  </div>
-                )}
-              </div>
-
-              {/* Rejection Prompt (Inline Dialog) */}
-              {showRejectPrompt && (
-                <div className="rounded-xl border border-red-500/30 bg-red-500/5 p-4 space-y-3 animate-in fade-in">
-                  <h4 className="text-sm font-semibold text-red-400">
-                    Provide reason for rejection
-                  </h4>
-                  <input
-                    type="text"
-                    value={rejectionNote}
-                    onChange={(e) => setRejectionNote(e.target.value)}
-                    placeholder="e.g. Missing dependencies or broken syntax"
-                    className="w-full rounded-lg border border-edge bg-surface px-3 py-2 text-sm outline-none focus:border-red-500"
-                  />
-                  <div className="flex justify-end gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setShowRejectPrompt(false)}
-                      className="rounded-lg border border-edge px-3 py-1.5 text-xs font-semibold hover:bg-surface2"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="button"
-                      disabled={busy}
-                      onClick={handleConfirmReject}
-                      className="rounded-lg bg-red-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-600 disabled:opacity-60"
-                    >
-                      {busy ? "Rejecting…" : "Confirm Rejection"}
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Modal Actions Footer */}
-            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-edge bg-surface2/50 px-6 py-4">
-              <button
-                type="button"
-                onClick={() => {
-                  setIsOpen(false);
-                  setEditing(false);
-                  setShowRejectPrompt(false);
-                }}
-                className="rounded-lg border border-edge bg-surface px-4 py-2 text-xs font-semibold hover:bg-surface2 transition"
-              >
-                Close View
-              </button>
-
-              {submission.status === "pending" && !showRejectPrompt && (
-                <div className="flex flex-wrap items-center gap-2">
-                  {editing ? (
-                    <>
-                      <button
-                        type="button"
-                        disabled={busy}
-                        onClick={() => setEditing(false)}
-                        className="rounded-lg border border-edge bg-surface px-4 py-2 text-xs font-semibold hover:bg-surface2"
-                      >
-                        Cancel Edit
-                      </button>
-                      <button
-                        type="button"
-                        disabled={busy}
-                        onClick={handleSaveAndApprove}
-                        className="inline-flex items-center gap-1.5 rounded-lg bg-azure-500 px-4 py-2 text-xs font-semibold text-white hover:bg-azure-600 disabled:opacity-60 transition"
-                      >
-                        <Save size={14} />
-                        {busy ? "Saving…" : "Save & Approve"}
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button
-                        type="button"
-                        disabled={busy}
-                        onClick={() => setEditing(true)}
-                        className="inline-flex items-center gap-1.5 rounded-lg border border-edge bg-surface px-4 py-2 text-xs font-semibold hover:border-azure-500/50 transition"
-                      >
-                        <Pencil size={14} />
-                        Edit Submission
-                      </button>
-                      <button
-                        type="button"
-                        disabled={busy}
-                        onClick={() => setShowRejectPrompt(true)}
-                        className="inline-flex items-center gap-1.5 rounded-lg bg-red-500/15 px-4 py-2 text-xs font-semibold text-red-400 hover:bg-red-500/25 transition"
-                      >
-                        <X size={14} />
-                        Reject
-                      </button>
-                      <button
-                        type="button"
-                        disabled={busy}
-                        onClick={handleApproveAsIs}
-                        className="inline-flex items-center gap-1.5 rounded-lg bg-green-500/15 px-4 py-2 text-xs font-semibold text-green-400 hover:bg-green-500/25 transition"
-                      >
-                        <Check size={14} />
-                        Approve as-is
-                      </button>
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      {/* --- Full view: portalled to <body> so card transforms can't trap/clip it --- */}
+      {isOpen && typeof document !== "undefined" ? createPortal(fullView, document.body) : null}
     </>
   );
 }

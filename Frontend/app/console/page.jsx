@@ -158,7 +158,7 @@ function ConsolePageInner() {
       await loadSubmissions();
     } catch (err) {
       if (err?.message === "Sign in to continue.") await refresh();
-      else setError(err?.message || "Could not approve this submission.");
+      throw err; // surfaced inside the full view so the admin sees why it failed
     }
   };
 
@@ -168,7 +168,7 @@ function ConsolePageInner() {
       await loadSubmissions();
     } catch (err) {
       if (err?.message === "Sign in to continue.") await refresh();
-      else setError(err?.message || "Could not reject this submission.");
+      throw err; // surfaced inside the full view so the admin sees why it failed
     }
   };
 
