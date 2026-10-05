@@ -1,5 +1,6 @@
 import { supabase } from "../config/supabase.js";
 import { env } from "../config/env.js";
+import { notifyPluginCreatorOfDecision } from "../utils/mailer.js";
 
 export const listSubmissions = async (req, res) => {
   const status = req.query.status || "pending";
@@ -49,7 +50,7 @@ export const approveSubmission = async (req, res) => {
   const { id } = req.params;
   const { data: submission, error: findError } = await supabase
     .from("plugin_submissions")
-    .select("*, users(full_name, email)")
+    .select("*, users(full_name, email, role)")
     .eq("public_id", id)
     .maybeSingle();
 
@@ -75,7 +76,17 @@ export const approveSubmission = async (req, res) => {
     return res.status(500).json({ error: "Could not publish the plugin." });
   }
 
-  await supabase.from("plugin_submissions").update({ status: "approved" }).eq("public_id", id);
+  const { error: statusError } = await supabase
+    .from("plugin_submissions")
+    .update({ status: "approved" })
+    .eq("public_id", id);
+  if (statusError) {
+    console.error("approveSubmission: status update failed", statusError);
+    return res.status(500).json({ error: "Could not update the submission status." });
+  }
+  notifyPluginCreatorOfDecision(submission, "approved").catch((err) =>
+    console.error("approveSubmission: notification failed", err),
+  );
   res.json({ ok: true, id: submission.public_id });
 };
 
@@ -93,7 +104,7 @@ export const updateAndApproveSubmission = async (req, res) => {
 
   const { data: submission, error: findError } = await supabase
     .from("plugin_submissions")
-    .select("*, users(full_name, email)")
+    .select("*, users(full_name, email, role)")
     .eq("public_id", id)
     .maybeSingle();
 
@@ -130,7 +141,20 @@ export const updateAndApproveSubmission = async (req, res) => {
     return res.status(500).json({ error: "Could not publish the plugin." });
   }
 
-  await supabase.from("plugin_submissions").update({ status: "approved" }).eq("public_id", id);
+  const { error: statusError } = await supabase
+    .from("plugin_submissions")
+    .update({ status: "approved" })
+    .eq("public_id", id);
+  if (statusError) {
+    console.error("updateAndApproveSubmission: status update failed", statusError);
+    return res.status(500).json({ error: "Could not update the submission status." });
+  }
+  notifyPluginCreatorOfDecision(
+    { ...submission, title: edited.title },
+    "approved",
+  ).catch((err) =>
+    console.error("updateAndApproveSubmission: notification failed", err),
+  );
   res.json({ ok: true, id: submission.public_id });
 };
 
@@ -152,6 +176,18 @@ export const rejectSubmission = async (req, res) => {
   const { id } = req.params;
   const { note } = req.body || {};
 
+  const { data: submission, error: findError } = await supabase
+    .from("plugin_submissions")
+    .select("*, users(full_name, email, role)")
+    .eq("public_id", id)
+    .maybeSingle();
+
+  if (findError) {
+    console.error("rejectSubmission: lookup failed", findError);
+    return res.status(500).json({ error: "Could not load the submission." });
+  }
+  if (!submission) return res.status(404).json({ error: "Submission not found." });
+
   const { error } = await supabase
     .from("plugin_submissions")
     .update({ status: "rejected", admin_note: note || null })
@@ -161,5 +197,8 @@ export const rejectSubmission = async (req, res) => {
     console.error("rejectSubmission failed", error);
     return res.status(500).json({ error: "Could not reject the submission." });
   }
+  notifyPluginCreatorOfDecision(submission, "rejected", note).catch((err) =>
+    console.error("rejectSubmission: notification failed", err),
+  );
   res.json({ ok: true });
 };

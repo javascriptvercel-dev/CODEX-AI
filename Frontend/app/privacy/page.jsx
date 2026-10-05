@@ -13,7 +13,7 @@ const sections = [
     title: "1. Information We Collect",
     content: [
       "We collect information you provide when you create or manage an account, including your email address, profile details, authentication information, and content you submit to the service. You may also provide bot configuration, plugin submissions, repositories, and support requests.",
-      "We automatically receive technical information needed to operate and secure CODEX AI, such as log data, device and browser information, approximate location derived from your IP address, and usage events. We use cookies or similar technologies to maintain sessions, remember preferences, and understand service performance.",
+      "We automatically receive technical information needed to operate and secure CODEX AI, such as log data, device and browser information, approximate location derived from your IP address, and usage events. We use essential cookies to maintain sessions and browser storage to remember preferences.",
     ],
   },
   {

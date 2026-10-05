@@ -3,6 +3,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { AuthProvider } from "@/context/AuthContext";
 import RobotWidget from "@/components/robot/RobotWidget";
+import CookieNotice from "@/components/layout/CookieNotice";
 const display = Space_Grotesk({
   subsets: ["latin"],
   variable: "--font-display",
@@ -122,6 +123,7 @@ export default function RootLayout({ children }) {
 
             {children}
             <RobotWidget />
+            <CookieNotice />
             <script
               type="application/ld+json"
               dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

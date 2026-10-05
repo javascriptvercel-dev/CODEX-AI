@@ -16,6 +16,18 @@ const formatAlertDate = (value) =>
     timeZone: "UTC",
   }) + " UTC";
 
+const escapeHtml = (value) =>
+  String(value || "").replace(/[&<>"']/g, (character) => {
+    const entities = {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;",
+    };
+    return entities[character];
+  });
+
 const sendAdminAlert = async ({ subject, heading, body, submittedAt, tab }) => {
   const resend = getClient();
   if (!resend) return;
@@ -68,6 +80,44 @@ export const notifyAdminsOfSuggestion = (suggestion, creator) => {
     submittedAt: suggestion.created_at,
     tab: "suggestions",
   });
+};
+
+export const notifyPluginCreatorOfDecision = async (submission, status, note) => {
+  if (submission.users?.role === "admin") return;
+  const email = submission.users?.email;
+  if (!email) {
+    throw new Error(`Cannot notify plugin creator for submission ${submission.public_id}: no email address.`);
+  }
+
+  const resend = getClient();
+  if (!resend) {
+    throw new Error("Cannot notify plugin creator: RESEND_API_KEY is not configured.");
+  }
+
+  const approved = status === "approved";
+  const title = submission.title || "your plugin submission";
+  const rejectionReason = typeof note === "string" ? note.trim() : "";
+  const greeting = submission.users?.full_name
+    ? `Hi ${submission.users.full_name},`
+    : "Hello,";
+  const heading = approved
+    ? "Your plugin has been approved"
+    : "Your plugin submission was not approved";
+  const reason = !approved && rejectionReason
+    ? `\n\nReason: ${rejectionReason}`
+    : "";
+  const text = `${greeting}\n\n${heading}: ${title}.${reason}\n\nThank you for contributing to CODEX AI.`;
+  const html = `<p>${escapeHtml(greeting)}</p><p><strong>${escapeHtml(heading)}:</strong> ${escapeHtml(title)}.</p>${reason ? `<p><strong>Reason:</strong> ${escapeHtml(rejectionReason)}</p>` : ""}<p>Thank you for contributing to CODEX AI.</p>`;
+  const { error } = await resend.emails.send({
+    from: env.resend.from,
+    to: email,
+    subject: `${heading}: ${title}`,
+    text,
+    html,
+  });
+  if (error) {
+    throw new Error(`Could not send plugin decision email to ${email}: ${error.message || "email provider error"}`);
+  }
 };
 
 export const sendPasswordResetEmail = async (user, resetUrl) => {
