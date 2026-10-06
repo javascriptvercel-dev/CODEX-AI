@@ -38,7 +38,10 @@ export const env = {
   },
   resend: {
     apiKey: process.env.RESEND_API_KEY,
-    from: process.env.MAIL_FROM || "CODEX AI <no-reply@codex-ai.dev>",
+    from: process.env.MAIL_FROM || "CODEX AI <no-reply@codex-ai.site>",
+    supportFrom:
+      process.env.MAIL_FROM_SUPPORT ||
+      "CODEX AI Support <support@codex-ai.site>",
   },
   // WhatsApp ban checker tool (/api/tools/ban-check). The key stays on the
   // server; without it the tool answers "not available right now".

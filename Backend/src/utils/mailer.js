@@ -125,7 +125,7 @@ export const sendPasswordResetEmail = async (user, resetUrl) => {
   if (!resend) return;
 
   await resend.emails.send({
-    from: env.resend.from,
+    from: env.resend.supportFrom,
     to: user.email,
     subject: "Reset your CODEX AI password",
     text: `We got a request to reset your CODEX AI password.\n\nReset it here (valid for 1 hour): ${resetUrl}\n\nIf you didn't request this, you can safely ignore this email — your password won't change.`,
