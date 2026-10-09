@@ -9,18 +9,18 @@ export default function PluginCard({ plugin }) {
  return (
   <Link
     href={`/plugins/${id}`}
-    className="focus-ring group flex h-full min-w-0 flex-col rounded-xl border border-edge bg-surface p-5 transition duration-200 hover:-translate-y-0.5 hover:border-azure-500/40 hover:bg-surface2 hover:shadow-glow"
+    className="focus-ring group flex h-full min-h-[180px] min-w-0 flex-col rounded-xl border border-edge bg-surface p-5 transition duration-200 hover:-translate-y-0.5 hover:border-azure-500/40 hover:bg-surface2 hover:shadow-glow"
     aria-label={`Open ${plugin.name || "plugin"}`}
   >
     <h3 className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap font-display text-xl font-bold leading-tight tracking-[-0.02em]">
       {plugin.name || "Untitled plugin"}
     </h3>
 
-    <p className="mt-2 line-clamp-2 min-w-0 text-[15px] leading-6 text-muted [overflow-wrap:anywhere]">
+    <p className="mt-2 line-clamp-2 min-h-[3rem] min-w-0 text-[15px] leading-6 text-muted [overflow-wrap:anywhere]">
       {plugin.description || "No description provided."}
     </p>
 
-    <div className="mt-4 flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2 pt-4 text-sm text-muted">
+    <div className="mt-auto flex min-h-8 min-w-0 flex-wrap items-center gap-x-4 gap-y-2 border-t border-edge/60 pt-4 text-sm text-muted">
       <span className="flex min-w-0 items-center gap-1.5">
         <User size={14} aria-hidden="true" />
         <span className="max-w-[150px] truncate">by {plugin.authorName || "Unknown author"}</span>

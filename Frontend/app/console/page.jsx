@@ -358,7 +358,7 @@ function ConsolePageInner() {
                 ? submissions.map((submission, i) => (
                     <div
                       key={submission.id}
-                      className="animate-rise"
+                      className="h-full animate-rise"
                       style={{ animationDelay: `${i * 40}ms` }}
                     >
                       <SubmissionCard

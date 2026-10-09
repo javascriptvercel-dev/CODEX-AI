@@ -516,22 +516,22 @@ export default function SubmissionCard({ submission, onApprove, onReject, onSave
             setIsOpen(true);
           }
         }}
-        className="focus-ring group flex cursor-pointer flex-col justify-between rounded-xl border border-edge bg-surface p-5 transition duration-200 hover:-translate-y-0.5 hover:border-azure-500/40 hover:bg-surface2 hover:shadow-lg"
+        className="focus-ring group flex h-full min-h-[190px] cursor-pointer flex-col rounded-xl border border-edge bg-surface p-5 transition duration-200 hover:-translate-y-0.5 hover:border-azure-500/40 hover:bg-surface2 hover:shadow-lg"
       >
-        <div>
+        <div className="flex-1">
           <div className="flex items-start justify-between gap-3">
-            <h3 className="min-w-0 font-display text-lg font-bold leading-snug text-fg group-hover:text-azure-400 [overflow-wrap:anywhere]">
+            <h3 className="line-clamp-2 min-h-[2.75rem] min-w-0 font-display text-lg font-bold leading-snug text-fg group-hover:text-azure-400 [overflow-wrap:anywhere]">
               {submission.title || "Untitled Plugin"}
             </h3>
             <SubmissionStatusBadge status={submission.status} />
           </div>
 
-          <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted [overflow-wrap:anywhere]">
+          <p className="mt-2 line-clamp-2 min-h-[3rem] text-sm leading-6 text-muted [overflow-wrap:anywhere]">
             {submission.description || "No description provided."}
           </p>
         </div>
 
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-edge/60 pt-3 text-xs text-muted">
+        <div className="mt-4 flex min-h-8 flex-wrap items-center justify-between gap-2 border-t border-edge/60 pt-3 text-xs text-muted">
           <span className="flex items-center gap-1.5">
             <User size={13} />
             <span className="max-w-[140px] truncate">by {submission.authorName || "Unknown author"}</span>
