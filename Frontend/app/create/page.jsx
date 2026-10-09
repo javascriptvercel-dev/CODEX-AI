@@ -13,22 +13,29 @@ export default function CreatePluginPage() {
   const { user, loading, hasFreshSession } = useAuth();
   const router = useRouter();
 
-  useEffect(() => {
-    const fromConsole =
-      typeof window !== "undefined" &&
-      new URLSearchParams(window.location.search).get("from") === "console";
-
-    if (user?.role === "admin" && !fromConsole) router.replace("/console");
-  }, [user, router]);
+  const fromConsole =
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).get("from") === "console";
 
   useEffect(() => {
-    if (!loading && (!user || !hasFreshSession())) {
+    if (loading) return;
+
+    if (user?.role === "admin" && !fromConsole) {
+      router.replace("/console");
+      return;
+    }
+
+    if (!user || !hasFreshSession()) {
       router.replace("/login?next=%2Fcreate&cancel=%2Fplugins");
     }
-  }, [loading, user, hasFreshSession, router]);
+  }, [loading, user, hasFreshSession, router, fromConsole]);
 
   if (loading) {
-    return <div className="flex min-h-dvh items-center justify-center bg-bg"><div className="h-8 w-8 animate-pulse rounded-full bg-azure-500/30" /></div>;
+    return null;
+  }
+
+  if (user?.role === "admin" && !fromConsole) {
+    return null;
   }
 
   const needsAuth = !user || !hasFreshSession();

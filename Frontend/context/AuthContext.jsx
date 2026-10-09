@@ -29,8 +29,13 @@ export function AuthProvider({ children }) {
     refresh();
   }, [refresh]);
   const goToConsoleIfAdmin = (signedInUser, nextPath) => {
-    if (signedInUser.role === "admin" && !nextPath && pathname !== "/console")
-      router.push("/console");
+    if (
+      signedInUser?.role === "admin" &&
+      !nextPath &&
+      pathname !== "/console"
+    ) {
+      router.replace("/console");
+    }
   };
   const login = async (credentials) => {
     const { nextPath, ...loginCredentials } = credentials;
