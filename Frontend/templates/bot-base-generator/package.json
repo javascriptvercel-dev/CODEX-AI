@@ -1,0 +1,13 @@
+{
+  "name": "whatsapp-bot",
+  "version": "1.0.0",
+  "description": "WhatsApp bot with pairing code login (Pterodactyl ready)",
+  "type": "module",
+  "main": "index.js",
+  "scripts": { "start": "node index.js" },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "@codexverified/baileys": "2.17.17",
+    "pino": "^9.0.0"
+  }
+}

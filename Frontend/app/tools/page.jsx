@@ -6,7 +6,7 @@ import { buildMetadata } from "@/lib/seo";
 export const metadata = buildMetadata({
   title: "Tools",
   description:
-    "Free utilities for WhatsApp bot owners, including a WhatsApp ban checker.",
+    "Free tools for WhatsApp bot owners, including a ban checker and bot base generator.",
   path: "/tools",
 });
 
