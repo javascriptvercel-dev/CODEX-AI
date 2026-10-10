@@ -24,10 +24,10 @@ export const tools = [
     slug: "bot-base-generator",
     name: "Bot Base Generator",
     description:
-      "Create a ready-to-run WhatsApp bot starter with your bot and owner details.",
+      "Create a ready-to-run WhatsApp bot starter.",
     icon: Bot,
     status: TOOL_STATUS.LIVE,
-    tags: ["WhatsApp", "Generator", "ZIP"],
+    tags: ["Generator", "ZIP"],
     keywords: ["WhatsApp bot base generator", "WhatsApp bot starter"],
     preview: "/tools/bot-base-generator/preview.svg",
     load: () => import("@/components/tools/bot-base-generator/BotBaseGenerator"),

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Bot, Download, LoaderCircle } from "lucide-react";
+import { Bot, Download, FileArchive, LoaderCircle, Sparkles } from "lucide-react";
 
 const INITIAL_VALUES = {
   botName: "",
@@ -29,16 +29,21 @@ function FormField({ id, label, hint, ...inputProps }) {
 export default function BotBaseGenerator() {
   const [values, setValues] = useState(INITIAL_VALUES);
   const [loading, setLoading] = useState(false);
+  const [archive, setArchive] = useState(null);
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
 
   function updateValue(event) {
     setValues((current) => ({ ...current, [event.target.name]: event.target.value }));
+    setArchive(null);
+    setMessage("");
+    setIsError(false);
   }
 
   async function generate(event) {
     event.preventDefault();
     setLoading(true);
+    setArchive(null);
     setMessage("");
     setIsError(false);
 
@@ -55,21 +60,27 @@ export default function BotBaseGenerator() {
       }
 
       const archive = await response.blob();
-      const downloadUrl = URL.createObjectURL(archive);
-      const link = document.createElement("a");
-      link.href = downloadUrl;
-      link.download = "whatsapp-bot-base.zip";
-      document.body.append(link);
-      link.click();
-      link.remove();
-      window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
-      setMessage("Your customized bot base has been downloaded.");
+      setArchive(archive);
+      setMessage("Your customized bot base is ready to download.");
     } catch (error) {
       setIsError(true);
       setMessage(error.message || "The bot base couldn't be generated. Try again.");
     } finally {
       setLoading(false);
     }
+  }
+
+  function downloadArchive() {
+    if (!archive) return;
+
+    const downloadUrl = URL.createObjectURL(archive);
+    const link = document.createElement("a");
+    link.href = downloadUrl;
+    link.download = "whatsapp-bot-base.zip";
+    document.body.append(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
   }
 
   return (
@@ -169,10 +180,32 @@ export default function BotBaseGenerator() {
           {loading ? (
             <LoaderCircle size={17} className="animate-spin" aria-hidden="true" />
           ) : (
-            <Download size={17} aria-hidden="true" />
+            <Sparkles size={17} aria-hidden="true" />
           )}
           {loading ? "Generating..." : "Generate bot base"}
         </button>
+
+        {archive ? (
+          <button
+            type="button"
+            onClick={downloadArchive}
+            className="focus-ring flex w-full items-center gap-3 rounded-lg border border-edge bg-ink-950/40 p-4 text-left transition hover:border-azure-500/60 hover:bg-ink-950/70"
+            aria-label="Download whatsapp-bot-base.zip"
+          >
+            <span className="grid h-10 w-10 flex-none place-items-center rounded-lg bg-azure-500/10 text-azure-500">
+              <FileArchive size={20} aria-hidden="true" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-sm font-semibold text-fg">
+                whatsapp-bot-base.zip
+              </span>
+              <span className="mt-1 block text-xs text-muted">
+                ZIP archive · {(archive.size / 1024).toFixed(1)} KB · Click to download
+              </span>
+            </span>
+            <Download size={18} className="flex-none text-azure-500" aria-hidden="true" />
+          </button>
+        ) : null}
 
         <p
           role={isError ? "alert" : "status"}

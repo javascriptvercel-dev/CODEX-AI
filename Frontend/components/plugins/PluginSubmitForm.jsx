@@ -6,6 +6,22 @@ import { ArrowLeft, PackagePlus, UploadCloud } from "lucide-react";
 import { api } from "@/lib/api";
 import Button from "@/components/ui/Button";
 
+const CODE_PLACEHOLDER = `// Example
+const axios = require('axios');
+
+module.exports = {
+  commands: ["hello", "hi"],
+  description: "Say hello back",
+  category: "plugin",
+  private: true,
+
+  run: async (sock, message, args, ctx) => {
+    const name = args.join(" ") || "friend";
+
+    await ctx.reply(\`Hello, \${name}! 👋\`);
+  }
+};`;
+
 export default function PluginSubmitForm({
   onSubmitted,
   onBack,
@@ -86,7 +102,7 @@ export default function PluginSubmitForm({
 
         <label className="flex flex-col gap-2 text-base">
           <span className="font-semibold">Plugin Code</span>
-          <textarea id="plugin-code" name="code" autoComplete="off" rows={14} value={code} onChange={(e) => setCode(e.target.value)} placeholder="Paste your plugin's source here, or upload a file instead" spellCheck={false} className="focus-ring min-h-[260px] resize-y rounded-lg border border-edge bg-ink-950 px-3.5 py-3 font-mono text-sm leading-6 text-azure-300 outline-none placeholder:text-white/30" />
+          <textarea id="plugin-code" name="code" autoComplete="off" rows={14} value={code} onChange={(e) => setCode(e.target.value)} placeholder={CODE_PLACEHOLDER} spellCheck={false} className="focus-ring min-h-[260px] resize-y rounded-lg border border-edge bg-ink-950 px-3.5 py-3 font-mono text-sm leading-6 text-azure-300 outline-none placeholder:text-white/30" />
         </label>
 
         <label className="flex cursor-pointer flex-col gap-2 text-base">
