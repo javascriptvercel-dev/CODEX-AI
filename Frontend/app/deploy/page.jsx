@@ -60,9 +60,9 @@ export default function DeployPage() {
             description="Choose a deployment method to see its setup steps. The host must support the bot's runtime and storage needs."
           />
         </Container>
-        <Container size="narrow" className="space-y-4">
+        <Container size="narrow" className="space-y-4 !px-0 sm:!px-5">
           <DeploymentMethod
-            title="Pterodactyl/Panel deployment"
+            title="Panel deployment"
             description="Generate a setup script and run it on a Node.js server in your hosting panel."
             defaultOpen
           >
