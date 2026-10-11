@@ -64,7 +64,6 @@ export default function DeployPage() {
           <DeploymentMethod
             title="Panel deployment"
             description="Generate a setup script and run it on a Node.js server in your hosting panel."
-            defaultOpen
           >
             <div className="space-y-6">
               <DeploymentSteps>
@@ -94,8 +93,8 @@ export default function DeployPage() {
                   bot data aren&apos;t lost.
                 </li>
               </DeploymentSteps>
-              <div className="rounded-lg border border-azure-500/25 bg-azure-500/5 p-4">
-                <p className="mb-4 text-sm font-semibold text-fg">Generate your panel setup script</p>
+              <div className="space-y-4">
+                <p className="text-sm font-semibold text-fg">Generate your panel setup script</p>
                 <GenerateConsole />
               </div>
             </div>

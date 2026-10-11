@@ -84,23 +84,7 @@ export default function GenerateConsole() {
   };
 
   return (
-    <div className="box-border min-w-0 w-full max-w-2xl overflow-hidden rounded-2xl border border-edge bg-surface p-6 sm:p-8">
-      <div className="mb-5 flex min-w-0 items-center gap-2.5">
-        <span className="grid h-9 w-9 place-items-center rounded-lg bg-azure-500/10 text-azure-500">
-          <Wand2 size={17} />
-        </span>
-
-        <div className="min-w-0">
-          <h2 className="font-display text-base font-bold">
-            Generate index.js
-          </h2>
-
-          <p className="text-xs text-muted [overflow-wrap:anywhere]">
-            Build a bootstrap script for your bot
-          </p>
-        </div>
-      </div>
-
+    <div className="box-border min-w-0 w-full">
       <div className="grid min-w-0 gap-4 sm:grid-cols-2">
         <label className="flex min-w-0 flex-col gap-1.5 text-sm">
           <span className="font-medium">
