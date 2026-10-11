@@ -9,6 +9,7 @@ import {
   rejectSubmission,
   listSuggestions,
 } from "../controllers/admin.controller.js";
+import { listFaqDrafts, reviewFaqDraft } from "../controllers/assistantFaq.controller.js";
 const router = Router();
 router.use(attachUser, requireAuth, requireAdmin);
 router.get("/submissions", asyncHandler(listSubmissions));
@@ -16,4 +17,6 @@ router.post("/submissions/:id/approve", asyncHandler(approveSubmission));
 router.patch("/submissions/:id", asyncHandler(updateAndApproveSubmission));
 router.post("/submissions/:id/reject", asyncHandler(rejectSubmission));
 router.get("/suggestions", asyncHandler(listSuggestions));
+router.get("/assistant-faqs", asyncHandler(listFaqDrafts));
+router.patch("/assistant-faqs/:id", asyncHandler(reviewFaqDraft));
 export default router;

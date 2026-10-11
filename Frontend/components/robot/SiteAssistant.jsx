@@ -1,8 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { ArrowRight, Bot, Send, X } from "lucide-react";
+import VerifiedBadge from "@/components/ui/VerifiedBadge";
+import { SUPPORT_FAQS } from "@/lib/supportFaqs";
+import { api } from "@/lib/api";
 
 const DEPLOYMENT_PROMPTS = [
   "Which deployment should I choose?",
@@ -56,8 +59,15 @@ function getPageKey(pathname) {
   return "default";
 }
 
-function answerQuestion(question, pathname) {
+function answerQuestion(question, pathname, approvedFaqs = []) {
   const normalized = question.toLowerCase();
+  const exactFaq = SUPPORT_FAQS.find(
+    (faq) => faq.question.toLowerCase() === normalized.trim(),
+  ) || approvedFaqs.find(
+    (faq) => faq.question?.toLowerCase() === normalized.trim(),
+  );
+
+  if (exactFaq) return { text: exactFaq.answer, link: null };
 
   if (/session id|token|password|private|secret|credential/.test(normalized)) {
     return {
@@ -112,6 +122,18 @@ function answerQuestion(question, pathname) {
     return DEPLOYMENT_ANSWER;
   }
 
+  if (/announcement|release note|project update/.test(normalized)) {
+    return { text: SUPPORT_FAQS[1].answer, link: null };
+  }
+
+  if (/problem|bug|error|issue|report/.test(normalized)) {
+    return { text: SUPPORT_FAQS[2].answer, link: null };
+  }
+
+  if (/support|help|community|where.*ask/.test(normalized)) {
+    return { text: SUPPORT_FAQS[0].answer, link: null };
+  }
+
   if (/plugin format|plugin code|commands|submit|create.*plugin|upload.*plugin/.test(normalized)) {
     return {
       text: "Open Plugins and choose the option to submit a plugin. Add a clear name and description, then paste your source or upload a file. The code example in the form is a placeholder only; replace it with your own plugin code before submitting.",
@@ -154,18 +176,21 @@ function answerQuestion(question, pathname) {
   };
 }
 
-export default function SiteAssistant({ open, onClose }) {
+export default function SiteAssistant({ open, onClose, askRequest }) {
   const pathname = usePathname();
   const [messages, setMessages] = useState([]);
   const [question, setQuestion] = useState("");
   const [pending, setPending] = useState(false);
+  const [faqDraftStatus, setFaqDraftStatus] = useState("");
+  const [approvedFaqs, setApprovedFaqs] = useState([]);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const messageIdRef = useRef(0);
+  const handledAskRequestRef = useRef(0);
   const pageKey = getPageKey(pathname);
   const suggestions = PAGE_PROMPTS[pageKey];
 
-  async function showReply(reply, minimumDelay) {
+  const showReply = useCallback(async (reply, minimumDelay) => {
     await minimumDelay;
 
     messageIdRef.current += 1;
@@ -190,7 +215,32 @@ export default function SiteAssistant({ open, onClose }) {
         message.id === id ? { ...message, text: reply.text } : message,
       ),
     );
-  }
+  }, []);
+
+  const queueFaqDraft = useCallback(async (submittedQuestion, submittedAnswer) => {
+    setFaqDraftStatus("preparing");
+    try {
+      const result = await fetch("/api/site-assistant/faq-draft", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          question: submittedQuestion,
+          answer: submittedAnswer,
+        }),
+      });
+      const data = await result.json();
+      if (!result.ok) throw new Error(data.error || "FAQ draft request failed.");
+      if (!data.draft) {
+        setFaqDraftStatus("skipped");
+        return;
+      }
+      await api.createAssistantFaqDraft(data.draft);
+      setFaqDraftStatus("queued");
+    } catch {
+      console.error("[site-assistant] FAQ draft could not be submitted.");
+      setFaqDraftStatus("failed");
+    }
+  }, []);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -204,17 +254,36 @@ export default function SiteAssistant({ open, onClose }) {
   }, [open, onClose]);
 
   useEffect(() => {
+    if (!open) return undefined;
+    let cancelled = false;
+    api
+      .publishedAssistantFaqs()
+      .then(({ faqs }) => {
+        if (!cancelled) setApprovedFaqs(Array.isArray(faqs) ? faqs : []);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          console.error("[site-assistant] Approved FAQs could not be loaded.");
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open]);
+
+  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [messages]);
 
-  async function ask(rawQuestion) {
+  const ask = useCallback(async (rawQuestion) => {
     const trimmedQuestion = rawQuestion.trim();
     if (!trimmedQuestion || pending) return;
 
     const minimumDelay = new Promise((resolve) =>
       window.setTimeout(resolve, MIN_REPLY_DELAY_MS),
     );
-    const response = answerQuestion(trimmedQuestion, pathname);
+    const response = answerQuestion(trimmedQuestion, pathname, approvedFaqs);
+    setFaqDraftStatus("");
     messageIdRef.current += 1;
     setMessages((current) => [
       ...current.slice(-18),
@@ -226,9 +295,9 @@ export default function SiteAssistant({ open, onClose }) {
     ]);
     setQuestion("");
     setPending(true);
+    let reply;
 
     try {
-      let reply;
       if (!response.fallback) {
         reply = response;
       } else {
@@ -247,17 +316,31 @@ export default function SiteAssistant({ open, onClose }) {
 
       await showReply(reply, minimumDelay);
     } catch (error) {
+      reply = {
+        text: `${response.text}\n\nI couldn’t answer that just now. Please try again later or visit Support.`,
+        link: response.link,
+      };
       await showReply(
-        {
-          text: `${response.text}\n\nI couldn’t answer that just now. Please try again later or visit Support.`,
-          link: response.link,
-        },
+        reply,
         minimumDelay,
       );
     } finally {
       setPending(false);
     }
-  }
+    void queueFaqDraft(trimmedQuestion, reply.text);
+  }, [approvedFaqs, pageKey, pathname, pending, queueFaqDraft, showReply]);
+
+  useEffect(() => {
+    if (
+      !open ||
+      !askRequest ||
+      handledAskRequestRef.current === askRequest.id
+    ) {
+      return;
+    }
+    handledAskRequestRef.current = askRequest.id;
+    void ask(askRequest.question);
+  }, [askRequest, open, ask]);
 
   return (
     <section
@@ -277,7 +360,10 @@ export default function SiteAssistant({ open, onClose }) {
           <Bot size={21} aria-hidden="true" />
         </span>
         <div className="min-w-0 flex-1">
-          <h2 className="text-sm font-bold text-fg">Assistant chatbot</h2>
+          <h2 className="flex items-center gap-1.5 text-sm font-bold text-fg">
+            CODEX AI Assistant
+            <VerifiedBadge size={15} label="Verified CODEX AI assistant" />
+          </h2>
           <p className="text-xs text-muted">Help with CODEX AI and the site</p>
         </div>
         <button
@@ -394,8 +480,20 @@ export default function SiteAssistant({ open, onClose }) {
           </button>
         </form>
         <p className="mt-2 text-[11px] leading-4 text-muted">
-          Never share passwords, session IDs, or tokens.
+          Questions and replies may be summarized into FAQ drafts for review. Never
+          share passwords, session IDs, or tokens.
         </p>
+        {faqDraftStatus ? (
+          <p className="mt-1 text-[11px] leading-4 text-muted" role="status">
+            {faqDraftStatus === "preparing"
+              ? "Preparing a private FAQ draft…"
+              : faqDraftStatus === "queued"
+                ? "A private FAQ draft was sent for admin review."
+                : faqDraftStatus === "skipped"
+                  ? "No reusable FAQ draft was created for that question."
+                  : "The answer worked, but an FAQ draft couldn’t be prepared."}
+          </p>
+        ) : null}
       </div>
     </section>
   );

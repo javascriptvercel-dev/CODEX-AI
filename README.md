@@ -43,6 +43,7 @@ CODEX AI is a full-stack platform for spinning up **WhatsApp bot sessions** in s
 | 📱 **Pairing Code Flow** | Prefer typing a code on your phone instead of scanning? Pair by WhatsApp number directly |
 | 🧩 **Plugin Marketplace** | Browse, search, and `.install <url>` community plugins across Utility, Fun, Moderation, AI, and more |
 | ✍️ **Plugin Submissions** | Ship your own plugin — paste code or upload a file, and it lands straight in the admin review queue |
+| 🤖 **Site Assistant FAQs** | Assistant conversations can create summarized FAQ drafts for admin review; approved answers appear on Support |
 | 💡 **Suggestion Box** | Users can pitch new features directly to the team |
 | 🌓 **Light/Dark UI** | Because good tools should look good at 2am too |
 
@@ -112,6 +113,18 @@ Plugins are reviewed before publishing:
 4. Approved plugins get a public raw URL: `.install <rawUrl>`
 
 > ℹ️ Submissions currently support a single code blob or file per plugin — multi-file plugins (e.g. one that ships its own data file) aren't supported by the review pipeline yet.
+
+## 🤖 Assistant FAQ Review
+
+Assistant questions and replies may be summarized into private FAQ drafts. The
+original conversation is not stored in the FAQ queue. Administrators can edit,
+approve, or reject drafts from the **FAQ drafts** tab in the console. Only
+approved FAQs are shown publicly on the Support page.
+
+Before deploying this feature, run
+[`Backend/src/db/migration_008_assistant_faqs.sql`](./Backend/src/db/migration_008_assistant_faqs.sql)
+in the Supabase SQL editor. Configure `NEXT_PUBLIC_API_URL` to point to the
+backend API; server-side route handlers can use `API_URL` as an override.
 
 ---
 

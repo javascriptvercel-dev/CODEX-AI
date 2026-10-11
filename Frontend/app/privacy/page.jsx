@@ -13,6 +13,7 @@ const sections = [
     title: "1. Information We Collect",
     content: [
       "We collect information you provide when you create or manage an account, including your email address, profile details, authentication information, and content you submit to the service. You may also provide bot configuration, plugin submissions, repositories, and support requests.",
+      "When you use the site assistant, your question and its reply may be processed by an AI service to provide an answer and create a reusable FAQ suggestion. The generated FAQ draft is stored for administrator review; only approved drafts are published. Do not include passwords, session IDs, tokens, or other sensitive information in assistant questions.",
       "We automatically receive technical information needed to operate and secure CODEX AI, such as log data, device and browser information, approximate location derived from your IP address, and usage events. We use essential cookies to maintain sessions and browser storage to remember preferences.",
     ],
   },
@@ -28,6 +29,7 @@ const sections = [
     content: [
       "CODEX AI may connect with WhatsApp, hosting providers, storage providers, repositories, email providers, and other third-party services that you choose to use. Those services process information under their own terms and privacy policies. You are responsible for reviewing those policies and ensuring that your use of integrations is authorized.",
       "We may share information with vendors that provide infrastructure, security, analytics, communications, and support. These providers may access information only as needed to perform services for us and are expected to protect it.",
+      "Assistant questions and replies used to prepare FAQ suggestions are sent to the AI service configured for CODEX AI. The FAQ review queue stores the generated summary, not the original conversation. The AI service may process submitted content under its own terms and privacy policy.",
     ],
   },
   {

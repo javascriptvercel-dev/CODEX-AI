@@ -3,6 +3,7 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   AlertTriangle,
+  BookOpenCheck,
   MessageSquareText,
   PackagePlus,
   RefreshCw,
@@ -13,6 +14,7 @@ import ConsoleNavbar from "@/components/layout/ConsoleNavbar";
 import Footer from "@/components/layout/Footer";
 import SubmissionCard from "@/components/admin/SubmissionCard";
 import SuggestionCard from "@/components/admin/SuggestionCard";
+import AssistantFaqDraftCard from "@/components/admin/AssistantFaqDraftCard";
 import SettingsTab from "@/components/admin/SettingsTab";
 import AdminEmailOptInModal, {
   shouldShowEmailPrompt,
@@ -33,6 +35,7 @@ const CONSOLE_GREETINGS = [
 const TABS = [
   { id: "submissions", label: "Submissions", icon: ShieldCheck },
   { id: "suggestions", label: "Feedback", icon: MessageSquareText },
+  { id: "faqDrafts", label: "FAQ drafts", icon: BookOpenCheck },
   { id: "create", label: "Create plugin", icon: PackagePlus },
   { id: "settings", label: "Settings", icon: Settings },
 ];
@@ -56,6 +59,7 @@ function ConsolePageInner() {
   const [statusFilter, setStatusFilter] = useState("pending");
   const [submissions, setSubmissions] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
+  const [faqDrafts, setFaqDrafts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showEmailPrompt, setShowEmailPrompt] = useState(false);
@@ -138,8 +142,26 @@ function ConsolePageInner() {
     }
   };
 
-  const reload = () =>
-    tab === "suggestions" ? loadSuggestions() : loadSubmissions();
+  const loadFaqDrafts = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { faqs: data } = await api.adminAssistantFaqDrafts();
+      setFaqDrafts(data);
+    } catch (err) {
+      setFaqDrafts([]);
+      setError(err?.message || "Something went wrong loading FAQ drafts.");
+      if (err?.message === "Sign in to continue.") await refresh();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const reload = () => {
+    if (tab === "suggestions") return loadSuggestions();
+    if (tab === "faqDrafts") return loadFaqDrafts();
+    return loadSubmissions();
+  };
 
   const handlePluginSubmitted = () => {
     setStatusFilter("pending");
@@ -150,6 +172,7 @@ function ConsolePageInner() {
     if (!isAdmin) return;
     if (tab === "submissions") loadSubmissions();
     else if (tab === "suggestions") loadSuggestions();
+    else if (tab === "faqDrafts") loadFaqDrafts();
   }, [tab, statusFilter, isAdmin]);
 
   const handleApprove = async (id) => {
@@ -202,8 +225,13 @@ function ConsolePageInner() {
     );
   }
 
-  const activeList = tab === "suggestions" ? suggestions : submissions;
-  const isListTab = tab === "submissions" || tab === "suggestions";
+  const activeList =
+    tab === "suggestions"
+      ? suggestions
+      : tab === "faqDrafts"
+        ? faqDrafts
+        : submissions;
+  const isListTab = ["submissions", "suggestions", "faqDrafts"].includes(tab);
 
   return (
     <div className="flex min-h-screen flex-col bg-bg text-fg">
@@ -266,7 +294,9 @@ function ConsolePageInner() {
                       ? activeList.length === 1
                         ? "item"
                         : "items"
-                      : statusFilter
+                          : tab === "faqDrafts"
+                            ? "drafts"
+                            : statusFilter
                   }`}
             </p>
             {tab === "submissions" && (
@@ -331,6 +361,8 @@ function ConsolePageInner() {
               <div className="mx-auto grid h-11 w-11 place-items-center rounded bg-azure-500/10 text-azure-500">
                 {tab === "submissions" ? (
                   <ShieldCheck size={19} />
+                ) : tab === "faqDrafts" ? (
+                  <BookOpenCheck size={19} />
                 ) : (
                   <MessageSquareText size={19} />
                 )}
@@ -338,11 +370,15 @@ function ConsolePageInner() {
               <p className="mt-4 font-semibold">
                 {tab === "submissions"
                   ? "No submissions in this view"
+                  : tab === "faqDrafts"
+                    ? "No FAQ drafts waiting for review"
                   : "No feedback yet"}
               </p>
               <p className="mx-auto mt-1 max-w-md text-sm text-muted">
                 {tab === "submissions"
                   ? "Try another status filter or return later when new items are ready for review."
+                  : tab === "faqDrafts"
+                    ? "Questions that can help other visitors will appear here after they are summarized."
                   : "Community feedback will appear here as it is submitted."}
               </p>
             </div>
@@ -369,6 +405,19 @@ function ConsolePageInner() {
                       />
                     </div>
                   ))
+                : tab === "faqDrafts"
+                  ? faqDrafts.map((faq, i) => (
+                      <div
+                        key={faq.id}
+                        className="animate-rise"
+                        style={{ animationDelay: `${i * 40}ms` }}
+                      >
+                        <AssistantFaqDraftCard
+                          faq={faq}
+                          onReviewed={loadFaqDrafts}
+                        />
+                      </div>
+                    ))
                 : suggestions.map((suggestion, i) => (
                     <div
                       key={suggestion.id}

@@ -61,13 +61,26 @@ create table if not exists public.suggestions (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.assistant_faqs (
+  id uuid primary key default gen_random_uuid(),
+  question text not null check (char_length(question) between 10 and 180),
+  answer text not null check (char_length(answer) between 10 and 1200),
+  status text not null default 'pending' check (status in ('pending', 'approved', 'rejected')),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  reviewed_at timestamptz,
+  reviewed_by uuid references public.users(id) on delete set null
+);
+
 create index if not exists plugin_submissions_status_idx on public.plugin_submissions (status);
 create index if not exists plugins_name_idx on public.plugins using gin (to_tsvector('english', name || ' ' || author_name));
+create index if not exists assistant_faqs_status_created_idx on public.assistant_faqs (status, created_at desc);
 
 alter table public.users enable row level security;
 alter table public.plugin_submissions enable row level security;
 alter table public.plugins enable row level security;
 alter table public.suggestions enable row level security;
+alter table public.assistant_faqs enable row level security;
 
 -- Explicit deny-all policies make the backend-only access model visible to
 -- security scanners. Only the service-role key bypasses RLS.
@@ -81,6 +94,9 @@ create policy users_backend_only on public.users
   for all to anon, authenticated using (false) with check (false);
 
 create policy suggestions_backend_only on public.suggestions
+  for all to anon, authenticated using (false) with check (false);
+
+create policy assistant_faqs_backend_only on public.assistant_faqs
   for all to anon, authenticated using (false) with check (false);
 
 insert into storage.buckets (id, name, public)

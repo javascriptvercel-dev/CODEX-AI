@@ -1,7 +1,8 @@
-import { CircleHelp, LifeBuoy, ShieldCheck } from "lucide-react";
+import { LifeBuoy, ShieldCheck } from "lucide-react";
 import { SiWhatsapp } from "react-icons/si";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import SupportFaqs from "@/components/support/SupportFaqs";
 import { SUPPORT_CHANNELS } from "@/lib/supportChannels";
 import { buildMetadata } from "@/lib/seo";
 
@@ -11,21 +12,6 @@ export const metadata = buildMetadata({
     "Get help from the CODEX AI community, follow release updates, and find quick answers before you reach out.",
   path: "/support",
 });
-
-const FAQS = [
-  {
-    question: "Where should I ask for help?",
-    answer: "Use the WhatsApp or Telegram community when you want help from other users or need to discuss a setup problem.",
-  },
-  {
-    question: "Where do I find announcements?",
-    answer: "Follow the announcement channels for release notes, important notices, and project updates.",
-  },
-  {
-    question: "I found a problem. What should I include?",
-    answer: "Describe what you were trying to do, what happened, and any visible error message. Avoid sharing passwords, session codes, tokens, or private account information.",
-  },
-];
 
 function SupportCard({ channel }) {
   const Icon = channel.icon;
@@ -122,18 +108,7 @@ export default function SupportPage() {
               <p className="font-mono text-sm font-semibold uppercase tracking-[0.18em] text-azure-500">Quick answers</p>
               <h2 className="mt-1 font-display text-xl font-bold sm:text-2xl">Before you reach out</h2>
             </div>
-            <div className="divide-y divide-edge overflow-hidden rounded-2xl border border-edge bg-surface">
-              {FAQS.map((faq) => (
-                <details key={faq.question} className="group p-4 sm:p-5">
-                  <summary className="focus-ring flex cursor-pointer list-none items-center gap-3 rounded-lg text-sm font-semibold [&::-webkit-details-marker]:hidden">
-                    <CircleHelp size={16} className="flex-none text-azure-500" aria-hidden="true" />
-                    <span className="min-w-0 flex-1 break-words [overflow-wrap:anywhere]">{faq.question}</span>
-                    <span className="text-lg leading-none text-muted transition group-open:rotate-45" aria-hidden="true">+</span>
-                  </summary>
-                  <p className="mt-3 pl-7 text-sm leading-6 text-muted">{faq.answer}</p>
-                </details>
-              ))}
-            </div>
+            <SupportFaqs />
           </div>
         </section>
       </main>

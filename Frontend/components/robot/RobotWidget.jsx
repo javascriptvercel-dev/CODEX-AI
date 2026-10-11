@@ -49,6 +49,7 @@ export default function RobotWidget() {
   const [bubble, setBubble] = useState(null);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [assistantOpen, setAssistantOpen] = useState(false);
+  const [assistantRequest, setAssistantRequest] = useState(null);
   const lastActivityRef = useRef(Date.now());
   const bubbleTimerRef = useRef(null);
   const moodTimerRef = useRef(null);
@@ -58,6 +59,7 @@ export default function RobotWidget() {
   const audioContextRef = useRef(null);
   const ambientTimerRef = useRef(null);
   const robotButtonRef = useRef(null);
+  const assistantRequestIdRef = useRef(0);
   const getAudioContext = () => {
     if (!audioContextRef.current) {
       const Ctx = window.AudioContext || window.webkitAudioContext;
@@ -134,11 +136,23 @@ export default function RobotWidget() {
         startAmbientSound();
       }
     };
+    const onAskAssistant = (e) => {
+      const question = e.detail?.question;
+      if (typeof question !== "string" || !question.trim()) return;
+      assistantRequestIdRef.current += 1;
+      setAssistantRequest({
+        id: assistantRequestIdRef.current,
+        question: question.trim(),
+      });
+      setAssistantOpen(true);
+    };
     window.addEventListener(ROBOT_EVENTS.SAY_EVENT, onSay);
     window.addEventListener(ROBOT_EVENTS.MOOD_EVENT, onMood);
+    window.addEventListener(ROBOT_EVENTS.ASSISTANT_ASK_EVENT, onAskAssistant);
     return () => {
       window.removeEventListener(ROBOT_EVENTS.SAY_EVENT, onSay);
       window.removeEventListener(ROBOT_EVENTS.MOOD_EVENT, onMood);
+      window.removeEventListener(ROBOT_EVENTS.ASSISTANT_ASK_EVENT, onAskAssistant);
     };
   }, [say, setMoodWithRevert, soundEnabled]);
   useEffect(() => {
@@ -255,7 +269,11 @@ export default function RobotWidget() {
       ref={rootRef}
       className="fixed bottom-3 right-3 z-40 flex max-w-[calc(100vw-1.5rem)] flex-col items-end gap-2 sm:bottom-5 sm:right-5"
     >
-      <SiteAssistant open={assistantOpen} onClose={closeAssistant} />
+      <SiteAssistant
+        open={assistantOpen}
+        onClose={closeAssistant}
+        askRequest={assistantRequest}
+      />
       {bubble && !assistantOpen && (
         <div className="animate-robot-pop max-w-[min(190px,calc(100vw-5rem))] break-words rounded-2xl rounded-br-sm border border-edge bg-surface px-3 py-2 text-xs text-fg shadow-glow [overflow-wrap:anywhere]">
           {bubble.message}

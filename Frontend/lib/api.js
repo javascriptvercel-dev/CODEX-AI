@@ -78,6 +78,18 @@ export const api = {
       body: JSON.stringify({ note }),
     }),
   adminSuggestions: () => request("/api/admin/suggestions"),
+  publishedAssistantFaqs: () => request("/api/assistant-faqs"),
+  adminAssistantFaqDrafts: () => request("/api/admin/assistant-faqs"),
+  createAssistantFaqDraft: (body) =>
+    request("/api/assistant-faqs/suggestions", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+  reviewAssistantFaqDraft: (id, body) =>
+    request(`/api/admin/assistant-faqs/${encodeURIComponent(id)}`, {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    }),
   submitSuggestion: (body) =>
     request("/api/suggestions", { method: "POST", body: JSON.stringify(body) }),
   checkBan: (number) =>
