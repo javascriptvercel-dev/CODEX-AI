@@ -1,4 +1,5 @@
 "use client";
+import { useEffect, useId, useState } from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import GenerateConsole from "@/components/session/GenerateConsole";
@@ -6,25 +7,54 @@ import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
 import { ChevronDown } from "lucide-react";
 
-function DeploymentMethod({ title, description, children, defaultOpen = false }) {
+function DeploymentMethod({ id, title, description, children, defaultOpen = false }) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+  const panelId = useId();
+
+  useEffect(() => {
+    if (!id) return undefined;
+    const openForHash = () => {
+      if (window.location.hash === `#${id}`) setIsOpen(true);
+    };
+    openForHash();
+    window.addEventListener("hashchange", openForHash);
+    return () => window.removeEventListener("hashchange", openForHash);
+  }, [id]);
+
   return (
-    <details
-      className="group overflow-hidden rounded-xl border border-edge bg-surface"
-      open={defaultOpen}
-    >
-      <summary className="focus-ring flex cursor-pointer list-none items-center justify-between gap-4 p-5 sm:p-6 [&::-webkit-details-marker]:hidden">
-        <span className="min-w-0">
-          <span className="block font-display text-lg font-bold text-fg">{title}</span>
-          <span className="mt-1 block text-sm leading-6 text-muted">{description}</span>
-        </span>
-        <ChevronDown
-          size={20}
-          className="flex-none text-muted transition-transform group-open:rotate-180"
-          aria-hidden="true"
-        />
-      </summary>
-      <div className="border-t border-edge p-5 sm:p-6">{children}</div>
-    </details>
+    <section id={id} className="overflow-hidden rounded-xl border border-edge bg-surface">
+      <h2>
+        <button
+          type="button"
+          className="focus-ring flex w-full items-center justify-between gap-4 p-5 text-left sm:p-6"
+          aria-expanded={isOpen}
+          aria-controls={panelId}
+          onClick={() => setIsOpen((open) => !open)}
+        >
+          <span className="min-w-0">
+            <span className="block font-display text-lg font-bold text-fg">{title}</span>
+            <span className="mt-1 block text-sm leading-6 text-muted">{description}</span>
+          </span>
+          <ChevronDown
+            size={20}
+            className={`flex-none text-muted transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+            aria-hidden="true"
+          />
+        </button>
+      </h2>
+      <div
+        id={panelId}
+        aria-hidden={!isOpen}
+        inert={!isOpen}
+        className={`grid transition-[grid-template-rows,opacity] duration-300 ease-in-out ${
+          isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+        }`}
+      >
+        <div className="min-h-0 overflow-hidden">
+          <div className="border-t border-edge p-5 sm:p-6">{children}</div>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -62,6 +92,7 @@ export default function DeployPage() {
         </Container>
         <Container size="narrow" className="space-y-4 !px-0 sm:!px-5">
           <DeploymentMethod
+            id="panel-deployment"
             title="Panel deployment"
             description="Generate a setup script and run it on a Node.js server in your hosting panel."
           >
@@ -101,6 +132,7 @@ export default function DeployPage() {
           </DeploymentMethod>
 
           <DeploymentMethod
+            id="linux-vps"
             title="Linux VPS"
             description="Run the bot directly on a Linux virtual private server with PM2."
           >
@@ -174,6 +206,7 @@ npm run pm2:logs`}</DeploymentCode>
           </DeploymentMethod>
 
           <DeploymentMethod
+            id="render"
             title="Render"
             description="Deploy from the repository Blueprint and retain runtime files on persistent storage."
           >
@@ -242,6 +275,7 @@ npm run pm2:logs`}</DeploymentCode>
           </DeploymentMethod>
 
           <DeploymentMethod
+            id="docker"
             title="Docker"
             description="Run one Node.js container with persistent mounts for the bot's runtime files."
           >
@@ -340,6 +374,7 @@ docker compose ps`}</DeploymentCode>
           </DeploymentMethod>
 
           <DeploymentMethod
+            id="heroku"
             title="Heroku"
             description="The repo lists Heroku but explicitly advises against deploying this bot there as-is."
           >

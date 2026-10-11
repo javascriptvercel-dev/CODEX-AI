@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Volume2, VolumeX } from "lucide-react";
 import { ROBOT_EVENTS } from "@/lib/robot";
+import SiteAssistant from "@/components/robot/SiteAssistant";
 const SOUND_PREF_KEY = "codex_robot_sound_enabled";
 const IDLE_LOOK_AROUND_MS = 20000;
 const APPROACH_RADIUS = 260;
@@ -47,6 +48,7 @@ export default function RobotWidget() {
   const [scrollPulse, setScrollPulse] = useState(false);
   const [bubble, setBubble] = useState(null);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [assistantOpen, setAssistantOpen] = useState(false);
   const lastActivityRef = useRef(Date.now());
   const bubbleTimerRef = useRef(null);
   const moodTimerRef = useRef(null);
@@ -55,6 +57,7 @@ export default function RobotWidget() {
   const scrollYRef = useRef(0);
   const audioContextRef = useRef(null);
   const ambientTimerRef = useRef(null);
+  const robotButtonRef = useRef(null);
   const getAudioContext = () => {
     if (!audioContextRef.current) {
       const Ctx = window.AudioContext || window.webkitAudioContext;
@@ -90,6 +93,10 @@ export default function RobotWidget() {
       return next;
     });
   };
+  const closeAssistant = useCallback(() => {
+    setAssistantOpen(false);
+    robotButtonRef.current?.focus();
+  }, []);
   const say = useCallback(
     (message) => {
       if (bubble || !message) return;
@@ -247,10 +254,9 @@ export default function RobotWidget() {
     <div
       ref={rootRef}
       className="fixed bottom-3 right-3 z-40 flex max-w-[calc(100vw-1.5rem)] flex-col items-end gap-2 sm:bottom-5 sm:right-5"
-      aria-hidden="true"
     >
-
-      {bubble && (
+      <SiteAssistant open={assistantOpen} onClose={closeAssistant} />
+      {bubble && !assistantOpen && (
         <div className="animate-robot-pop max-w-[min(190px,calc(100vw-5rem))] break-words rounded-2xl rounded-br-sm border border-edge bg-surface px-3 py-2 text-xs text-fg shadow-glow [overflow-wrap:anywhere]">
           {bubble.message}
         </div>
@@ -268,6 +274,16 @@ export default function RobotWidget() {
 
           {soundEnabled ? <Volume2 size={11} /> : <VolumeX size={11} />}
         </button>
+        <button
+          ref={robotButtonRef}
+          type="button"
+          onClick={() => setAssistantOpen((open) => !open)}
+          aria-label={assistantOpen ? "Close CODEX AI helper" : "Open CODEX AI helper"}
+          aria-expanded={assistantOpen}
+          aria-controls="site-assistant-panel"
+          title={assistantOpen ? "Close site assistant" : "Open site assistant"}
+          className="focus-ring rounded-xl"
+        >
         <div
           className={`relative h-14 w-14 select-none transition-transform duration-200 ${bounce ? "scale-110" : "scale-100"} ${scrollPulse ? "animate-robot-bob" : ""} ${lookingAround ? "animate-robot-look-around" : ""}`}
         >
@@ -330,6 +346,7 @@ export default function RobotWidget() {
             />
           </svg>
         </div>
+        </button>
       </div>
     </div>
   );
