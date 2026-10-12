@@ -41,7 +41,13 @@ const TABS = [
   { id: "settings", label: "Settings", icon: Settings },
 ];
 const TAB_IDS = TABS.map((t) => t.id);
-const STATUSES = ["pending", "approved", "rejected"];
+const STATUSES = [
+  { id: "pending", label: "Pending" },
+  { id: "approved_by_me", label: "Approved by me" },
+  { id: "all_approved", label: "All approved" },
+  { id: "rejected_by_me", label: "Rejected by me" },
+  { id: "all_rejected", label: "All rejected" },
+];
 
 function ConsolePageInner() {
   const { user, isAdmin, loading: authLoading, refresh } = useAuth();
@@ -299,26 +305,26 @@ function ConsolePageInner() {
                       ? activeList.length === 1
                         ? "item"
                         : "items"
-                          : tab === "faqDrafts"
-                            ? "drafts"
-                            : statusFilter
+                      : tab === "faqDrafts"
+                        ? "drafts"
+                        : STATUSES.find((status) => status.id === statusFilter)?.label.toLowerCase()
                   }`}
             </p>
             {tab === "submissions" && (
               <div className="inline-flex overflow-hidden rounded border border-edge">
-                {STATUSES.map((s) => (
+                {STATUSES.map(({ id, label }) => (
                   <button
-                    key={s}
+                    key={id}
                     type="button"
-                    onClick={() => setStatusFilter(s)}
-                    aria-pressed={statusFilter === s}
-                    className={`focus-ring border-l border-edge px-3 py-1.5 text-xs font-semibold capitalize transition first:border-l-0 ${
-                      statusFilter === s
+                    onClick={() => setStatusFilter(id)}
+                    aria-pressed={statusFilter === id}
+                    className={`focus-ring border-l border-edge px-3 py-1.5 text-xs font-semibold transition first:border-l-0 ${
+                      statusFilter === id
                         ? "bg-azure-500 text-white"
                         : "bg-surface2 text-muted hover:text-fg"
                     }`}
                   >
-                    {s}
+                    {label}
                   </button>
                 ))}
               </div>
@@ -404,6 +410,7 @@ function ConsolePageInner() {
                     >
                       <SubmissionCard
                         submission={submission}
+                        currentUserId={user.id}
                         onApprove={handleApprove}
                         onReject={handleReject}
                         onSaved={loadSubmissions}

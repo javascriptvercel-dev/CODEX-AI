@@ -12,7 +12,7 @@ export const getPublicStats = async (_req, res) => {
 
   const { count, error } = await supabase
     .from("users")
-    .select("*", { count: "exact", head: true });
+    .select("id", { count: "exact", head: true });
 
   if (error) {
     console.error("getPublicStats failed", error);

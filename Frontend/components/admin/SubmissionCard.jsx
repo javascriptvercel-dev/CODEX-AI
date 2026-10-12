@@ -66,7 +66,13 @@ function PromptDialog({ tone = "green", icon, title, children, onClose }) {
   );
 }
 
-export default function SubmissionCard({ submission, onApprove, onReject, onSaved }) {
+export default function SubmissionCard({
+  submission,
+  currentUserId,
+  onApprove,
+  onReject,
+  onSaved,
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const [editing, setEditing] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -92,6 +98,16 @@ export default function SubmissionCard({ submission, onApprove, onReject, onSave
 
   const codeLines = useMemo(() => String(code || "").split("\n"), [code]);
   const isPending = (submission.status || "pending") === "pending";
+  const reviewAction =
+    submission.status === "approved"
+      ? "Approved"
+      : submission.status === "rejected"
+        ? "Rejected"
+        : null;
+  const reviewerLabel =
+    submission.reviewerId === currentUserId
+      ? "you"
+      : submission.reviewerName || "an admin (reviewer not recorded)";
 
   const closeAll = () => {
     setIsOpen(false);
@@ -201,6 +217,11 @@ export default function SubmissionCard({ submission, onApprove, onReject, onSave
         <div className="flex items-center justify-between gap-3 border-b border-edge bg-surface2/50 px-4 py-3 sm:px-6 sm:py-4">
           <div className="flex min-w-0 items-center gap-3">
             <SubmissionStatusBadge status={submission.status} />
+            {reviewAction && (
+              <span className="text-xs text-muted">
+                {reviewAction} by {reviewerLabel}
+              </span>
+            )}
             <span className="truncate text-xs text-muted">ID: {submission.id}</span>
           </div>
           <button

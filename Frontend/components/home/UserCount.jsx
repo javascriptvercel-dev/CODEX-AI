@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { Users } from "lucide-react";
-import { API_URL } from "@/lib/api";
 
 const formatCount = (value) =>
   typeof value === "number" ? new Intl.NumberFormat("en-US").format(value) : "--";
@@ -13,7 +12,7 @@ export default function UserCount({ variant = "card" }) {
   useEffect(() => {
     let active = true;
 
-    fetch(`${API_URL}/api/stats/public`, { credentials: "include" })
+    fetch("/api/stats/public")
       .then((response) => {
         if (!response.ok) throw new Error("User count unavailable.");
         return response.json();
