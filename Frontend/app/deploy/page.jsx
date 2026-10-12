@@ -68,7 +68,7 @@ function DeploymentSteps({ children }) {
 
 function DeploymentCode({ children }) {
   return (
-    <pre className="my-3 overflow-x-auto rounded-lg border border-edge bg-ink-950 p-4 font-mono text-xs leading-6 text-azure-300">
+    <pre className="my-3 overflow-x-auto rounded-lg border border-edge bg-code-surface p-4 font-mono text-xs leading-6 text-code-accent">
       <code>{children}</code>
     </pre>
   );

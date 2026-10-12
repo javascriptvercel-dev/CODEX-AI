@@ -259,9 +259,9 @@ export default function GenerateConsole() {
           </div>
         </div>
 
-        <div className="min-w-0 max-w-full max-h-[320px] overflow-auto bg-ink-950 p-4">
+        <div className="min-w-0 max-w-full max-h-[320px] overflow-auto bg-code-surface p-4">
           {code ? (
-            <pre className="min-w-0 max-w-full whitespace-pre-wrap break-all font-mono text-[11px] leading-relaxed text-azure-300">
+            <pre className="min-w-0 max-w-full whitespace-pre-wrap break-all font-mono text-[11px] leading-relaxed text-code-accent">
               {code}
             </pre>
           ) : (
@@ -278,7 +278,7 @@ export default function GenerateConsole() {
       </div>
 
       {code && (
-        <div className="mt-4 flex flex-wrap items-center gap-2 rounded-lg border border-azure-500/25 bg-azure-500/5 px-3.5 py-2.5 text-xs text-azure-300">
+        <div className="mt-4 flex flex-wrap items-center gap-2 rounded-lg border border-azure-500/25 bg-azure-500/5 px-3.5 py-2.5 text-xs text-code-accent">
           <Terminal size={13} />
 
           <code className="font-mono">node index.js</code>

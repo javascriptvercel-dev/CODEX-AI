@@ -13,6 +13,11 @@
   --azure-600: #0047a3;
   --surface: var(--ink-900);
   --surface-2: var(--ink-800);
+  --code-surface: #05070c;
+  --code-text: #dbeafe;
+  --code-accent: #69afff;
+  --code-muted: #77839c;
+  --code-placeholder: rgba(219, 234, 254, 0.38);
   --edge: rgba(143, 180, 255, 0.14);
   --text: #eef2ff;
   --text-muted: #8b97b8;
@@ -21,6 +26,11 @@
 [data-theme="light"] {
   --surface: #ffffff;
   --surface-2: var(--paper-100);
+  --code-surface: #f1f5fb;
+  --code-text: #17243a;
+  --code-accent: #064ea6;
+  --code-muted: #61708a;
+  --code-placeholder: rgba(23, 36, 58, 0.48);
   --edge: rgba(11, 17, 32, 0.1);
   --text: #0b1120;
   --text-muted: #4b5875;

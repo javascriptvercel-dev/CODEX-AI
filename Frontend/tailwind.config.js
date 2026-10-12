@@ -33,6 +33,13 @@ module.exports = {
         edge: "var(--edge)",
         surface: "var(--surface)",
         surface2: "var(--surface-2)",
+        code: {
+          surface: "var(--code-surface)",
+          text: "var(--code-text)",
+          accent: "var(--code-accent)",
+          muted: "var(--code-muted)",
+          placeholder: "var(--code-placeholder)",
+        },
         fg: "var(--text)",
         muted: "var(--text-muted)",
         bg: "var(--bg)",

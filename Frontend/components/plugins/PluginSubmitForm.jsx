@@ -102,12 +102,12 @@ export default function PluginSubmitForm({
 
         <label className="flex flex-col gap-2 text-base">
           <span className="font-semibold">Plugin Code</span>
-          <textarea id="plugin-code" name="code" autoComplete="off" rows={14} value={code} onChange={(e) => setCode(e.target.value)} placeholder={CODE_PLACEHOLDER} spellCheck={false} className="focus-ring min-h-[260px] resize-y rounded-lg border border-edge bg-ink-950 px-3.5 py-3 font-mono text-sm leading-6 text-azure-300 outline-none placeholder:text-white/30" />
+          <textarea id="plugin-code" name="code" autoComplete="off" rows={14} value={code} onChange={(e) => setCode(e.target.value)} placeholder={CODE_PLACEHOLDER} spellCheck={false} className="focus-ring min-h-[260px] resize-y rounded-lg border border-edge bg-code-surface px-3.5 py-3 font-mono text-sm leading-6 text-code-accent outline-none placeholder:text-code-placeholder" />
         </label>
 
         <label className="flex cursor-pointer flex-col gap-2 text-base">
           <span className="font-semibold">Code File <span className="font-normal text-muted">(optional, max 5MB)</span></span>
-          <span className="focus-ring flex min-w-0 items-center gap-3 rounded-lg border border-dashed border-edge bg-ink-950 px-3.5 py-3.5 text-sm text-muted">
+          <span className="focus-ring flex min-w-0 items-center gap-3 rounded-lg border border-dashed border-edge bg-code-surface px-3.5 py-3.5 text-sm text-muted">
             <UploadCloud size={17} className="shrink-0" />
             <span className="min-w-0 truncate">{file ? file.name : "Attach a zip, script, or asset"}</span>
             <input id="plugin-file" name="file" type="file" className="hidden" onChange={(e) => {

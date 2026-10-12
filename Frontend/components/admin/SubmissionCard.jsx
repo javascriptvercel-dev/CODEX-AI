@@ -329,14 +329,14 @@ export default function SubmissionCard({ submission, onApprove, onReject, onSave
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 onKeyDown={handleCodeKeyDown}
-                className="w-full resize-y rounded-xl border border-edge bg-ink-950 p-4 font-mono text-[12px] leading-6 text-azure-300 outline-none focus:border-azure-500 sm:p-5 sm:text-[13px]"
+                className="focus-ring w-full resize-y rounded-xl border border-edge bg-code-surface p-4 font-mono text-[12px] leading-6 text-code-accent outline-none sm:p-5 sm:text-[13px]"
               />
             ) : code ? (
-              <div className="overflow-hidden rounded-xl border border-edge bg-ink-950">
-                <pre className="max-h-[60vh] overflow-auto p-4 font-mono text-[12px] leading-6 text-azure-300 sm:p-5 sm:text-[13px]">
+              <div className="overflow-hidden rounded-xl border border-edge bg-code-surface">
+                <pre className="max-h-[60vh] overflow-auto p-4 font-mono text-[12px] leading-6 text-code-accent sm:p-5 sm:text-[13px]">
                   {codeLines.map((line, index) => (
                     <div key={index} className="flex min-w-max">
-                      <span className="mr-5 inline-block w-8 select-none text-right text-slate-500">
+                      <span className="mr-5 inline-block w-8 select-none text-right text-code-muted">
                         {index + 1}
                       </span>
                       <code>{line || " "}</code>
