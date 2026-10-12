@@ -4,30 +4,14 @@ import { notifyPluginCreatorOfDecision } from "../utils/mailer.js";
 
 export const listSubmissions = async (req, res) => {
   const status = req.query.status || "pending";
-  const statusFilters = {
-    pending: { status: "pending" },
-    approved: { status: "approved" },
-    rejected: { status: "rejected" },
-    approved_by_me: { status: "approved", reviewedByMe: true },
-    all_approved: { status: "approved" },
-    rejected_by_me: { status: "rejected", reviewedByMe: true },
-    all_rejected: { status: "rejected" },
-    all: null,
-  };
-  if (!Object.hasOwn(statusFilters, status)) {
-    return res.status(400).json({ error: "Invalid submission status filter." });
-  }
-
   let query = supabase
     .from("plugin_submissions")
     .select(
-      "public_id, title, description, code, file_path, category, status, admin_note, reviewed_by, reviewed_at, created_at, users(full_name, email, role), reviewer:users!plugin_submissions_reviewed_by_fkey(full_name, email)"
+      "public_id, title, description, code, file_path, category, status, admin_note, created_at, users(full_name, email, role)"
     )
     .order("created_at", { ascending: false });
 
-  const filter = statusFilters[status];
-  if (filter?.status) query = query.eq("status", filter.status);
-  if (filter?.reviewedByMe) query = query.eq("reviewed_by", req.user.id);
+  if (status !== "all") query = query.eq("status", status);
 
   const { data, error } = await query;
   if (error) {
@@ -51,12 +35,6 @@ export const listSubmissions = async (req, res) => {
         code: submission.code,
         status: submission.status,
         adminNote: submission.admin_note,
-        reviewerId: submission.reviewed_by,
-        reviewerName:
-          submission.reviewer?.full_name ||
-          submission.reviewer?.email ||
-          null,
-        reviewedAt: submission.reviewed_at,
         createdAt: submission.created_at,
         authorName: submission.users?.full_name || submission.users?.email || "Unknown",
         authorIsAdmin: submission.users?.role === "admin",
@@ -100,11 +78,7 @@ export const approveSubmission = async (req, res) => {
 
   const { error: statusError } = await supabase
     .from("plugin_submissions")
-    .update({
-      status: "approved",
-      reviewed_by: req.user.id,
-      reviewed_at: new Date().toISOString(),
-    })
+    .update({ status: "approved" })
     .eq("public_id", id);
   if (statusError) {
     console.error("approveSubmission: status update failed", statusError);
@@ -169,11 +143,7 @@ export const updateAndApproveSubmission = async (req, res) => {
 
   const { error: statusError } = await supabase
     .from("plugin_submissions")
-    .update({
-      status: "approved",
-      reviewed_by: req.user.id,
-      reviewed_at: new Date().toISOString(),
-    })
+    .update({ status: "approved" })
     .eq("public_id", id);
   if (statusError) {
     console.error("updateAndApproveSubmission: status update failed", statusError);
@@ -220,12 +190,7 @@ export const rejectSubmission = async (req, res) => {
 
   const { error } = await supabase
     .from("plugin_submissions")
-    .update({
-      status: "rejected",
-      admin_note: note || null,
-      reviewed_by: req.user.id,
-      reviewed_at: new Date().toISOString(),
-    })
+    .update({ status: "rejected", admin_note: note || null })
     .eq("public_id", id);
 
   if (error) {

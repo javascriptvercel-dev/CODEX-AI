@@ -41,13 +41,7 @@ const TABS = [
   { id: "settings", label: "Settings", icon: Settings },
 ];
 const TAB_IDS = TABS.map((t) => t.id);
-const STATUSES = [
-  { id: "pending", label: "Pending" },
-  { id: "approved_by_me", label: "Approved by me" },
-  { id: "all_approved", label: "All approved" },
-  { id: "rejected_by_me", label: "Rejected by me" },
-  { id: "all_rejected", label: "All rejected" },
-];
+const STATUSES = ["pending", "approved", "rejected"];
 
 function ConsolePageInner() {
   const { user, isAdmin, loading: authLoading, refresh } = useAuth();
@@ -307,24 +301,24 @@ function ConsolePageInner() {
                         : "items"
                       : tab === "faqDrafts"
                         ? "drafts"
-                        : STATUSES.find((status) => status.id === statusFilter)?.label.toLowerCase()
+                        : statusFilter
                   }`}
             </p>
             {tab === "submissions" && (
               <div className="inline-flex overflow-hidden rounded border border-edge">
-                {STATUSES.map(({ id, label }) => (
+                {STATUSES.map((status) => (
                   <button
-                    key={id}
+                    key={status}
                     type="button"
-                    onClick={() => setStatusFilter(id)}
-                    aria-pressed={statusFilter === id}
-                    className={`focus-ring border-l border-edge px-3 py-1.5 text-xs font-semibold transition first:border-l-0 ${
-                      statusFilter === id
+                    onClick={() => setStatusFilter(status)}
+                    aria-pressed={statusFilter === status}
+                    className={`focus-ring border-l border-edge px-3 py-1.5 text-xs font-semibold capitalize transition first:border-l-0 ${
+                      statusFilter === status
                         ? "bg-azure-500 text-white"
                         : "bg-surface2 text-muted hover:text-fg"
                     }`}
                   >
-                    {label}
+                    {status}
                   </button>
                 ))}
               </div>
@@ -410,7 +404,6 @@ function ConsolePageInner() {
                     >
                       <SubmissionCard
                         submission={submission}
-                        currentUserId={user.id}
                         onApprove={handleApprove}
                         onReject={handleReject}
                         onSaved={loadSubmissions}
