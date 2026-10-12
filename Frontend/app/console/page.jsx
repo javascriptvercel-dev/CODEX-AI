@@ -1,5 +1,5 @@
 "use client";
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   AlertTriangle,
@@ -56,7 +56,7 @@ function ConsolePageInner() {
       ? "settings"
       : "submissions";
 
-  const [tab, setTab] = useState(initialTab);
+  const tab = initialTab;
   const [statusFilter, setStatusFilter] = useState("pending");
   const [authorFilter, setAuthorFilter] = useState("all");
   const [submissions, setSubmissions] = useState([]);
@@ -64,15 +64,12 @@ function ConsolePageInner() {
   const [faqDrafts, setFaqDrafts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showEmailPrompt, setShowEmailPrompt] = useState(false);
+  const [emailPromptDismissed, setEmailPromptDismissed] = useState(false);
   const greetedRef = useRef(false);
-
-  useEffect(() => {
-    const t = searchParams.get("tab");
-    const v = searchParams.get("view");
-    if (TAB_IDS.includes(t)) setTab(t);
-    else if (v === "settings") setTab("settings");
-  }, [searchParams]);
+  const showEmailPrompt =
+    !authLoading &&
+    !emailPromptDismissed &&
+    shouldShowEmailPrompt(user);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -81,10 +78,6 @@ function ConsolePageInner() {
       router.replace("/");
     }
   }, [authLoading, user, isAdmin, router]);
-
-  useEffect(() => {
-    if (!authLoading) setShowEmailPrompt(shouldShowEmailPrompt(user));
-  }, [authLoading, user]);
 
   useEffect(() => {
     if (greetedRef.current || authLoading || !user || !isAdmin) return;
@@ -97,7 +90,10 @@ function ConsolePageInner() {
   }, [authLoading, user, isAdmin]);
 
   const selectTab = (id) => {
-    setTab(id);
+    if (["submissions", "suggestions", "faqDrafts"].includes(id)) {
+      setLoading(true);
+      setError(null);
+    }
     router.replace(id === "submissions" ? "/console" : `/console?tab=${id}`, {
       scroll: false,
     });
@@ -114,9 +110,7 @@ function ConsolePageInner() {
     document.getElementById(`console-tab-${TABS[next].id}`)?.focus();
   };
 
-  const loadSubmissions = async () => {
-    setLoading(true);
-    setError(null);
+  const loadSubmissions = useCallback(async () => {
     try {
       const { submissions: data } = await api.adminSubmissions(statusFilter);
       setSubmissions(data);
@@ -127,11 +121,9 @@ function ConsolePageInner() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [refresh, statusFilter]);
 
-  const loadSuggestions = async () => {
-    setLoading(true);
-    setError(null);
+  const loadSuggestions = useCallback(async () => {
     try {
       const { suggestions: data } = await api.adminSuggestions();
       setSuggestions(data);
@@ -142,11 +134,9 @@ function ConsolePageInner() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [refresh]);
 
-  const loadFaqDrafts = async () => {
-    setLoading(true);
-    setError(null);
+  const loadFaqDrafts = useCallback(async () => {
     try {
       const { faqs: data } = await api.adminAssistantFaqDrafts();
       setFaqDrafts(data);
@@ -157,29 +147,76 @@ function ConsolePageInner() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [refresh]);
 
   const reload = () => {
+    setLoading(true);
+    setError(null);
     if (tab === "suggestions") return loadSuggestions();
     if (tab === "faqDrafts") return loadFaqDrafts();
     return loadSubmissions();
   };
 
   const handlePluginSubmitted = () => {
+    setLoading(true);
+    setError(null);
     setStatusFilter("pending");
     selectTab("submissions");
   };
 
   useEffect(() => {
     if (!isAdmin) return;
-    if (tab === "submissions") loadSubmissions();
-    else if (tab === "suggestions") loadSuggestions();
-    else if (tab === "faqDrafts") loadFaqDrafts();
-  }, [tab, statusFilter, isAdmin]);
+    let active = true;
+    const request =
+      tab === "submissions"
+        ? api.adminSubmissions(statusFilter).then(({ submissions: data }) => ({
+            type: "submissions",
+            data,
+          }))
+        : tab === "suggestions"
+          ? api.adminSuggestions().then(({ suggestions: data }) => ({
+              type: "suggestions",
+              data,
+            }))
+          : tab === "faqDrafts"
+            ? api.adminAssistantFaqDrafts().then(({ faqs: data }) => ({
+                type: "faqDrafts",
+                data,
+              }))
+            : null;
+
+    if (!request) return undefined;
+
+    request
+      .then(({ type, data }) => {
+        if (!active) return;
+        if (type === "submissions") setSubmissions(data);
+        else if (type === "suggestions") setSuggestions(data);
+        else setFaqDrafts(data);
+        setError(null);
+      })
+      .catch(async (err) => {
+        if (!active) return;
+        if (tab === "submissions") setSubmissions([]);
+        else if (tab === "suggestions") setSuggestions([]);
+        else setFaqDrafts([]);
+        setError(err?.message || "Something went wrong loading this list.");
+        if (err?.message === "Sign in to continue.") await refresh();
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [tab, statusFilter, isAdmin, refresh]);
 
   const handleApprove = async (id) => {
     try {
       await api.approveSubmission(id);
+      setLoading(true);
+      setError(null);
       await loadSubmissions();
     } catch (err) {
       if (err?.message === "Sign in to continue.") await refresh();
@@ -190,6 +227,8 @@ function ConsolePageInner() {
   const handleReject = async (id, note) => {
     try {
       await api.rejectSubmission(id, note);
+      setLoading(true);
+      setError(null);
       await loadSubmissions();
     } catch (err) {
       if (err?.message === "Sign in to continue.") await refresh();
@@ -339,7 +378,11 @@ function ConsolePageInner() {
                   <button
                     key={status}
                     type="button"
-                    onClick={() => setStatusFilter(status)}
+                    onClick={() => {
+                      setLoading(true);
+                      setError(null);
+                      setStatusFilter(status);
+                    }}
                     aria-pressed={statusFilter === status}
                     className={`focus-ring border-l border-edge px-3 py-1.5 text-xs font-semibold capitalize transition first:border-l-0 ${
                       statusFilter === status
@@ -469,7 +512,7 @@ function ConsolePageInner() {
       <Footer />
 
       {showEmailPrompt && (
-        <AdminEmailOptInModal onClose={() => setShowEmailPrompt(false)} />
+        <AdminEmailOptInModal onClose={() => setEmailPromptDismissed(true)} />
       )}
     </div>
   );
