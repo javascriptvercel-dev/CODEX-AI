@@ -63,8 +63,12 @@ export const api = {
   submitPlugin: (formData) =>
     request("/api/plugins/submissions", { method: "POST", body: formData }),
   mySubmissions: () => request("/api/plugins/submissions/mine"),
-  adminSubmissions: (status = "pending") =>
-    request(`/api/admin/submissions?status=${status}`),
+  adminSubmissions: (status = "pending", reviewer = "all") =>
+    request(
+      `/api/admin/submissions?status=${encodeURIComponent(status)}${
+        reviewer === "me" ? "&reviewedBy=me" : ""
+      }`,
+    ),
   approveSubmission: (id) =>
     request(`/api/admin/submissions/${id}/approve`, { method: "POST" }),
   saveAndApproveSubmission: (id, body) =>

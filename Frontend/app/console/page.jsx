@@ -60,7 +60,7 @@ function ConsolePageInner() {
 
   const tab = initialTab;
   const [statusFilter, setStatusFilter] = useState("pending");
-  const [authorFilter, setAuthorFilter] = useState("all");
+  const [reviewerFilter, setReviewerFilter] = useState("all");
   const [submissions, setSubmissions] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
   const [faqDrafts, setFaqDrafts] = useState([]);
@@ -114,7 +114,10 @@ function ConsolePageInner() {
 
   const loadSubmissions = useCallback(async () => {
     try {
-      const { submissions: data } = await api.adminSubmissions(statusFilter);
+      const { submissions: data } = await api.adminSubmissions(
+        statusFilter,
+        statusFilter === "pending" ? "all" : reviewerFilter,
+      );
       setSubmissions(data);
     } catch (err) {
       setSubmissions([]);
@@ -123,7 +126,7 @@ function ConsolePageInner() {
     } finally {
       setLoading(false);
     }
-  }, [refresh, statusFilter]);
+  }, [refresh, reviewerFilter, statusFilter]);
 
   const loadSuggestions = useCallback(async () => {
     try {
@@ -171,7 +174,10 @@ function ConsolePageInner() {
     let active = true;
     const request =
       tab === "submissions"
-        ? api.adminSubmissions(statusFilter).then(({ submissions: data }) => ({
+        ? api.adminSubmissions(
+            statusFilter,
+            statusFilter === "pending" ? "all" : reviewerFilter,
+          ).then(({ submissions: data }) => ({
             type: "submissions",
             data,
           }))
@@ -212,7 +218,7 @@ function ConsolePageInner() {
     return () => {
       active = false;
     };
-  }, [tab, statusFilter, isAdmin, refresh]);
+  }, [tab, statusFilter, reviewerFilter, isAdmin, refresh]);
 
   const handleApprove = async (id) => {
     try {
@@ -273,9 +279,7 @@ function ConsolePageInner() {
       ? suggestions
       : tab === "faqDrafts"
         ? faqDrafts
-        : statusFilter !== "pending" && authorFilter === "mine"
-          ? submissions.filter((s) => s.authorId && s.authorId === user?.id)
-          : submissions;
+        : submissions;
   const isListTab = ["submissions", "suggestions", "faqDrafts"].includes(tab);
 
   return (
@@ -379,10 +383,14 @@ function ConsolePageInner() {
                       <button
                         key={id}
                         type="button"
-                        onClick={() => setAuthorFilter(id)}
-                        aria-pressed={authorFilter === id}
+                        onClick={() => {
+                          setLoading(true);
+                          setError(null);
+                          setReviewerFilter(id);
+                        }}
+                        aria-pressed={reviewerFilter === id}
                         className={`focus-ring border-l border-edge px-3 py-1.5 text-xs font-semibold transition first:border-l-0 ${
-                          authorFilter === id
+                          reviewerFilter === id
                             ? "bg-azure-500 text-white"
                             : "bg-surface2 text-muted hover:text-fg"
                         }`}

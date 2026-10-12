@@ -91,6 +91,7 @@ export default function PluginsPage() {
             {error ? (
               <StateBlock
                 tone="error"
+                appearance="empty"
                 title="Couldn't load plugins"
                 message={error}
                 onRetry={() => loadPlugins(query)}

@@ -4,6 +4,14 @@ import { notifyPluginCreatorOfDecision } from "../utils/mailer.js";
 
 export const listSubmissions = async (req, res) => {
   const status = req.query.status || "pending";
+  const reviewedByMe = req.query.reviewedBy === "me";
+  if (req.query.reviewedBy && !reviewedByMe) {
+    return res.status(400).json({ error: "Invalid reviewer filter." });
+  }
+  if (reviewedByMe && !["approved", "rejected"].includes(status)) {
+    return res.status(400).json({ error: "Reviewer filter requires a reviewed status." });
+  }
+
   let query = supabase
     .from("plugin_submissions")
     .select(
@@ -12,6 +20,7 @@ export const listSubmissions = async (req, res) => {
     .order("created_at", { ascending: false });
 
   if (status !== "all") query = query.eq("status", status);
+  if (reviewedByMe) query = query.eq("reviewed_by", req.user.id);
 
   const { data, error } = await query;
   if (error) {
@@ -79,7 +88,11 @@ export const approveSubmission = async (req, res) => {
 
   const { error: statusError } = await supabase
     .from("plugin_submissions")
-    .update({ status: "approved" })
+    .update({
+      status: "approved",
+      reviewed_by: req.user.id,
+      reviewed_at: new Date().toISOString(),
+    })
     .eq("public_id", id);
   if (statusError) {
     console.error("approveSubmission: status update failed", statusError);
@@ -144,7 +157,11 @@ export const updateAndApproveSubmission = async (req, res) => {
 
   const { error: statusError } = await supabase
     .from("plugin_submissions")
-    .update({ status: "approved" })
+    .update({
+      status: "approved",
+      reviewed_by: req.user.id,
+      reviewed_at: new Date().toISOString(),
+    })
     .eq("public_id", id);
   if (statusError) {
     console.error("updateAndApproveSubmission: status update failed", statusError);
@@ -191,7 +208,12 @@ export const rejectSubmission = async (req, res) => {
 
   const { error } = await supabase
     .from("plugin_submissions")
-    .update({ status: "rejected", admin_note: note || null })
+    .update({
+      status: "rejected",
+      admin_note: note || null,
+      reviewed_by: req.user.id,
+      reviewed_at: new Date().toISOString(),
+    })
     .eq("public_id", id);
 
   if (error) {

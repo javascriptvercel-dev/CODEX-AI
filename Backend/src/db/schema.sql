@@ -34,6 +34,8 @@ create table if not exists public.plugin_submissions (
   reference_url text,                  -- set by an admin while reviewing, not auto-generated
   status text not null default 'pending' check (status in ('pending', 'approved', 'rejected')),
   admin_note text,
+  reviewed_by uuid references public.users(id) on delete set null,
+  reviewed_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

@@ -15,9 +15,11 @@ export default function StateBlock({
   onRetry,
   retryLabel = "Try again",
   dashed = false,
+  appearance,
   className = "",
 }) {
   const isError = tone === "error";
+  const useEmptyAppearance = appearance === "empty";
   const ResolvedIcon = Icon || (isError ? AlertTriangle : undefined);
 
   return (
@@ -26,7 +28,9 @@ export default function StateBlock({
       className={[
         "rounded-xl border px-6 py-14 text-center sm:p-14",
         dashed ? "border-dashed" : "",
-        isError
+        useEmptyAppearance
+          ? "border-dashed border-edge bg-surface"
+          : isError
           ? "border-red-400/40 bg-red-500/5"
           : "border-edge bg-surface",
         className,
@@ -38,7 +42,7 @@ export default function StateBlock({
         <div
           className={[
             "mx-auto grid h-11 w-11 place-items-center rounded-lg",
-            isError
+            isError && !useEmptyAppearance
               ? "bg-red-500/10 text-red-400"
               : "bg-azure-500/10 text-azure-500",
           ].join(" ")}
