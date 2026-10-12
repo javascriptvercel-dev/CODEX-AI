@@ -3,7 +3,9 @@ import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   AlertTriangle,
+  BellRing,
   BookOpenCheck,
+  Mail,
   MessageSquareText,
   PackagePlus,
   RefreshCw,
@@ -65,11 +67,11 @@ function ConsolePageInner() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [emailPromptDismissed, setEmailPromptDismissed] = useState(false);
+  const [emailPromptOpen, setEmailPromptOpen] = useState(false);
   const greetedRef = useRef(false);
   const showEmailPrompt =
-    !authLoading &&
-    !emailPromptDismissed &&
-    shouldShowEmailPrompt(user);
+    emailPromptOpen ||
+    (!authLoading && !emailPromptDismissed && shouldShowEmailPrompt(user));
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -271,7 +273,7 @@ function ConsolePageInner() {
       ? suggestions
       : tab === "faqDrafts"
         ? faqDrafts
-        : authorFilter === "mine"
+        : statusFilter !== "pending" && authorFilter === "mine"
           ? submissions.filter((s) => s.authorId && s.authorId === user?.id)
           : submissions;
   const isListTab = ["submissions", "suggestions", "faqDrafts"].includes(tab);
@@ -301,6 +303,39 @@ function ConsolePageInner() {
         <div className="mt-5 max-w-xs">
           <UserCount />
         </div>
+
+        {!user.emailNotificationsEnabled && (
+          <section
+            aria-labelledby="email-alert-reminder-title"
+            className="mt-5 flex flex-col gap-4 rounded-2xl border border-azure-500/25 bg-gradient-to-r from-azure-500/[0.08] via-surface to-surface p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-5"
+          >
+            <div className="flex min-w-0 items-start gap-3">
+              <span className="grid h-10 w-10 flex-shrink-0 place-items-center rounded-xl border border-azure-500/20 bg-azure-500/10 text-azure-500">
+                <BellRing size={18} aria-hidden="true" />
+              </span>
+              <div className="min-w-0">
+                <h2
+                  id="email-alert-reminder-title"
+                  className="text-sm font-semibold text-fg"
+                >
+                  Email alerts are turned off
+                </h2>
+                <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted">
+                  Get notified when new plugin submissions and community
+                  suggestions arrive. You can change this any time in Settings.
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setEmailPromptOpen(true)}
+              className="focus-ring inline-flex flex-shrink-0 items-center justify-center gap-2 rounded-lg border border-azure-500 bg-azure-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:border-azure-600 hover:bg-azure-600 active:scale-[0.98] sm:ml-4"
+            >
+              <Mail size={15} aria-hidden="true" />
+              Set up alerts
+            </button>
+          </section>
+        )}
 
         <div
           role="tablist"
@@ -335,26 +370,28 @@ function ConsolePageInner() {
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
             {tab === "submissions" ? (
               <div className="inline-flex items-center gap-3">
-                <div className="inline-flex overflow-hidden rounded border border-edge">
-                  {[
-                    { id: "all", label: "All" },
-                    { id: "mine", label: "By me" },
-                  ].map(({ id, label }) => (
-                    <button
-                      key={id}
-                      type="button"
-                      onClick={() => setAuthorFilter(id)}
-                      aria-pressed={authorFilter === id}
-                      className={`focus-ring border-l border-edge px-3 py-1.5 text-xs font-semibold transition first:border-l-0 ${
-                        authorFilter === id
-                          ? "bg-azure-500 text-white"
-                          : "bg-surface2 text-muted hover:text-fg"
-                      }`}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
+                {statusFilter !== "pending" && (
+                  <div className="inline-flex overflow-hidden rounded border border-edge">
+                    {[
+                      { id: "all", label: "All" },
+                      { id: "mine", label: "By me" },
+                    ].map(({ id, label }) => (
+                      <button
+                        key={id}
+                        type="button"
+                        onClick={() => setAuthorFilter(id)}
+                        aria-pressed={authorFilter === id}
+                        className={`focus-ring border-l border-edge px-3 py-1.5 text-xs font-semibold transition first:border-l-0 ${
+                          authorFilter === id
+                            ? "bg-azure-500 text-white"
+                            : "bg-surface2 text-muted hover:text-fg"
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                )}
                 <span className="text-sm text-muted">
                   {loading ? "Loading…" : `${activeList.length} ${statusFilter}`}
                 </span>
@@ -512,7 +549,12 @@ function ConsolePageInner() {
       <Footer />
 
       {showEmailPrompt && (
-        <AdminEmailOptInModal onClose={() => setEmailPromptDismissed(true)} />
+        <AdminEmailOptInModal
+          onClose={() => {
+            setEmailPromptDismissed(true);
+            setEmailPromptOpen(false);
+          }}
+        />
       )}
     </div>
   );

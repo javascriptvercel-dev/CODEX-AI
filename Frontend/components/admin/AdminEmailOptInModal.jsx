@@ -1,6 +1,13 @@
 "use client";
 import { useState } from "react";
-import { Mail } from "lucide-react";
+import {
+  BellRing,
+  Check,
+  Code2,
+  Lightbulb,
+  LoaderCircle,
+  Mail,
+} from "lucide-react";
 import Modal from "@/components/modals/Modal";
 import Button from "@/components/ui/Button";
 import { useAuth } from "@/context/AuthContext";
@@ -17,6 +24,7 @@ export function shouldShowEmailPrompt(user) {
 export default function AdminEmailOptInModal({ onClose }) {
   const { refresh } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const isRepeatPrompt =
     typeof window !== "undefined" &&
     Boolean(window.localStorage.getItem(SNOOZE_KEY));
@@ -29,43 +37,108 @@ export default function AdminEmailOptInModal({ onClose }) {
   };
   const subscribe = async () => {
     setLoading(true);
+    setError("");
     try {
       await api.setNotifications(true);
       window.localStorage.removeItem(SNOOZE_KEY);
       await refresh();
       onClose();
+    } catch (err) {
+      setError(err?.message || "Could not enable email alerts. Please try again.");
     } finally {
       setLoading(false);
     }
   };
   return (
     <Modal
-      title="Email alerts"
-      icon={<Mail size={18} className="text-azure-500" />}
+      title="Stay ahead of new activity"
+      icon={<BellRing size={18} className="text-azure-500" />}
       onClose={snooze}
     >
-
-      <div className="flex flex-col items-center gap-3 py-2 text-center">
-
-        <span className="grid h-12 w-12 place-items-center rounded-full bg-azure-500/10 text-azure-500">
-
-          <Mail size={20} />
-        </span>
-        <p className="max-w-xs text-sm text-muted">
-
+      <div className="space-y-5">
+        <p className="text-sm leading-relaxed text-muted">
           {isRepeatPrompt
-            ? "You haven't subscribed to start receiving plugin submissions and bot suggestions."
-            : "Subscribe to receive plugin submissions and bot suggestions."}
+            ? "Your admin email alerts are still turned off. Get notified as soon as new community activity needs your attention."
+            : "Get a timely email when your community shares something new, so you can review it without having to keep checking the console."}
         </p>
-      </div>
-      <div className="mt-5 flex gap-2">
 
-        <Button variant="secondary" size="lg" full className="flex-1" onClick={snooze}>
-          {isRepeatPrompt ? "Remind me later" : "Not now"}
-        </Button>
-        <Button size="lg" full className="flex-1" disabled={loading} onClick={subscribe}>
-          {loading ? "…" : "Subscribe"}
-        </Button>
+        <div className="space-y-2 rounded-xl border border-edge bg-surface2/70 p-3">
+          <div className="flex items-center gap-3 rounded-lg bg-surface px-3 py-2.5">
+            <span className="grid h-9 w-9 flex-shrink-0 place-items-center rounded-lg bg-azure-500/10 text-azure-500">
+              <Code2 size={17} />
+            </span>
+            <span className="min-w-0">
+              <span className="block text-sm font-semibold text-fg">
+                Plugin submissions
+              </span>
+              <span className="mt-0.5 block text-xs text-muted">
+                Know when a plugin is ready for review.
+              </span>
+            </span>
+            <Check
+              size={16}
+              className="ml-auto flex-shrink-0 text-azure-500"
+              aria-hidden="true"
+            />
+          </div>
+          <div className="flex items-center gap-3 rounded-lg bg-surface px-3 py-2.5">
+            <span className="grid h-9 w-9 flex-shrink-0 place-items-center rounded-lg bg-azure-500/10 text-azure-500">
+              <Lightbulb size={17} />
+            </span>
+            <span className="min-w-0">
+              <span className="block text-sm font-semibold text-fg">
+                Community suggestions
+              </span>
+              <span className="mt-0.5 block text-xs text-muted">
+                Keep up with ideas from your users.
+              </span>
+            </span>
+            <Check
+              size={16}
+              className="ml-auto flex-shrink-0 text-azure-500"
+              aria-hidden="true"
+            />
+          </div>
+        </div>
+
+        <p className="flex items-start gap-2 text-xs leading-relaxed text-muted">
+          <Mail size={14} className="mt-0.5 flex-shrink-0 text-azure-500" />
+          Email alerts are only for admin activity and can be changed any time
+          in Settings.
+        </p>
+
+        {error && (
+          <p
+            role="alert"
+            className="rounded-lg border border-red-500/30 bg-red-500/5 px-3 py-2 text-sm text-red-400"
+          >
+            {error}
+          </p>
+        )}
+
+        <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          <Button
+            variant="secondary"
+            size="md"
+            onClick={snooze}
+            disabled={loading}
+          >
+            {isRepeatPrompt ? "Remind me later" : "Not now"}
+          </Button>
+          <Button size="md" onClick={subscribe} disabled={loading}>
+            {loading ? (
+              <>
+                <LoaderCircle size={15} className="animate-spin" />
+                Enabling alerts…
+              </>
+            ) : (
+              <>
+                <Mail size={15} />
+                Enable email alerts
+              </>
+            )}
+          </Button>
+        </div>
       </div>
     </Modal>
   );
