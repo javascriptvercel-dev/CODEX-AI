@@ -60,7 +60,6 @@ CODEX AI is a full-stack platform for spinning up **WhatsApp bot sessions** in s
 - [Express](https://expressjs.com/) (ESM) REST API
 - [Baileys](https://github.com/WhiskeySockets/Baileys) for the WhatsApp Web protocol
 - [Supabase](https://supabase.com/) for Postgres + object storage
-- [MinIO](https://min.io/) for session/plugin file storage
 - JWT session cookies (`jsonwebtoken`, `cookie-parser`, `bcryptjs`)
 - [Resend](https://resend.com/) for transactional email (admin notifications, password resets)
 - [qrcode](https://www.npmjs.com/package/qrcode) for QR pairing, [nanoid](https://github.com/ai/nanoid) for public IDs
