@@ -58,6 +58,7 @@ function ConsolePageInner() {
 
   const [tab, setTab] = useState(initialTab);
   const [statusFilter, setStatusFilter] = useState("pending");
+  const [authorFilter, setAuthorFilter] = useState("all");
   const [submissions, setSubmissions] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
   const [faqDrafts, setFaqDrafts] = useState([]);
@@ -231,7 +232,9 @@ function ConsolePageInner() {
       ? suggestions
       : tab === "faqDrafts"
         ? faqDrafts
-        : submissions;
+        : authorFilter === "mine"
+          ? submissions.filter((s) => s.authorId && s.authorId === user?.id)
+          : submissions;
   const isListTab = ["submissions", "suggestions", "faqDrafts"].includes(tab);
 
   return (
@@ -291,19 +294,45 @@ function ConsolePageInner() {
 
         {isListTab && (
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-            <p className="text-sm text-muted">
-              {loading
-                ? "Loading…"
-                : `${activeList.length} ${
-                    tab === "suggestions"
-                      ? activeList.length === 1
-                        ? "item"
-                        : "items"
-                      : tab === "faqDrafts"
-                        ? "drafts"
-                        : statusFilter
-                  }`}
-            </p>
+            {tab === "submissions" ? (
+              <div className="inline-flex items-center gap-3">
+                <div className="inline-flex overflow-hidden rounded border border-edge">
+                  {[
+                    { id: "all", label: "All" },
+                    { id: "mine", label: "By me" },
+                  ].map(({ id, label }) => (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => setAuthorFilter(id)}
+                      aria-pressed={authorFilter === id}
+                      className={`focus-ring border-l border-edge px-3 py-1.5 text-xs font-semibold transition first:border-l-0 ${
+                        authorFilter === id
+                          ? "bg-azure-500 text-white"
+                          : "bg-surface2 text-muted hover:text-fg"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                <span className="text-sm text-muted">
+                  {loading ? "Loading…" : `${activeList.length} ${statusFilter}`}
+                </span>
+              </div>
+            ) : (
+              <p className="text-sm text-muted">
+                {loading
+                  ? "Loading…"
+                  : `${activeList.length} ${
+                      tab === "suggestions"
+                        ? activeList.length === 1
+                          ? "item"
+                          : "items"
+                        : "drafts"
+                    }`}
+              </p>
+            )}
             {tab === "submissions" && (
               <div className="inline-flex overflow-hidden rounded border border-edge">
                 {STATUSES.map((status) => (
@@ -396,7 +425,7 @@ function ConsolePageInner() {
               }
             >
               {tab === "submissions"
-                ? submissions.map((submission, i) => (
+                ? activeList.map((submission, i) => (
                     <div
                       key={submission.id}
                       className="h-full animate-rise"
