@@ -2,7 +2,6 @@
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
-  AlertTriangle,
   BellRing,
   BookOpenCheck,
   Mail,
@@ -19,6 +18,7 @@ import SuggestionCard from "@/components/admin/SuggestionCard";
 import AssistantFaqDraftCard from "@/components/admin/AssistantFaqDraftCard";
 import UserCount from "@/components/home/UserCount";
 import SettingsTab from "@/components/admin/SettingsTab";
+import StateBlock from "@/components/ui/StateBlock";
 import AdminEmailOptInModal, {
   shouldShowEmailPrompt,
 } from "@/components/admin/AdminEmailOptInModal";
@@ -464,20 +464,14 @@ function ConsolePageInner() {
               ))}
             </div>
           ) : error ? (
-            <div className="rounded border border-red-400/40 bg-red-500/5 p-8 text-center">
-              <div className="mx-auto grid h-11 w-11 place-items-center rounded bg-red-500/10 text-red-400">
-                <AlertTriangle size={19} />
-              </div>
-              <p className="mt-4 font-semibold">Couldn’t load this list</p>
-              <p className="mx-auto mt-1 max-w-md text-sm text-muted">{error}</p>
-              <button
-                type="button"
-                onClick={reload}
-                className="focus-ring mt-4 inline-flex items-center gap-1.5 rounded border border-edge bg-surface2 px-3 py-2 text-sm font-semibold transition hover:border-azure-500/60 active:scale-95"
-              >
-                <RefreshCw size={14} /> Try again
-              </button>
-            </div>
+            <StateBlock
+              tone="error"
+              appearance="empty"
+              icon={ShieldCheck}
+              title="Couldn’t load this list"
+              message={error}
+              onRetry={reload}
+            />
           ) : activeList.length === 0 ? (
             <div className="rounded border border-dashed border-edge bg-surface p-10 text-center sm:p-14">
               <div className="mx-auto grid h-11 w-11 place-items-center rounded bg-azure-500/10 text-azure-500">

@@ -15,7 +15,7 @@ export const listSubmissions = async (req, res) => {
   let query = supabase
     .from("plugin_submissions")
     .select(
-      "public_id, title, description, code, file_path, category, status, admin_note, created_at, users(id, full_name, email, role)"
+      "public_id, title, description, code, file_path, category, status, admin_note, created_at, users!plugin_submissions_user_id_fkey(id, full_name, email, role)"
     )
     .order("created_at", { ascending: false });
 
@@ -60,7 +60,7 @@ export const approveSubmission = async (req, res) => {
   const { id } = req.params;
   const { data: submission, error: findError } = await supabase
     .from("plugin_submissions")
-    .select("*, users(full_name, email, role)")
+    .select("*, users!plugin_submissions_user_id_fkey(full_name, email, role)")
     .eq("public_id", id)
     .maybeSingle();
 
@@ -118,7 +118,7 @@ export const updateAndApproveSubmission = async (req, res) => {
 
   const { data: submission, error: findError } = await supabase
     .from("plugin_submissions")
-    .select("*, users(full_name, email, role)")
+    .select("*, users!plugin_submissions_user_id_fkey(full_name, email, role)")
     .eq("public_id", id)
     .maybeSingle();
 
@@ -196,7 +196,7 @@ export const rejectSubmission = async (req, res) => {
 
   const { data: submission, error: findError } = await supabase
     .from("plugin_submissions")
-    .select("*, users(full_name, email, role)")
+    .select("*, users!plugin_submissions_user_id_fkey(full_name, email, role)")
     .eq("public_id", id)
     .maybeSingle();
 
