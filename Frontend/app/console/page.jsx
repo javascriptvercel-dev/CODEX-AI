@@ -378,7 +378,7 @@ function ConsolePageInner() {
                   <div className="inline-flex overflow-hidden rounded border border-edge">
                     {[
                       { id: "all", label: "All" },
-                      { id: "mine", label: "By me" },
+                      { id: "me", label: "By me" },
                     ].map(({ id, label }) => (
                       <button
                         key={id}
