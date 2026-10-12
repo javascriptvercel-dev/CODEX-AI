@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { GitFork, Star } from "lucide-react";
+import UserCount from "@/components/home/UserCount";
 
 const REPO_API_URL = "https://api.github.com/repos/codexverified/CODEX-AI";
 const REPO_URL = "https://github.com/codexverified/CODEX-AI";
@@ -59,6 +60,7 @@ export default function GithubStats() {
           <GitFork size={14} className="text-azure-400" />
           <span>Forks</span>
         </a>
+        <UserCount variant="compact" />
       </div>
     </div>
   );

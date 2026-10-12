@@ -15,6 +15,7 @@ import Footer from "@/components/layout/Footer";
 import SubmissionCard from "@/components/admin/SubmissionCard";
 import SuggestionCard from "@/components/admin/SuggestionCard";
 import AssistantFaqDraftCard from "@/components/admin/AssistantFaqDraftCard";
+import UserCount from "@/components/home/UserCount";
 import SettingsTab from "@/components/admin/SettingsTab";
 import AdminEmailOptInModal, {
   shouldShowEmailPrompt,
@@ -253,6 +254,10 @@ function ConsolePageInner() {
           <p className="max-w-xs text-sm text-muted sm:max-w-sm sm:text-right">
             Review submissions, triage feedback, and manage this workspace.
           </p>
+        </div>
+
+        <div className="mt-5 max-w-xs">
+          <UserCount />
         </div>
 
         <div

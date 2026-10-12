@@ -181,7 +181,6 @@ export default function SiteAssistant({ open, onClose, askRequest }) {
   const [messages, setMessages] = useState([]);
   const [question, setQuestion] = useState("");
   const [pending, setPending] = useState(false);
-  const [faqDraftStatus, setFaqDraftStatus] = useState("");
   const [approvedFaqs, setApprovedFaqs] = useState([]);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
@@ -218,7 +217,6 @@ export default function SiteAssistant({ open, onClose, askRequest }) {
   }, []);
 
   const queueFaqDraft = useCallback(async (submittedQuestion, submittedAnswer) => {
-    setFaqDraftStatus("preparing");
     try {
       const result = await fetch("/api/site-assistant/faq-draft", {
         method: "POST",
@@ -230,15 +228,9 @@ export default function SiteAssistant({ open, onClose, askRequest }) {
       });
       const data = await result.json();
       if (!result.ok) throw new Error(data.error || "FAQ draft request failed.");
-      if (!data.draft) {
-        setFaqDraftStatus("skipped");
-        return;
-      }
-      await api.createAssistantFaqDraft(data.draft);
-      setFaqDraftStatus("queued");
+      if (data.draft) await api.createAssistantFaqDraft(data.draft);
     } catch {
       console.error("[site-assistant] FAQ draft could not be submitted.");
-      setFaqDraftStatus("failed");
     }
   }, []);
 
@@ -283,7 +275,6 @@ export default function SiteAssistant({ open, onClose, askRequest }) {
       window.setTimeout(resolve, MIN_REPLY_DELAY_MS),
     );
     const response = answerQuestion(trimmedQuestion, pathname, approvedFaqs);
-    setFaqDraftStatus("");
     messageIdRef.current += 1;
     setMessages((current) => [
       ...current.slice(-18),
@@ -480,20 +471,8 @@ export default function SiteAssistant({ open, onClose, askRequest }) {
           </button>
         </form>
         <p className="mt-2 text-[11px] leading-4 text-muted">
-          Questions and replies may be summarized into FAQ drafts for review. Never
-          share passwords, session IDs, or tokens.
+          Never share passwords, session IDs, or tokens.
         </p>
-        {faqDraftStatus ? (
-          <p className="mt-1 text-[11px] leading-4 text-muted" role="status">
-            {faqDraftStatus === "preparing"
-              ? "Preparing a private FAQ draft…"
-              : faqDraftStatus === "queued"
-                ? "A private FAQ draft was sent for admin review."
-                : faqDraftStatus === "skipped"
-                  ? "No reusable FAQ draft was created for that question."
-                  : "The answer worked, but an FAQ draft couldn’t be prepared."}
-          </p>
-        ) : null}
       </div>
     </section>
   );
