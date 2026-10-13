@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Bot, Download, FileArchive, LoaderCircle, Sparkles } from "lucide-react";
+import { api } from "@/lib/api";
 
 const INITIAL_VALUES = {
   botName: "",
@@ -48,18 +49,7 @@ export default function BotBaseGenerator() {
     setIsError(false);
 
     try {
-      const response = await fetch("/api/tools/bot-base-generator", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
-      });
-
-      if (!response.ok) {
-        const result = await response.json();
-        throw new Error(result.error || "The bot base couldn't be generated.");
-      }
-
-      const archive = await response.blob();
+      const archive = await api.generateBotBase(values);
       setArchive(archive);
       setMessage("Your customized bot base is ready to download.");
     } catch (error) {

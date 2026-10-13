@@ -125,6 +125,21 @@ Before deploying this feature, run
 in the Supabase SQL editor. Configure `NEXT_PUBLIC_API_URL` to point to the
 backend API; server-side route handlers can use `API_URL` as an override.
 
+## 🧰 Tools and usage limits
+
+Before deploying the URL Shortener or tool rate limits, run
+[`Backend/src/db/migration_012_tools_and_short_links.sql`](./Backend/src/db/migration_012_tools_and_short_links.sql)
+in the Supabase SQL editor. Deploy the backend after the migration, then deploy
+the frontend. Set `NEXT_PUBLIC_API_URL` (or the frontend server's `API_URL`) to
+the backend API and set the backend's `PUBLIC_FRONTEND_URL` to the public
+frontend domain so generated short links resolve on the site.
+
+All tools require a signed-in CODEX AI account. Regular users can create up to
+10 short links per hour and keep up to 100 links, and generate up to 10 bot
+bases per hour. The WhatsApp Ban Checker uses its configured per-minute limit.
+Admins bypass tool limits. Limits are stored in Supabase and shared across
+backend instances.
+
 ---
 
 ## 🤝 Contributing

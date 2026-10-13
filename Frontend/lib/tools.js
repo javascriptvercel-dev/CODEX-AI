@@ -1,4 +1,4 @@
-import { Bot, ShieldCheck } from "lucide-react";
+import { Bot, Link2, ShieldCheck } from "lucide-react";
 
 /**
  * Tools registry — the single place every tool is declared.
@@ -20,6 +20,18 @@ export const TOOL_STATUS = {
 };
 
 export const tools = [
+  {
+    slug: "url-shortener",
+    name: "URL Shortener",
+    description:
+      "Create and manage compact, shareable links with your CODEX AI account.",
+    icon: Link2,
+    status: TOOL_STATUS.LIVE,
+    tags: ["Links", "Share"],
+    keywords: ["URL shortener", "short links", "link management"],
+    preview: "/tools/url-shortener/preview.svg",
+    load: () => import("@/components/tools/url-shortener/UrlShortener"),
+  },
   {
     slug: "bot-base-generator",
     name: "Bot Base Generator",

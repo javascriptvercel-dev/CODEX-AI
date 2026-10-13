@@ -1,10 +1,12 @@
 import { deflateRawSync } from "node:zlib";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { readdir, readFile } from "node:fs/promises";
 
-export const runtime = "nodejs";
-
-const TEMPLATE_DIR = path.resolve(process.cwd(), "templates", "bot-base-generator");
+const TEMPLATE_DIR = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../../../Frontend/templates/bot-base-generator",
+);
 const ARCHIVE_ROOT = "whatsapp-bot";
 const REQUIRED_FILES = ["README.md", "package.json", "index.js", "config.js"];
 const IGNORED_NAMES = new Set([".git", "node_modules", "session"]);
@@ -15,10 +17,6 @@ const CRC_TABLE = Uint32Array.from({ length: 256 }, (_, value) => {
   }
   return crc >>> 0;
 });
-
-function jsonError(message, status) {
-  return Response.json({ error: message }, { status });
-}
 
 function validateText(value, label, maxLength) {
   if (
@@ -40,20 +38,30 @@ function validateNumber(value, label, optional = false) {
   return value;
 }
 
-function readConfig(body) {
-  const botName = validateText(body.botName, "Bot name", 50);
-  const prefix = validateText(body.prefix, "Command prefix", 4);
-  if (/\s/.test(prefix)) {
-    throw new Error("Command prefix must not contain spaces.");
+export function validateBotBaseSettings(body) {
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return { error: "Request body must contain the bot settings." };
   }
 
-  return {
-    botName,
-    prefix,
-    ownerName: validateText(body.ownerName, "Owner name", 50),
-    ownerNumber: validateNumber(body.ownerNumber, "Owner number"),
-    pairingNumber: validateNumber(body.pairingNumber, "Pairing number", true),
-  };
+  try {
+    const botName = validateText(body.botName, "Bot name", 50);
+    const prefix = validateText(body.prefix, "Command prefix", 4);
+    if (/\s/.test(prefix)) {
+      throw new Error("Command prefix must not contain spaces.");
+    }
+
+    return {
+      config: {
+        botName,
+        prefix,
+        ownerName: validateText(body.ownerName, "Owner name", 50),
+        ownerNumber: validateNumber(body.ownerNumber, "Owner number"),
+        pairingNumber: validateNumber(body.pairingNumber, "Pairing number", true),
+      },
+    };
+  } catch (error) {
+    return { error: error.message };
+  }
 }
 
 function crc32(data) {
@@ -161,48 +169,16 @@ async function collectTemplateFiles(directory, relativeDirectory = "") {
   return files;
 }
 
-export async function POST(request) {
-  let body;
-  try {
-    body = await request.json();
-  } catch {
-    return jsonError("Request body must be valid JSON.", 400);
+export async function createBotBaseArchive(config) {
+  const files = await collectTemplateFiles(TEMPLATE_DIR);
+  const missingFiles = REQUIRED_FILES.filter(
+    (required) => !files.some((file) => file.name === `${ARCHIVE_ROOT}/${required}`),
+  );
+  if (missingFiles.length) {
+    throw new Error(`Bot template is missing required files: ${missingFiles.join(", ")}`);
   }
 
-  if (!body || typeof body !== "object" || Array.isArray(body)) {
-    return jsonError("Request body must contain the bot settings.", 400);
-  }
-
-  let config;
-  try {
-    config = readConfig(body);
-  } catch (error) {
-    return jsonError(error.message, 400);
-  }
-
-  try {
-    const files = await collectTemplateFiles(TEMPLATE_DIR);
-    const missingFiles = REQUIRED_FILES.filter(
-      (required) => !files.some((file) => file.name === `${ARCHIVE_ROOT}/${required}`),
-    );
-    if (missingFiles.length) {
-      console.error("[bot-base-generator] template is missing required files:", missingFiles);
-      return jsonError("The bot template is incomplete and can't be packaged.", 500);
-    }
-
-    const configFile = files.find((file) => file.name === `${ARCHIVE_ROOT}/config.js`);
-    configFile.data = Buffer.from(`export default ${JSON.stringify(config, null, 2)}\n`);
-    const archive = zipFiles(files);
-
-    return new Response(archive, {
-      headers: {
-        "Content-Type": "application/zip",
-        "Content-Disposition": 'attachment; filename="whatsapp-bot-base.zip"',
-        "Cache-Control": "no-store",
-      },
-    });
-  } catch (error) {
-    console.error("[bot-base-generator] failed to package template:", error);
-    return jsonError("The bot base couldn't be generated. Please try again later.", 500);
-  }
+  const configFile = files.find((file) => file.name === `${ARCHIVE_ROOT}/config.js`);
+  configFile.data = Buffer.from(`export default ${JSON.stringify(config, null, 2)}\n`);
+  return zipFiles(files);
 }

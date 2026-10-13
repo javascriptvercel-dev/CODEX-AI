@@ -28,6 +28,31 @@ async function request(path, options = {}) {
   }
   return data;
 }
+
+async function requestBlob(path, options = {}) {
+  let res;
+  try {
+    res = await fetch(`${API_URL}${path}`, {
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      ...options,
+    });
+  } catch {
+    robot.mood("error");
+    throw new Error(
+      "Can't reach the server right now. Check your connection and try again.",
+    );
+  }
+
+  if (!res.ok) {
+    const isJson = res.headers.get("content-type")?.includes("application/json");
+    const data = isJson ? await res.json().catch(() => null) : null;
+    robot.mood("error");
+    throw new Error(data?.error || "Something went wrong. Please try again.");
+  }
+  return res.blob();
+}
+
 export const api = {
   me: () => request("/api/auth/me"),
   signup: (body) =>
@@ -101,6 +126,21 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ number }),
       signal: AbortSignal.timeout(25000),
+    }),
+  generateBotBase: (settings) =>
+    requestBlob("/api/tools/bot-base-generator", {
+      method: "POST",
+      body: JSON.stringify(settings),
+    }),
+  shortLinks: () => request("/api/tools/short-links"),
+  createShortLink: (url) =>
+    request("/api/tools/short-links", {
+      method: "POST",
+      body: JSON.stringify({ url }),
+    }),
+  deleteShortLink: (id) =>
+    request(`/api/tools/short-links/${encodeURIComponent(id)}`, {
+      method: "DELETE",
     }),
 };
 export const CREATE_SESSION_MAX_AGE_MS = 45 * 60 * 1000;
