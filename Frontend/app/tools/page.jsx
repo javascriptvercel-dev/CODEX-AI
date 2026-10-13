@@ -1,6 +1,7 @@
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ToolsHub from "@/components/tools/ToolsHub";
+import AccountWelcomeToast from "@/components/auth/AccountWelcomeToast";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata = buildMetadata({
@@ -17,6 +18,7 @@ export default function ToolsPage() {
       <main className="flex-1">
         <ToolsHub />
       </main>
+      <AccountWelcomeToast />
       <Footer />
     </div>
   );

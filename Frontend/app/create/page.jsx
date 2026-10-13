@@ -7,6 +7,7 @@ import { ArrowLeft } from "lucide-react";
 import PluginNavbar from "@/components/layout/PluginNavbar";
 import Footer from "@/components/layout/Footer";
 import PluginSubmitForm from "@/components/plugins/PluginSubmitForm";
+import AccountWelcomeToast from "@/components/auth/AccountWelcomeToast";
 import { useAuth } from "@/context/AuthContext";
 
 export default function CreatePluginPage() {
@@ -57,6 +58,7 @@ export default function CreatePluginPage() {
           <PluginSubmitForm />
         </section>
       </main>
+      <AccountWelcomeToast />
       <Footer />
     </div>
   );

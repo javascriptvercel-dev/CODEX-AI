@@ -132,6 +132,11 @@ export const api = {
       method: "POST",
       body: JSON.stringify(settings),
     }),
+  obfuscateJavaScript: (code, mode) =>
+    request("/api/tools/javascript-obfuscator", {
+      method: "POST",
+      body: JSON.stringify({ code, mode }),
+    }),
   shortLinks: () => request("/api/tools/short-links"),
   createShortLink: (url) =>
     request("/api/tools/short-links", {

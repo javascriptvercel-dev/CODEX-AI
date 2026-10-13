@@ -7,6 +7,7 @@ import {
   deleteShortLink,
   generateBotBase,
   listShortLinks,
+  obfuscateCode,
   redirectShortLink,
 } from "../controllers/tools.controller.js";
 import { BanCheckError, checkNumber, cleanNumber } from "../tools/banCheck.js";
@@ -20,6 +21,13 @@ router.post(
   attachUser,
   requireAuth,
   asyncHandler(generateBotBase),
+);
+
+router.post(
+  "/javascript-obfuscator",
+  attachUser,
+  requireAuth,
+  asyncHandler(obfuscateCode),
 );
 
 router.get("/short-links", attachUser, requireAuth, asyncHandler(listShortLinks));

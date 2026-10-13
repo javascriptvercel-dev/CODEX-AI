@@ -68,7 +68,6 @@ export default function UrlShortener() {
       setLinks((current) => [link, ...current].slice(0, 100));
       setUrl("");
       setMessage("Your short link is ready.");
-      await copyShortUrl(link);
     } catch (err) {
       setError(err?.message || "Could not create the short link.");
     } finally {

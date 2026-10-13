@@ -22,7 +22,19 @@ function LoginPageInner() {
         message="Sign in to continue."
         nextPath={nextPath}
         onClose={() => router.replace(cancelPath)}
-        onSuccess={() => router.replace(nextPath)}
+        onSuccess={({ isNewAccount }) => {
+          if (
+            nextPath === "/create" ||
+            nextPath === "/tools" ||
+            nextPath.startsWith("/tools/")
+          ) {
+            window.sessionStorage.setItem(
+              "codex-account-welcome",
+              isNewAccount ? "created" : "back",
+            );
+          }
+          router.replace(nextPath);
+        }}
       />
     </div>
   );

@@ -329,7 +329,16 @@ export const githubCallback = async (req, res) => {
     }
     setSessionCookie(res, signSession(user));
     const destination = user.role === "admin" ? "/console" : next;
-    res.redirect(`${env.frontendUrl}${destination}?auth=success`);
+    const successUrl = new URL(destination, env.frontendUrl);
+    successUrl.searchParams.set("auth", "success");
+    if (
+      destination === "/create" ||
+      destination === "/tools" ||
+      destination.startsWith("/tools/")
+    ) {
+      successUrl.searchParams.set("welcome", existing ? "back" : "created");
+    }
+    res.redirect(successUrl.toString());
   } catch (err) {
     console.error("GitHub OAuth failed", err);
     res.redirect(`${env.frontendUrl}${next}?auth=error`);

@@ -136,8 +136,11 @@ frontend domain so generated short links resolve on the site.
 
 All tools require a signed-in CODEX AI account. Regular users can create up to
 10 short links per hour and keep up to 100 links, and generate up to 10 bot
-bases per hour. The WhatsApp Ban Checker uses its configured per-minute limit.
-Usage limits are stored in Supabase and shared across backend instances.
+bases or obfuscate JavaScript up to 10 times per hour. The WhatsApp Ban Checker
+uses its configured per-minute limit. The obfuscator accepts up to 50,000
+characters per request and offers Easy, Medium, and Hard presets. Obfuscation
+is not encryption and does not protect secrets. Usage limits are stored in
+Supabase and shared across backend instances.
 
 ---
 

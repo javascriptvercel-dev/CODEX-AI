@@ -4,10 +4,12 @@ import { env } from "../config/env.js";
 import { supabase } from "../config/supabase.js";
 import { enforceToolRateLimit } from "../tools/rateLimit.js";
 import { createBotBaseArchive, validateBotBaseSettings } from "../tools/botBaseGenerator.js";
+import { obfuscateJavaScript, OBFUSCATION_MODES } from "../tools/javascriptObfuscator.js";
 
 const SHORT_CODE_PATTERN = /^[A-Za-z0-9_-]{8}$/;
 const MAX_LINKS_PER_USER = 100;
 const SHORT_CODE_COLLISION = "23505";
+const MAX_OBFUSCATOR_INPUT_LENGTH = 50_000;
 
 function isPrivateAddress(hostname) {
   const host = hostname.replace(/^\[|\]$/g, "").toLowerCase().replace(/\.+$/, "");
@@ -221,5 +223,39 @@ export async function generateBotBase(req, res) {
     return res
       .status(500)
       .json({ error: "The bot base couldn't be generated. Please try again later." });
+  }
+}
+
+export async function obfuscateCode(req, res) {
+  if (
+    !(await enforceToolRateLimit(req, res, {
+      tool: "javascript-obfuscator",
+      userLimit: 10,
+      windowSeconds: 60 * 60,
+    }))
+  ) {
+    return;
+  }
+
+  const { code, mode } = req.body || {};
+  if (typeof code !== "string" || !code.trim()) {
+    return res.status(400).json({ error: "Enter JavaScript code to obfuscate." });
+  }
+  if (code.length > MAX_OBFUSCATOR_INPUT_LENGTH) {
+    return res.status(413).json({
+      error: `Code must be ${MAX_OBFUSCATOR_INPUT_LENGTH.toLocaleString()} characters or fewer.`,
+    });
+  }
+  if (!Object.hasOwn(OBFUSCATION_MODES, mode)) {
+    return res.status(400).json({ error: "Choose Easy, Medium, or Hard obfuscation." });
+  }
+
+  try {
+    return res.json({ code: obfuscateJavaScript(code, mode) });
+  } catch (error) {
+    console.error("[javascript-obfuscator] failed to obfuscate code:", error);
+    return res.status(400).json({
+      error: "Could not obfuscate this JavaScript. Check the syntax and try again.",
+    });
   }
 }

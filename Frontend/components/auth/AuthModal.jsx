@@ -37,7 +37,7 @@ export default function AuthModal({ onClose, onSuccess, message, nextPath }) {
         setStatus({ state: "idle", message: "" });
         return;
       }
-      onSuccess?.();
+      onSuccess?.({ isNewAccount: mode === "signup" });
     } catch (err) {
       const fallback =
         mode === "forgot"

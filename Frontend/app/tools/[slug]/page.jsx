@@ -7,6 +7,7 @@ import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
 import ToolLoader from "@/components/tools/ToolLoader";
 import ToolStatusBadge from "@/components/tools/ToolStatusBadge";
+import AccountWelcomeToast from "@/components/auth/AccountWelcomeToast";
 import { getTool, isToolOpenable, tools } from "@/lib/tools";
 import { buildMetadata } from "@/lib/seo";
 
@@ -69,6 +70,7 @@ export default async function ToolPage({ params }) {
         </Container>
       </main>
 
+      <AccountWelcomeToast />
       <Footer />
     </div>
   );

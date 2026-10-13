@@ -1,4 +1,4 @@
-import { Bot, Link2, ShieldCheck } from "lucide-react";
+import { Bot, Braces, Link2, ShieldCheck } from "lucide-react";
 
 /**
  * Tools registry — the single place every tool is declared.
@@ -20,6 +20,17 @@ export const TOOL_STATUS = {
 };
 
 export const tools = [
+  {
+    slug: "javascript-obfuscator",
+    name: "JavaScript Obfuscator",
+    description:
+      "Make JavaScript harder to read with adjustable obfuscation presets.",
+    icon: Braces,
+    status: TOOL_STATUS.LIVE,
+    tags: ["JavaScript", "Code"],
+    keywords: ["JavaScript obfuscator", "obfuscate code", "code protection"],
+    load: () => import("@/components/tools/javascript-obfuscator/JavaScriptObfuscator"),
+  },
   {
     slug: "url-shortener",
     name: "URL Shortener",
