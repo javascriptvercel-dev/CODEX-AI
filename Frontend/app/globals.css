@@ -6,8 +6,8 @@
   --ink-900: #0b1120;
   --ink-800: #121b2e;
   --ink-700: #1b2740;
-  --paper-50: #f5f8ff;
-  --paper-100: #e9eefb;
+  --paper-50: #e9edf4;
+  --paper-100: #e1e6ef;
   --azure-300: #69afff;
   --azure-500: #005fcc;
   --azure-600: #0047a3;
@@ -24,16 +24,16 @@
   --bg: var(--ink-950);
 }
 [data-theme="light"] {
-  --surface: #ffffff;
-  --surface-2: var(--paper-100);
-  --code-surface: #f1f5fb;
+  --surface: #f1f3f8;
+  --surface-2: #e3e8f1;
+  --code-surface: #e7ebf2;
   --code-text: #17243a;
   --code-accent: #064ea6;
   --code-muted: #61708a;
   --code-placeholder: rgba(23, 36, 58, 0.48);
-  --edge: rgba(11, 17, 32, 0.1);
-  --text: #0b1120;
-  --text-muted: #4b5875;
+  --edge: rgba(11, 17, 32, 0.13);
+  --text: #17243a;
+  --text-muted: #526078;
   --bg: var(--paper-50);
 }
 * {
@@ -171,6 +171,19 @@ input,
 textarea,
 select {
   max-width: 100%;
+}
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--text);
+  box-shadow: 0 0 0 1000px var(--surface-2) inset;
+  transition: background-color 9999s ease-out;
 }
 textarea {
   overflow-wrap: anywhere;

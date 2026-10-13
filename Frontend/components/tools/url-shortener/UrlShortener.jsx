@@ -140,10 +140,9 @@ export default function UrlShortener() {
             </Button>
           </div>
           <p className="text-xs leading-5 text-muted">
-            HTTP and HTTPS links only.{" "}
-            {user.role === "admin"
-              ? "Admins bypass creation limits; up to 100 recent links are shown."
-              : "Limit: 10 new links per hour and 100 active links per account."}
+            HTTP and HTTPS links only.
+            {user.role !== "admin" &&
+              " Limit: 10 new links per hour and 100 active links per account."}
           </p>
         </form>
 
@@ -166,11 +165,9 @@ export default function UrlShortener() {
             <h3 id="your-short-links" className="font-display font-bold">
               Your links
             </h3>
-            <span className="text-xs text-muted">
-              {user.role === "admin"
-                ? `${visibleLinks.length} shown`
-                : `${visibleLinks.length} / 100`}
-            </span>
+            {user.role !== "admin" && (
+              <span className="text-xs text-muted">{visibleLinks.length} / 100</span>
+            )}
           </div>
 
           {loadingLinks ? (

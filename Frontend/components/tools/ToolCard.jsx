@@ -18,7 +18,10 @@ function Preview({ tool }) {
             backgroundImage: `url("${tool.preview}")`,
             backgroundSize: "cover",
             backgroundPosition: "center 20%",
-            filter: "grayscale(1) contrast(1.1)",
+            filter:
+              tool.slug === "wa-ban-checker"
+                ? "grayscale(1) contrast(1.1)"
+                : "none",
             WebkitMaskImage: MASK,
             maskImage: MASK,
           }}

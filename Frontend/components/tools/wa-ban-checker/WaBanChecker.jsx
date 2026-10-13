@@ -262,11 +262,14 @@ export default function WaBanChecker() {
             </label>
 
             <div
-              className={`flex items-center rounded-lg border bg-surface transition focus-within:border-azure-500 focus-within:ring-4 focus-within:ring-azure-500/15 ${
+              className={`relative rounded-lg border bg-surface2 transition focus-within:border-azure-500 focus-within:ring-4 focus-within:ring-azure-500/15 ${
                 hint ? "border-dashed border-azure-500" : "border-edge"
               }`}
             >
-              <span aria-hidden="true" className="pl-3.5 font-mono text-base text-muted">
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 font-mono text-base text-muted"
+              >
                 +
               </span>
               <input
@@ -282,7 +285,7 @@ export default function WaBanChecker() {
                 onChange={handleInput}
                 aria-invalid={Boolean(hint)}
                 aria-describedby={hintId}
-                className="min-w-0 flex-1 bg-transparent py-3.5 pl-1.5 pr-3.5 font-mono text-base tracking-[0.04em] text-fg outline-none placeholder:text-muted/70"
+                className="w-full rounded-lg bg-transparent py-3.5 pl-9 pr-3.5 font-mono text-base tracking-[0.04em] text-fg outline-none placeholder:text-muted/70"
               />
             </div>
 
