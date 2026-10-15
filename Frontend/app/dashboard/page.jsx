@@ -312,13 +312,6 @@ export default function DashboardPage() {
             <div className="mx-auto max-w-xl py-16 text-center">
               {authLoading ? (
                 <LoaderCircle className="mx-auto animate-spin text-azure-500" />
-              ) : user.role === "admin" ? (
-                <div className="grid min-h-64 place-items-center text-sm text-muted">
-                  <span className="inline-flex items-center gap-2">
-                    <LoaderCircle size={16} className="animate-spin text-azure-500" />
-                    Opening the admin console…
-                  </span>
-                </div>
               ) : (
                 <>
                   <h1 className="font-display text-2xl font-bold">Your dashboard</h1>

@@ -57,8 +57,6 @@ function AdminAccountForm({ premiumAvailable }) {
   const [form, setForm] = useState({ fullName: "", email: "", password: "", grantPremium: false });
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
-  const clickDays = lastSevenClickDays(data?.links.dailyClicks);
-  const maxDailyClicks = Math.max(1, ...clickDays.map((entry) => entry.clicks));
   const [error, setError] = useState("");
 
   async function submit(event) {
@@ -218,6 +216,8 @@ export default function AdminOverviewPanel() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const clickDays = lastSevenClickDays(data?.links.dailyClicks);
+  const maxDailyClicks = Math.max(1, ...clickDays.map((entry) => entry.clicks));
 
   const loadOverview = useCallback(async () => {
     const [dashboard, saved] = await Promise.all([

@@ -22,9 +22,9 @@ export default function Navbar({ navLinks = links, onOpenSection }) {
   const [lockedPage, setLockedPage] = useState(null);
   const { user } = useAuth();
   const visibleLinks = user
-    ? [...navLinks, user.role === "admin"
-      ? { href: "/console?tab=overview", label: "Console" }
-      : { href: "/dashboard", label: "Dashboard" }]
+    ? user.role === "admin"
+      ? navLinks
+      : [...navLinks, { href: "/dashboard", label: "Dashboard" }]
     : navLinks;
 
   const handleLockedLink = (event, href) => {

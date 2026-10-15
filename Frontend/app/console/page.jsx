@@ -15,8 +15,9 @@ import {
   Trash2,
   Users,
 } from "lucide-react";
-import ConsoleNavbar from "@/components/layout/ConsoleNavbar";
+import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import Container from "@/components/ui/Container";
 import SubmissionCard from "@/components/admin/SubmissionCard";
 import SuggestionCard from "@/components/admin/SuggestionCard";
 import AssistantFaqDraftCard from "@/components/admin/AssistantFaqDraftCard";
@@ -653,26 +654,23 @@ function ConsolePageInner() {
   const isListTab = ["submissions", "suggestions", "faqDrafts"].includes(tab);
 
   return (
-    <div className="flex min-h-screen flex-col bg-bg text-fg">
-      <ConsoleNavbar />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-5 py-6 sm:py-8">
-        <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
-          <div className="min-w-0">
-            <h1 className="font-display text-xl font-bold tracking-tight sm:text-2xl">
-              Console
-            </h1>
-            <p className="mt-1 flex flex-wrap items-center gap-1.5 text-sm text-muted [overflow-wrap:anywhere]">
-              Welcome back,{" "}
-              <span className="font-semibold text-fg">
-                {user?.fullName || user?.email}
-              </span>
-              <VerifiedBadge size={14} />
-            </p>
-          </div>
-          <p className="max-w-xs text-sm text-muted sm:max-w-sm sm:text-right">
-            Review submissions, triage feedback, and manage this workspace.
-          </p>
+    <div className="flex min-h-dvh flex-col bg-bg text-fg">
+    <Navbar />
+    <main className="flex-1">
+      <Container className="pb-16 pt-9 sm:pt-12">
+      <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
+        <div className="min-w-0">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-azure-500">Administrator account center</p>
+          <h1 className="mt-2 flex flex-wrap items-center gap-2 font-display text-3xl font-bold">
+            Welcome, {user.fullName || user.email}
+            <VerifiedBadge size={18} label="Verified administrator" />
+          </h1>
+          <p className="mt-1 text-sm text-muted">{user.email}</p>
         </div>
+        <p className="max-w-xs text-sm text-muted sm:max-w-sm sm:text-right">
+          Your dashboard and administration tools, together in one place.
+        </p>
+      </div>
 
         <div className="mt-5 max-w-xs">
           <UserCount />
@@ -714,7 +712,7 @@ function ConsolePageInner() {
         <div
           role="tablist"
           aria-label="Console sections"
-          className="mt-5 flex flex-wrap items-center gap-1 border-b border-edge"
+          className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-7"
         >
           {TABS.map(({ id, label, icon: Icon }, index) => {
             const active = tab === id;
@@ -728,10 +726,10 @@ function ConsolePageInner() {
                 tabIndex={active ? 0 : -1}
                 onKeyDown={(e) => onTabKeyDown(e, index)}
                 onClick={() => selectTab(id)}
-                className={`focus-ring -mb-px inline-flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-semibold transition ${
+                className={`focus-ring flex min-h-11 items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-semibold transition ${
                   active
-                    ? "border-azure-500 text-fg"
-                    : "border-transparent text-muted hover:text-fg"
+                    ? "border-azure-500/50 bg-azure-500/10 text-fg"
+                    : "border-edge bg-surface text-muted hover:border-azure-500/30 hover:text-fg"
                 }`}
               >
                 <Icon size={14} /> {label}
@@ -813,7 +811,7 @@ function ConsolePageInner() {
           </div>
         )}
 
-        <div className="mt-4">
+        <div className="mt-6">
           {tab === "overview" ? (
             <AdminOverviewPanel />
           ) : tab === "users" ? (
@@ -920,6 +918,7 @@ function ConsolePageInner() {
             </div>
           )}
         </div>
+        </Container>
       </main>
 
       <Footer />
