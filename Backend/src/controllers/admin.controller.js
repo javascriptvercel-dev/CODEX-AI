@@ -42,8 +42,10 @@ export const listUsers = async (req, res) => {
       fullName: user.full_name,
       role: user.role,
       createdAt: user.created_at,
-      premiumUntil: user.premium_until || null,
-      isPremium: Boolean(user.premium_until && Date.parse(user.premium_until) > Date.now()),
+      premiumUntil: user.role === "admin" ? null : user.premium_until || null,
+      isPremium: user.role === "admin" || Boolean(
+        user.premium_until && Date.parse(user.premium_until) > Date.now(),
+      ),
     })),
     page,
     pageSize,
@@ -69,7 +71,20 @@ export const updateUser = async (req, res) => {
   if (!emailPattern.test(normalizedEmail) || normalizedEmail.length > 254) {
     return res.status(400).json({ error: "Enter a valid email address." });
   }
-  if (env.premiumFeaturesEnabled && typeof isPremium !== "boolean") {
+
+  const { data: target, error: targetError } = await supabase
+    .from("users")
+    .select("role")
+    .eq("id", req.params.id)
+    .maybeSingle();
+  if (targetError) {
+    console.error("updateUser role lookup failed", targetError);
+    return res.status(500).json({ error: "Could not update this account." });
+  }
+  if (!target) return res.status(404).json({ error: "User not found." });
+
+  const canEditPremium = env.premiumFeaturesEnabled && target.role !== "admin";
+  if (canEditPremium && typeof isPremium !== "boolean") {
     return res.status(400).json({ error: "Choose whether this account is Free or Premium." });
   }
 
@@ -77,7 +92,7 @@ export const updateUser = async (req, res) => {
     full_name: fullName.trim(),
     email: normalizedEmail,
   };
-  if (env.premiumFeaturesEnabled) {
+  if (canEditPremium) {
     if (
       isPremium &&
       (typeof premiumUntil !== "string" ||
@@ -94,9 +109,9 @@ export const updateUser = async (req, res) => {
     .from("users")
     .update(changes)
     .eq("id", req.params.id)
-    .select(env.premiumFeaturesEnabled
-      ? "id, email, full_name, premium_until"
-      : "id, email, full_name")
+    .select(canEditPremium
+      ? "id, email, full_name, role, premium_until"
+      : "id, email, full_name, role")
     .maybeSingle();
   if (error) {
     if (error.code === "23505") {
@@ -110,8 +125,10 @@ export const updateUser = async (req, res) => {
     id: data.id,
     email: data.email,
     fullName: data.full_name,
-    premiumUntil: data.premium_until,
-    isPremium: Boolean(data.premium_until && Date.parse(data.premium_until) > Date.now()),
+    premiumUntil: data.role === "admin" ? null : data.premium_until || null,
+    isPremium: data.role === "admin" || Boolean(
+      data.premium_until && Date.parse(data.premium_until) > Date.now(),
+    ),
   });
 };
 

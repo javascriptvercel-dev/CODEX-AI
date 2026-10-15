@@ -1,6 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { isIP } from "node:net";
 import { env } from "../config/env.js";
+import { isPremiumUser } from "../utils/premium.js";
 import { supabase } from "../config/supabase.js";
 import { enforceToolRateLimit } from "../tools/rateLimit.js";
 import { createBotBaseArchive, validateBotBaseSettings } from "../tools/botBaseGenerator.js";
@@ -106,7 +107,7 @@ export async function createShortLink(req, res) {
       p_target_url: parsed.targetUrl,
       p_max_links: req.user.role === "admin"
         ? null
-        : req.user.premium_until && Date.parse(req.user.premium_until) > Date.now()
+        : isPremiumUser(req.user)
           ? PREMIUM_MAX_LINKS_PER_USER
           : MAX_LINKS_PER_USER,
     });
@@ -114,7 +115,7 @@ export async function createShortLink(req, res) {
     if (!error && data?.[0]?.limit_reached) {
       return res.status(429).json({
         error: `You can keep up to ${
-          req.user.premium_until && Date.parse(req.user.premium_until) > Date.now()
+          isPremiumUser(req.user)
             ? PREMIUM_MAX_LINKS_PER_USER
             : MAX_LINKS_PER_USER
         } active short links. Delete one to create another.`,
@@ -152,7 +153,7 @@ export async function listShortLinks(req, res) {
     .eq("user_id", req.user.id)
     .order("created_at", { ascending: false })
     .limit(
-      req.user.premium_until && Date.parse(req.user.premium_until) > Date.now()
+      isPremiumUser(req.user)
         ? PREMIUM_MAX_LINKS_PER_USER
         : MAX_LINKS_PER_USER,
     );

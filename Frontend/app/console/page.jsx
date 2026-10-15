@@ -118,7 +118,12 @@ function AdminUserEditor({ user, premiumEnabled, busy, onSave, onDelete, onBack 
             className="focus-ring h-10 w-full rounded-lg border border-edge bg-surface2 px-3 text-sm text-fg"
           />
         </label>
-        {premiumEnabled && (
+        {user.role === "admin" ? (
+          <div className="rounded-lg border border-amber-400/25 bg-amber-400/5 p-4 text-sm">
+            <p className="font-semibold text-amber-400">Premium — no expiration</p>
+            <p className="mt-1 text-xs text-muted">Administrator accounts have permanent Premium status.</p>
+          </div>
+        ) : premiumEnabled && (
           <div className="grid gap-4 rounded-lg border border-edge bg-surface2/40 p-4 sm:grid-cols-2">
             <label className="text-sm font-medium">
               <span className="mb-1.5 block text-muted">Account status</span>
@@ -178,14 +183,13 @@ function AdminUsersPanel() {
   const [pageSize, setPageSize] = useState(25);
   const [premiumEnabled, setPremiumEnabled] = useState(false);
   const [busyId, setBusyId] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
   const [selectedUser, setSelectedUser] = useState(null);
 
   useEffect(() => {
-    if (!search.trim()) return undefined;
     let active = true;
     api.adminUsers({ page, q: search.trim() })
       .then((result) => {
@@ -273,7 +277,7 @@ function AdminUsersPanel() {
       <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
         <div>
           <h2 className="font-display text-lg font-bold">Users</h2>
-          <p className="mt-1 text-xs text-muted">Search by name or email, then select an account to edit it.</p>
+          <p className="mt-1 text-xs text-muted">All accounts are listed below. Search by name or email to narrow the list.</p>
         </div>
         <label className="relative block w-full sm:max-w-xs">
           <span className="sr-only">Search users by name or email</span>
@@ -289,11 +293,6 @@ function AdminUsersPanel() {
               setNotice("");
               setSelectedUser(null);
               setSearch(event.target.value);
-              if (!event.target.value.trim()) {
-                setUsers([]);
-                setTotal(0);
-                setLoading(false);
-              }
               setPage(1);
             }}
             className="focus-ring h-10 w-full rounded-lg border border-edge bg-surface2 pl-9 pr-3 text-sm text-fg outline-none"
@@ -303,7 +302,10 @@ function AdminUsersPanel() {
 
       {!premiumEnabled && (
         <p className="mt-4 rounded-lg border border-amber-400/25 bg-amber-400/5 p-3 text-xs text-amber-400">
-          Premium controls are unavailable until Premium is enabled and its database migration is applied.
+          Premium editing and account integrations are disabled. In Supabase, run migration 012 first if it has not
+          been applied, then run <code className="font-mono">migration_013_premium_dashboard.sql</code>. In Render,
+          set <code className="font-mono">PREMIUM_FEATURES_ENABLED=true</code> and restart the backend. User listing,
+          profile editing, and account deletion remain available without Premium.
         </p>
       )}
       {error && <p role="alert" className="mt-4 rounded-lg border border-red-400/30 bg-red-400/5 p-3 text-sm text-red-400">{error}</p>}
@@ -311,8 +313,6 @@ function AdminUsersPanel() {
 
       {selectedUser ? (
         <div className="mt-5">
-          {error && <p role="alert" className="mb-4 rounded-lg border border-red-400/30 bg-red-400/5 p-3 text-sm text-red-400">{error}</p>}
-          {notice && <p role="status" className="mb-4 rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3 text-sm text-emerald-500">{notice}</p>}
           <AdminUserEditor
             key={`${selectedUser.id}-${selectedUser.email}-${selectedUser.fullName}-${selectedUser.premiumUntil}`}
             user={selectedUser}
@@ -326,10 +326,6 @@ function AdminUsersPanel() {
               setNotice("");
             }}
           />
-        </div>
-      ) : !search.trim() ? (
-        <div className="mt-5 rounded-lg border border-dashed border-edge py-10 text-center text-sm text-muted">
-          Search by a user’s name or email to find an account.
         </div>
       ) : loading ? (
         <div className="grid min-h-36 place-items-center text-sm text-muted">
@@ -359,10 +355,10 @@ function AdminUsersPanel() {
                     <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${
                       account.role === "admin" ? "bg-violet-500/10 text-violet-400" : "bg-surface2 text-muted"
                     }`}>{account.role}</span>
-                    {premiumEnabled && (
+                    {(premiumEnabled || account.role === "admin") && (
                       <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-                        account.isPremium ? "bg-amber-400/10 text-amber-400" : "bg-surface2 text-muted"
-                      }`}>{account.isPremium ? "Premium" : "Free"}</span>
+                        account.role === "admin" || account.isPremium ? "bg-amber-400/10 text-amber-400" : "bg-surface2 text-muted"
+                      }`}>{account.role === "admin" || account.isPremium ? "Premium" : "Free"}</span>
                     )}
                   </span>
                   <span className="mt-1 block truncate text-xs text-muted">{account.email}</span>
@@ -373,13 +369,17 @@ function AdminUsersPanel() {
           ))}
         </ul>
       ) : (
-        <div className="py-10 text-center text-sm text-muted">No users match this search.</div>
+        <div className="py-10 text-center text-sm text-muted">
+          {search.trim() ? "No users match this search." : "No user accounts found."}
+        </div>
       )}
 
-      {!selectedUser && search.trim() && (
+      {!selectedUser && !loading && !error && (
         <div className="mt-3 flex items-center justify-between border-t border-edge pt-3">
           <p className="text-xs text-muted">
-            {total ? `${(page - 1) * pageSize + 1}–${Math.min(page * pageSize, total)} of ${total} users` : "0 users"}
+            {total
+              ? `${(page - 1) * pageSize + 1}–${Math.min(page * pageSize, total)} of ${total} ${search.trim() ? "matching " : ""}users`
+              : "0 users"}
           </p>
           <div className="flex items-center gap-2">
             <button

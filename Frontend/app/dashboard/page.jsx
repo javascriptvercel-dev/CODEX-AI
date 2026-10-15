@@ -24,6 +24,7 @@ import Footer from "@/components/layout/Footer";
 import Container from "@/components/ui/Container";
 import Button from "@/components/ui/Button";
 import StateBlock from "@/components/ui/StateBlock";
+import VerifiedBadge from "@/components/ui/VerifiedBadge";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
 
@@ -318,7 +319,9 @@ export default function DashboardPage() {
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-azure-500">Account center</p>
                   <h1 className="mt-2 flex items-center gap-2 font-display text-3xl font-bold">
                     Welcome, {user.fullName || user.email}
-                    {data?.premium.active && <Star size={18} fill="currentColor" className="text-amber-400" aria-label="Premium member" />}
+                    {user.role === "admin"
+                      ? <VerifiedBadge size={18} label="Verified administrator" />
+                      : data?.premium.active && <Star size={18} fill="currentColor" className="text-amber-400" aria-label="Premium member" />}
                   </h1>
                   <p className="mt-1 text-sm text-muted">{user.email}</p>
                 </div>
@@ -358,7 +361,9 @@ export default function DashboardPage() {
                         </h2>
                         <p className="mt-1 max-w-xl text-sm leading-6 text-muted">
                           {data.premium.active
-                            ? `Your access is active until ${formatDate(data.premium.expiresAt)}.`
+                            ? user.role === "admin"
+                              ? "Your administrator account has permanent Premium status with no expiration."
+                              : `Your access is active until ${formatDate(data.premium.expiresAt)}.`
                             : data.premium.available
                               ? "Premium access is granted by an administrator."
                               : "Premium features are being prepared. They will appear here once enabled."}
