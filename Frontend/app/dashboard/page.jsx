@@ -329,7 +329,7 @@ export default function DashboardPage() {
                     Welcome, {user.fullName || user.email}
                     {user.role === "admin"
                       ? <VerifiedBadge size={18} label="Verified administrator" />
-                      : data?.premium.active && <Star size={18} fill="currentColor" className="text-amber-400" aria-label="Premium member" />}
+                      : data?.premium.active && <Star size={18} fill="currentColor" className="text-violet-400 drop-shadow-[0_0_6px_rgba(139,92,246,0.75)]" aria-label="Premium member" />}
                   </h1>
                   <p className="mt-1 text-sm text-muted">{user.email}</p>
                 </div>
