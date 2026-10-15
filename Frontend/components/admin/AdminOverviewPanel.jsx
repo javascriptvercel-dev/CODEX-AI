@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import Button from "@/components/ui/Button";
 import StateBlock from "@/components/ui/StateBlock";
+import SubmissionCard from "@/components/admin/SubmissionCard";
 import { api } from "@/lib/api";
 
 const cardClass = "rounded-xl border border-edge bg-surface p-4 sm:p-5";
@@ -209,6 +210,10 @@ function IntegrationManager({ tokens, onRefresh }) {
 
 export default function AdminOverviewPanel() {
   const [data, setData] = useState(null);
+  const [submissions, setSubmissions] = useState([]);
+  const [submissionStatus, setSubmissionStatus] = useState("pending");
+  const [submissionsLoading, setSubmissionsLoading] = useState(true);
+  const [submissionsError, setSubmissionsError] = useState("");
   const [tokens, setTokens] = useState([]);
   const [settings, setSettings] = useState([]);
   const [mode, setMode] = useState("easy");
@@ -218,6 +223,51 @@ export default function AdminOverviewPanel() {
   const [notice, setNotice] = useState("");
   const clickDays = lastSevenClickDays(data?.links.dailyClicks);
   const maxDailyClicks = Math.max(1, ...clickDays.map((entry) => entry.clicks));
+
+  const loadSubmissions = useCallback(async () => {
+    setSubmissionsLoading(true);
+    setSubmissionsError("");
+    try {
+      const result = await api.adminSubmissions(submissionStatus);
+      setSubmissions(result.submissions);
+    } catch (requestError) {
+      setSubmissions([]);
+      setSubmissionsError(requestError.message || "Could not load plugin submissions.");
+    } finally {
+      setSubmissionsLoading(false);
+    }
+  }, [submissionStatus]);
+
+  useEffect(() => {
+    let active = true;
+    api.adminSubmissions(submissionStatus)
+      .then((result) => {
+        if (!active) return;
+        setSubmissions(result.submissions);
+        setSubmissionsError("");
+      })
+      .catch((requestError) => {
+        if (!active) return;
+        setSubmissions([]);
+        setSubmissionsError(requestError.message || "Could not load plugin submissions.");
+      })
+      .finally(() => {
+        if (active) setSubmissionsLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [submissionStatus]);
+
+  async function approveSubmission(id) {
+    await api.approveSubmission(id);
+    await loadSubmissions();
+  }
+
+  async function rejectSubmission(id, note) {
+    await api.rejectSubmission(id, note);
+    await loadSubmissions();
+  }
 
   const loadOverview = useCallback(async () => {
     const [dashboard, saved] = await Promise.all([
@@ -408,27 +458,70 @@ export default function AdminOverviewPanel() {
           {settings.length > 0 && <p className="mt-3 text-xs text-muted">{settings.length} saved tool configuration{settings.length === 1 ? "" : "s"}.</p>}
         </section>
 
-        <section className={cardClass}>
-          <div className="mb-4 flex items-center gap-3">
-            <ShieldCheck size={18} className="text-azure-500" />
-            <h2 className="font-display font-bold">Recent plugin submissions</h2>
-          </div>
-          <ul className="divide-y divide-edge">
-            {data.submissions.slice(0, 6).map((submission) => (
-              <li key={submission.id} className="flex items-center justify-between gap-3 py-3">
-                <Link href={`/plugins/${encodeURIComponent(submission.id)}`} className="truncate text-sm font-medium hover:text-azure-500">
-                  {submission.title}
-                </Link>
-                <span className="rounded-full border border-edge px-2 py-1 text-[11px] capitalize text-muted">{submission.status.replaceAll("_", " ")}</span>
-              </li>
-            ))}
-            {!data.submissions.length && <li className="py-3 text-sm text-muted">No plugin submissions yet.</li>}
-          </ul>
-          <Link href="/console" className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-azure-500 hover:underline">
-            Review submissions <ArrowUpRight size={14} />
-          </Link>
-        </section>
       </div>
+
+      <section className={`${cardClass} space-y-4`}>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <ShieldCheck size={18} className="text-azure-500" />
+              <h2 className="font-display font-bold">Plugin submissions</h2>
+            </div>
+            <p className="mt-1 text-xs text-muted">Review, approve, or reject submitted plugins.</p>
+          </div>
+          <div className="inline-flex overflow-hidden rounded-lg border border-edge">
+            {["pending", "approved", "rejected"].map((status) => (
+              <button
+                key={status}
+                type="button"
+                onClick={() => {
+                  setSubmissionsLoading(true);
+                  setSubmissionStatus(status);
+                }}
+                aria-pressed={submissionStatus === status}
+                className={`focus-ring border-l border-edge px-3 py-2 text-xs font-semibold capitalize transition first:border-l-0 ${
+                  submissionStatus === status
+                    ? "bg-azure-500 text-white"
+                    : "bg-surface2 text-muted hover:text-fg"
+                }`}
+              >
+                {status}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {submissionsError ? (
+          <StateBlock
+            tone="error"
+            appearance="empty"
+            icon={ShieldCheck}
+            title="Couldn’t load submissions"
+            message={submissionsError}
+            onRetry={loadSubmissions}
+          />
+        ) : submissionsLoading ? (
+          <div className="grid min-h-32 place-items-center text-sm text-muted">
+            <span className="inline-flex items-center gap-2"><LoaderCircle size={15} className="animate-spin" /> Loading {submissionStatus} submissions…</span>
+          </div>
+        ) : submissions.length ? (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {submissions.map((submission) => (
+              <SubmissionCard
+                key={submission.id}
+                submission={submission}
+                onApprove={approveSubmission}
+                onReject={rejectSubmission}
+                onSaved={loadSubmissions}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-xl border border-dashed border-edge bg-surface2/40 px-5 py-10 text-center text-sm text-muted">
+            No {submissionStatus} submissions.
+          </div>
+        )}
+      </section>
 
       <section className="space-y-5 border-t border-edge pt-5">
         <div>
