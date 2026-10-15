@@ -118,7 +118,12 @@ function AdminUserEditor({ user, premiumEnabled, busy, onSave, onDelete, onBack 
             className="focus-ring h-10 w-full rounded-lg border border-edge bg-surface2 px-3 text-sm text-fg"
           />
         </label>
-        {premiumEnabled && (
+        {user.role === "admin" ? (
+          <div className="rounded-lg border border-amber-400/25 bg-amber-400/5 p-4 text-sm">
+            <p className="font-semibold text-amber-400">Premium — no expiration</p>
+            <p className="mt-1 text-xs text-muted">Administrator accounts have permanent Premium status.</p>
+          </div>
+        ) : premiumEnabled && (
           <div className="grid gap-4 rounded-lg border border-edge bg-surface2/40 p-4 sm:grid-cols-2">
             <label className="text-sm font-medium">
               <span className="mb-1.5 block text-muted">Account status</span>
@@ -350,10 +355,10 @@ function AdminUsersPanel() {
                     <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${
                       account.role === "admin" ? "bg-violet-500/10 text-violet-400" : "bg-surface2 text-muted"
                     }`}>{account.role}</span>
-                    {premiumEnabled && (
+                    {(premiumEnabled || account.role === "admin") && (
                       <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-                        account.isPremium ? "bg-amber-400/10 text-amber-400" : "bg-surface2 text-muted"
-                      }`}>{account.isPremium ? "Premium" : "Free"}</span>
+                        account.role === "admin" || account.isPremium ? "bg-amber-400/10 text-amber-400" : "bg-surface2 text-muted"
+                      }`}>{account.role === "admin" || account.isPremium ? "Premium" : "Free"}</span>
                     )}
                   </span>
                   <span className="mt-1 block truncate text-xs text-muted">{account.email}</span>

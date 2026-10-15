@@ -70,7 +70,7 @@ export async function getDashboard(req, res) {
     },
     premium: {
       active: isPremiumUser(req.user),
-      expiresAt: req.user.premium_until || null,
+      expiresAt: req.user.role === "admin" ? null : req.user.premium_until || null,
       available: env.premiumFeaturesEnabled,
     },
     usage: {
