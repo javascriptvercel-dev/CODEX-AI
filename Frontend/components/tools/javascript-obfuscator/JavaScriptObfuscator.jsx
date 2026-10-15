@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Check,
   Clipboard,
@@ -8,9 +8,12 @@ import {
   Download,
   LoaderCircle,
   Sparkles,
+  Crown,
+  Upload,
 } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { api } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 
 const MAX_CODE_LENGTH = 50_000;
 
@@ -33,6 +36,7 @@ const MODES = [
 ];
 
 export default function JavaScriptObfuscator() {
+  const { user } = useAuth();
   const [source, setSource] = useState("");
   const [mode, setMode] = useState("easy");
   const [output, setOutput] = useState("");
@@ -40,6 +44,25 @@ export default function JavaScriptObfuscator() {
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [uploadFile, setUploadFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    api.dashboardToolSettings()
+      .then(({ settings }) => {
+        const saved = settings.find((item) => item.tool === "javascript-obfuscator");
+        if (active && ["easy", "medium", "hard"].includes(saved?.values?.mode)) {
+          setMode(saved.values.mode);
+        }
+      })
+      .catch((requestError) => {
+        if (active) setError(requestError.message);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   function updateSource(value) {
     setSource(value);
@@ -99,6 +122,36 @@ export default function JavaScriptObfuscator() {
     window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
   }
 
+  async function obfuscateUpload() {
+    if (!uploadFile) {
+      setError("Choose a .js file or .zip project to upload.");
+      return;
+    }
+    if (uploadFile.size > 100 * 1024 * 1024) {
+      setError("Uploads are limited to 100 MB.");
+      return;
+    }
+    setUploading(true);
+    setError("");
+    setMessage("");
+    try {
+      const blob = await api.obfuscateJavaScriptUpload(uploadFile, mode);
+      const downloadUrl = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = downloadUrl;
+      anchor.download = `${uploadFile.name.replace(/\.(js|zip)$/i, "")}.obfuscated.${uploadFile.name.toLowerCase().endsWith(".zip") ? "zip" : "js"}`;
+      document.body.append(anchor);
+      anchor.click();
+      anchor.remove();
+      window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
+      setMessage("Your obfuscated download is ready.");
+    } catch (requestError) {
+      setError(requestError?.message || "Could not obfuscate this upload.");
+    } finally {
+      setUploading(false);
+    }
+  }
+
   return (
     <div className="mx-auto max-w-5xl overflow-hidden rounded-xl border border-edge bg-surface">
       <header className="flex items-start gap-4 border-b border-edge p-5 sm:p-6">
@@ -154,6 +207,41 @@ export default function JavaScriptObfuscator() {
             ))}
           </div>
         </fieldset>
+
+        <section className="rounded-lg border border-edge bg-surface2/40 p-4">
+          <div className="flex items-start gap-3">
+            <span className="grid h-9 w-9 flex-none place-items-center rounded-lg bg-amber-400/10 text-amber-400">
+              {user?.isPremium ? <Crown size={17} aria-hidden="true" /> : <Upload size={17} aria-hidden="true" />}
+            </span>
+            <div className="min-w-0 flex-1">
+              <h3 className="text-sm font-semibold">Obfuscate a file or ZIP project</h3>
+              {user?.isPremium ? (
+                <>
+                  <p className="mt-1 text-xs leading-5 text-muted">
+                    Upload JavaScript or a ZIP (up to 100 MB). JavaScript files are obfuscated and other project files are preserved.
+                  </p>
+                  <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
+                    <input
+                      type="file"
+                      accept=".js,.zip,application/zip,text/javascript"
+                      onChange={(event) => setUploadFile(event.target.files?.[0] || null)}
+                      className="focus-ring min-w-0 flex-1 text-xs text-muted file:mr-3 file:rounded-md file:border-0 file:bg-surface2 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-fg"
+                    />
+                    <Button type="button" onClick={obfuscateUpload} disabled={uploading || !uploadFile}>
+                      {uploading ? <LoaderCircle size={15} className="animate-spin" /> : <Upload size={15} />}
+                      {uploading ? "Obfuscating…" : "Upload and obfuscate"}
+                    </Button>
+                  </div>
+                  {uploadFile && <p className="mt-1.5 text-xs text-muted">{uploadFile.name} · {(uploadFile.size / (1024 * 1024)).toFixed(2)} MB</p>}
+                </>
+              ) : (
+                <p className="mt-1 text-xs leading-5 text-muted">
+                  File and project uploads are available to Premium members. <a className="font-semibold text-azure-500 hover:underline" href="/dashboard">View Premium in your dashboard</a>.
+                </p>
+              )}
+            </div>
+          </div>
+        </section>
 
         <div className="grid gap-4 lg:grid-cols-2">
           <label className="block min-w-0">

@@ -1,5 +1,6 @@
 import { supabase } from "../config/supabase.js";
 import { COOKIE_NAME, verifySession } from "../utils/jwt.js";
+import { env } from "../config/env.js";
 export const attachUser = async (req, _res, next) => {
   const token = req.cookies?.[COOKIE_NAME];
   const payload = token ? verifySession(token) : null;
@@ -10,9 +11,16 @@ export const attachUser = async (req, _res, next) => {
   }
   const { data, error } = await supabase
     .from("users")
-    .select(
-      "id, email, full_name, avatar_url, role, email_notifications_enabled",
-    )
+    .select([
+      "id",
+      "email",
+      "full_name",
+      "avatar_url",
+      "role",
+      "email_notifications_enabled",
+      "created_at",
+      ...(env.premiumFeaturesEnabled ? ["premium_until"] : []),
+    ].join(", "))
     .eq("id", payload.sub)
     .maybeSingle();
   req.user = error ? null : data;

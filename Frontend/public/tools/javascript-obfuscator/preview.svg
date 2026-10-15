@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450" fill="none">
+  <defs>
+    <linearGradient id="background" x1="48" y1="24" x2="756" y2="436" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#111B2B"/>
+      <stop offset="1" stop-color="#080D16"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="231" y1="150" x2="590" y2="314" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#56C8FF"/>
+      <stop offset="1" stop-color="#4176FF"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="205" y1="78" x2="611" y2="375" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1A293C"/>
+      <stop offset="1" stop-color="#111A28"/>
+    </linearGradient>
+    <filter id="glow" x="171" y="77" width="458" height="329" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse">
+      <feGaussianBlur stdDeviation="31"/>
+    </filter>
+  </defs>
+  <rect width="800" height="450" rx="28" fill="url(#background)"/>
+  <circle cx="402" cy="238" r="158" fill="#347DFF" fill-opacity=".2" filter="url(#glow)"/>
+  <path d="M0 350c156-56 246 40 398 4 153-36 259-42 402 3v93H0v-100Z" fill="#387FFF" fill-opacity=".06"/>
+  <g opacity=".24" stroke="#91A8C7">
+    <path d="M54 68h164M54 81h102M661 64v85M674 64v51"/>
+    <circle cx="714" cy="366" r="2" fill="#A7BCE0"/>
+    <circle cx="736" cy="366" r="2" fill="#A7BCE0"/>
+    <circle cx="758" cy="366" r="2" fill="#A7BCE0"/>
+  </g>
+  <rect x="176" y="74" width="448" height="300" rx="22" fill="url(#panel)" stroke="#324761" stroke-width="2"/>
+  <path d="M176 121h448" stroke="#324761" stroke-width="2"/>
+  <circle cx="201" cy="98" r="5" fill="#FF7185"/>
+  <circle cx="219" cy="98" r="5" fill="#F9C76A"/>
+  <circle cx="237" cy="98" r="5" fill="#6DD6A0"/>
+  <rect x="201" y="143" width="177" height="207" rx="12" fill="#0B1320" stroke="#293C55"/>
+  <rect x="414" y="143" width="189" height="207" rx="12" fill="#0B1320" stroke="#293C55"/>
+  <text x="219" y="164" fill="#8FA3BD" font-family="Arial, sans-serif" font-size="10" font-weight="700" letter-spacing="1.2">SOURCE</text>
+  <text x="432" y="164" fill="#8FA3BD" font-family="Arial, sans-serif" font-size="10" font-weight="700" letter-spacing="1.2">OBFUSCATED</text>
+  <g stroke-linecap="round" stroke-width="5">
+    <path d="M220 187h62" stroke="#72D4FF"/>
+    <path d="M291 187h41" stroke="#8B9DB6"/>
+    <path d="M238 204h89" stroke="#637A97"/>
+    <path d="M238 221h69" stroke="#A884FF"/>
+    <path d="M256 238h91" stroke="#637A97"/>
+    <path d="M238 255h57" stroke="#71D6A3"/>
+    <path d="M256 272h73" stroke="#637A97"/>
+    <path d="M220 289h42" stroke="#72D4FF"/>
+    <path d="M273 289h60" stroke="#8B9DB6"/>
+    <path d="M432 187h96" stroke="#71D6A3"/>
+    <path d="M440 204h143" stroke="#637A97"/>
+    <path d="M440 221h104" stroke="#A884FF"/>
+    <path d="M440 238h151" stroke="#637A97"/>
+    <path d="M440 255h119" stroke="#72D4FF"/>
+    <path d="M440 272h141" stroke="#637A97"/>
+    <path d="M432 289h126" stroke="#71D6A3"/>
+  </g>
+  <g transform="translate(378 213)">
+    <circle cx="22" cy="22" r="21" fill="#142943" stroke="#3C7CD5" stroke-width="2"/>
+    <path d="M12 22h19m-6-7 7 7-7 7" stroke="url(#accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <rect x="226" y="316" width="105" height="25" rx="12.5" fill="#4087FF" fill-opacity=".15" stroke="#4087FF" stroke-opacity=".5"/>
+  <text x="245" y="333" fill="#8EDBFF" font-family="Arial, sans-serif" font-size="10" font-weight="700">EASY  ·  MEDIUM  ·  HARD</text>
+</svg>

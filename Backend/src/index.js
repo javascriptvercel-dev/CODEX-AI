@@ -10,6 +10,7 @@ import toolsRoutes from "./routes/tools.routes.js";
 import assistantFaqRoutes from "./routes/assistantFaq.routes.js";
 import { getPublicStats } from "./controllers/stats.controller.js";
 import sessionRouter from "./session/router.js";
+import dashboardRoutes from "./routes/dashboard.routes.js";
 const app = express();
 app.use(cors({ origin: env.frontendUrl, credentials: true }));
 app.use(express.json());
@@ -22,6 +23,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/suggestions", suggestionRoutes);
 app.use("/api/assistant-faqs", assistantFaqRoutes);
 app.use("/api/tools", toolsRoutes);
+app.use("/api", dashboardRoutes);
 app.use("/api", sessionRouter);
 app.use((err, _req, res, _next) => {
   console.error(err);

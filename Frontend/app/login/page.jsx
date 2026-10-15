@@ -4,16 +4,16 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import AuthModal from "@/components/auth/AuthModal";
 
-function getSafeNextPath(value) {
-  if (typeof value !== "string") return "/";
-  if (!/^\/[a-zA-Z0-9\-_/?=&]*$/.test(value) || value.startsWith("//")) return "/";
+function getSafeNextPath(value, fallback = "/") {
+  if (typeof value !== "string") return fallback;
+  if (!/^\/[a-zA-Z0-9\-_/?=&]*$/.test(value) || value.startsWith("//")) return fallback;
   return value;
 }
 
 function LoginPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const nextPath = getSafeNextPath(searchParams.get("next"));
+  const nextPath = getSafeNextPath(searchParams.get("next"), "/dashboard");
   const cancelPath = getSafeNextPath(searchParams.get("cancel"));
 
   return (

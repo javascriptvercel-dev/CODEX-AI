@@ -8,6 +8,9 @@ import {
   updateAndApproveSubmission,
   rejectSubmission,
   listSuggestions,
+  listUsers,
+  updateUser,
+  deleteUser,
 } from "../controllers/admin.controller.js";
 import { listFaqDrafts, reviewFaqDraft } from "../controllers/assistantFaq.controller.js";
 const router = Router();
@@ -17,6 +20,9 @@ router.post("/submissions/:id/approve", asyncHandler(approveSubmission));
 router.patch("/submissions/:id", asyncHandler(updateAndApproveSubmission));
 router.post("/submissions/:id/reject", asyncHandler(rejectSubmission));
 router.get("/suggestions", asyncHandler(listSuggestions));
+router.get("/users", asyncHandler(listUsers));
+router.patch("/users/:id", asyncHandler(updateUser));
+router.delete("/users/:id", asyncHandler(deleteUser));
 router.get("/assistant-faqs", asyncHandler(listFaqDrafts));
 router.patch("/assistant-faqs/:id", asyncHandler(reviewFaqDraft));
 export default router;
