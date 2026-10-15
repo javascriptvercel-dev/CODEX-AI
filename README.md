@@ -142,6 +142,20 @@ characters per request and offers Easy, Medium, and Hard presets. Obfuscation
 is not encryption and does not protect secrets. Usage limits are stored in
 Supabase and shared across backend instances.
 
+## ⭐ Premium and member dashboard
+
+The signed-in `/dashboard` page includes Premium status, tool activity, saved
+obfuscator settings, short-link analytics, plugin submissions, and admin account
+management. Premium adds higher tool/link limits and JavaScript/ZIP uploads to
+the obfuscator. The feature is disabled by default.
+
+Follow [the Premium deployment and rollback guide](./Backend/PREMIUM_DEPLOYMENT.md)
+before enabling it. The deployment requires the additive
+[`migration_013_premium_dashboard.sql`](./Backend/src/db/migration_013_premium_dashboard.sql)
+and `PREMIUM_FEATURES_ENABLED=true`. There are no payment or subscription
+integrations; administrators grant access when creating accounts, or by updating
+the user's `premium_until` value in Supabase.
+
 ---
 
 ## 🤝 Contributing

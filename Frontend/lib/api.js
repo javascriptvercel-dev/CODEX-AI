@@ -34,7 +34,10 @@ async function requestBlob(path, options = {}) {
   try {
     res = await fetch(`${API_URL}${path}`, {
       credentials: "include",
-      headers: { "Content-Type": "application/json" },
+      headers:
+        options.body instanceof FormData
+          ? undefined
+          : { "Content-Type": "application/json" },
       ...options,
     });
   } catch {
@@ -107,6 +110,15 @@ export const api = {
       body: JSON.stringify({ note }),
     }),
   adminSuggestions: () => request("/api/admin/suggestions"),
+  adminUsers: ({ page = 1, q = "" } = {}) =>
+    request(`/api/admin/users?page=${page}&q=${encodeURIComponent(q)}`),
+  updateAdminUser: (id, body) =>
+    request(`/api/admin/users/${encodeURIComponent(id)}`, {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    }),
+  deleteAdminUser: (id) =>
+    request(`/api/admin/users/${encodeURIComponent(id)}`, { method: "DELETE" }),
   publishedAssistantFaqs: () => request("/api/assistant-faqs"),
   adminAssistantFaqDrafts: () => request("/api/admin/assistant-faqs"),
   createAssistantFaqDraft: (body) =>
@@ -137,6 +149,30 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ code, mode }),
     }),
+  obfuscateJavaScriptUpload: (file, mode) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("mode", mode);
+    return requestBlob("/api/tools/javascript-obfuscator/upload", {
+      method: "POST",
+      body: formData,
+      signal: AbortSignal.timeout(900000),
+    });
+  },
+  dashboard: () => request("/api/dashboard"),
+  dashboardToolSettings: () => request("/api/dashboard/tool-settings"),
+  saveDashboardToolSettings: (tool, settings) =>
+    request("/api/dashboard/tool-settings", {
+      method: "PUT",
+      body: JSON.stringify({ tool, settings }),
+    }),
+  createAdminAccount: (body) =>
+    request("/api/dashboard/admin/accounts", { method: "POST", body: JSON.stringify(body) }),
+  integrationTokens: () => request("/api/dashboard/admin/integrations"),
+  createIntegrationToken: (name) =>
+    request("/api/dashboard/admin/integrations", { method: "POST", body: JSON.stringify({ name }) }),
+  revokeIntegrationToken: (id) =>
+    request(`/api/dashboard/admin/integrations/${encodeURIComponent(id)}`, { method: "DELETE" }),
   shortLinks: () => request("/api/tools/short-links"),
   createShortLink: (url) =>
     request("/api/tools/short-links", {

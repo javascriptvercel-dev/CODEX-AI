@@ -17,6 +17,12 @@ const publicUser = (user, authenticatedAt) =>
     fullName: user.full_name,
     avatarUrl: user.avatar_url,
     role: user.role,
+    isPremium: Boolean(
+      env.premiumFeaturesEnabled &&
+      user.premium_until &&
+      Date.parse(user.premium_until) > Date.now(),
+    ),
+    premiumExpiresAt: user.premium_until || null,
     emailNotificationsEnabled: user.email_notifications_enabled,
     authenticatedAt,
   };

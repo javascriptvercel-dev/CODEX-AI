@@ -65,7 +65,7 @@ export default function UrlShortener() {
     setMessage("");
     try {
       const { link } = await api.createShortLink(url);
-      setLinks((current) => [link, ...current].slice(0, 100));
+      setLinks((current) => [link, ...current].slice(0, maxLinks));
       setUrl("");
       setMessage("Your short link is ready.");
     } catch (err) {
@@ -95,6 +95,7 @@ export default function UrlShortener() {
 
   const visibleLinks = loadedUserId === user.id ? links : [];
   const loadingLinks = loadedUserId !== user.id;
+  const maxLinks = user.isPremium ? 500 : 100;
 
   return (
     <div className="mx-auto max-w-4xl overflow-hidden rounded-xl border border-edge bg-surface">
@@ -141,7 +142,7 @@ export default function UrlShortener() {
           <p className="text-xs leading-5 text-muted">
             HTTP and HTTPS links only.
             {user.role !== "admin" &&
-              " Limit: 10 new links per hour and 100 active links per account."}
+              ` Limit: ${user.isPremium ? "50" : "10"} new links per hour and ${maxLinks} active links per account.`}
           </p>
         </form>
 
@@ -165,7 +166,7 @@ export default function UrlShortener() {
               Your links
             </h3>
             {user.role !== "admin" && (
-              <span className="text-xs text-muted">{visibleLinks.length} / 100</span>
+              <span className="text-xs text-muted">{visibleLinks.length} / {maxLinks}</span>
             )}
           </div>
 

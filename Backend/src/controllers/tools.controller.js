@@ -8,6 +8,7 @@ import { obfuscateJavaScript, OBFUSCATION_MODES } from "../tools/javascriptObfus
 
 const SHORT_CODE_PATTERN = /^[A-Za-z0-9_-]{8}$/;
 const MAX_LINKS_PER_USER = 100;
+const PREMIUM_MAX_LINKS_PER_USER = 500;
 const SHORT_CODE_COLLISION = "23505";
 const MAX_OBFUSCATOR_INPUT_LENGTH = 50_000;
 
@@ -87,6 +88,7 @@ export async function createShortLink(req, res) {
     !(await enforceToolRateLimit(req, res, {
       tool: "url-shortener",
       userLimit: 10,
+      premiumUserLimit: 50,
       windowSeconds: 60 * 60,
     }))
   ) {
@@ -102,12 +104,20 @@ export async function createShortLink(req, res) {
       p_user_id: req.user.id,
       p_code: code,
       p_target_url: parsed.targetUrl,
-      p_max_links: req.user.role === "admin" ? null : MAX_LINKS_PER_USER,
+      p_max_links: req.user.role === "admin"
+        ? null
+        : req.user.premium_until && Date.parse(req.user.premium_until) > Date.now()
+          ? PREMIUM_MAX_LINKS_PER_USER
+          : MAX_LINKS_PER_USER,
     });
 
     if (!error && data?.[0]?.limit_reached) {
       return res.status(429).json({
-        error: `You can keep up to ${MAX_LINKS_PER_USER} active short links. Delete one to create another.`,
+        error: `You can keep up to ${
+          req.user.premium_until && Date.parse(req.user.premium_until) > Date.now()
+            ? PREMIUM_MAX_LINKS_PER_USER
+            : MAX_LINKS_PER_USER
+        } active short links. Delete one to create another.`,
       });
     }
     if (!error && data?.[0]) {
@@ -141,7 +151,11 @@ export async function listShortLinks(req, res) {
     .select("id, code, target_url, click_count, created_at")
     .eq("user_id", req.user.id)
     .order("created_at", { ascending: false })
-    .limit(100);
+    .limit(
+      req.user.premium_until && Date.parse(req.user.premium_until) > Date.now()
+        ? PREMIUM_MAX_LINKS_PER_USER
+        : MAX_LINKS_PER_USER,
+    );
 
   if (error) {
     console.error("[tools] short-link list failed:", error);

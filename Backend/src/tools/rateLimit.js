@@ -1,9 +1,10 @@
 import { supabase } from "../config/supabase.js";
+import { env } from "../config/env.js";
 
 export async function enforceToolRateLimit(
   req,
   res,
-  { tool, userLimit, windowSeconds },
+  { tool, userLimit, windowSeconds, premiumUserLimit = userLimit * 5 },
 ) {
   if (!req.user?.id) {
     res.status(401).json({ error: "Sign in to use this tool." });
@@ -12,7 +13,12 @@ export async function enforceToolRateLimit(
   if (req.user?.role === "admin") return true;
 
   const subjectKey = `user:${req.user.id}`;
-  const limit = userLimit;
+  const premium = Boolean(
+    env.premiumFeaturesEnabled &&
+    req.user.premium_until &&
+    Date.parse(req.user.premium_until) > Date.now(),
+  );
+  const limit = premium ? premiumUserLimit : userLimit;
   const { data, error } = await supabase.rpc("consume_tool_rate_limit", {
     p_subject_key: subjectKey,
     p_tool_slug: tool,
@@ -52,6 +58,18 @@ export async function enforceToolRateLimit(
       retryAfter: result.retry_after,
     });
     return false;
+  }
+
+  if (env.premiumFeaturesEnabled) {
+    const { error: usageError } = await supabase.from("tool_usage_events").insert({
+      user_id: req.user.id,
+      tool_slug: tool,
+    });
+    if (usageError) {
+      console.error(`[tools] ${tool} activity logging failed:`, usageError);
+      res.status(503).json({ error: "This tool is temporarily unavailable. Please try again shortly." });
+      return false;
+    }
   }
 
   return true;

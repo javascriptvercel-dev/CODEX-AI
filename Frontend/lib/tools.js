@@ -29,6 +29,7 @@ export const tools = [
     status: TOOL_STATUS.LIVE,
     tags: ["JavaScript", "Code"],
     keywords: ["JavaScript obfuscator", "obfuscate code", "code protection"],
+    preview: "/tools/javascript-obfuscator/preview.svg",
     load: () => import("@/components/tools/javascript-obfuscator/JavaScriptObfuscator"),
   },
   {

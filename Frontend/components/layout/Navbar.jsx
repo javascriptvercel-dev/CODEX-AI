@@ -4,6 +4,7 @@ import Link from "next/link";
 import NavShell from "./NavShell";
 import LockedModal from "@/components/modals/LockedModal";
 import { getLockedPage } from "@/lib/lockedPages";
+import { useAuth } from "@/context/AuthContext";
 
 const links = [
   { href: "/", label: "Home" },
@@ -19,6 +20,10 @@ const links = [
 
 export default function Navbar({ navLinks = links, onOpenSection }) {
   const [lockedPage, setLockedPage] = useState(null);
+  const { user } = useAuth();
+  const visibleLinks = user
+    ? [...navLinks, { href: "/dashboard", label: "Dashboard" }]
+    : navLinks;
 
   const handleLockedLink = (event, href) => {
     const page = getLockedPage(href);
@@ -77,7 +82,7 @@ export default function Navbar({ navLinks = links, onOpenSection }) {
             CODEX <span className="text-fg">AI BOT</span>
           </>
         }
-        links={navLinks}
+        links={visibleLinks}
         renderLink={renderLink}
       />
       {lockedPage ? (

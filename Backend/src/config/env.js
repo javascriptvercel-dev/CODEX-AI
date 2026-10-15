@@ -28,6 +28,7 @@ export const env = {
     .split(",")
     .map((email) => email.trim().toLowerCase())
     .filter(Boolean),
+  premiumFeaturesEnabled: parseBool(process.env.PREMIUM_FEATURES_ENABLED),
   github: {
     clientId: process.env.GITHUB_CLIENT_ID,
     clientSecret: process.env.GITHUB_CLIENT_SECRET,

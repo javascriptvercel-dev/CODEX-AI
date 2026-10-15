@@ -12,6 +12,41 @@ import {
 } from "../controllers/tools.controller.js";
 import { BanCheckError, checkNumber, cleanNumber } from "../tools/banCheck.js";
 import { enforceToolRateLimit } from "../tools/rateLimit.js";
+import { randomUUID } from "node:crypto";
+import multer from "multer";
+import os from "node:os";
+import { requirePremium } from "../middleware/requirePremium.js";
+import { obfuscateUploadedProject, premiumUploadLimits } from "../controllers/premiumUpload.controller.js";
+
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: os.tmpdir(),
+    filename: (_req, _file, callback) => callback(null, `codex-upload-${randomUUID()}`),
+  }),
+  limits: { fileSize: premiumUploadLimits.archiveBytes, files: 1 },
+});
+const acceptObfuscatorUpload = (req, res, next) => {
+  upload.single("file")(req, res, (error) => {
+    if (!error) return next();
+    if (error instanceof multer.MulterError && error.code === "LIMIT_FILE_SIZE") {
+      return res.status(413).json({ error: "Uploads are limited to 100 MB." });
+    }
+    console.error("[premium-upload] upload parsing failed:", error);
+    return res.status(400).json({ error: "The file upload could not be processed." });
+  });
+};
+const enforcePremiumUploadLimit = async (req, res, next) => {
+  if (
+    await enforceToolRateLimit(req, res, {
+      tool: "javascript-obfuscator-upload",
+      userLimit: 3,
+      premiumUserLimit: 10,
+      windowSeconds: 60 * 60,
+    })
+  ) {
+    next();
+  }
+};
 
 const router = Router();
 const cache = new Map();
@@ -28,6 +63,15 @@ router.post(
   attachUser,
   requireAuth,
   asyncHandler(obfuscateCode),
+);
+router.post(
+  "/javascript-obfuscator/upload",
+  attachUser,
+  requireAuth,
+  requirePremium,
+  asyncHandler(enforcePremiumUploadLimit),
+  acceptObfuscatorUpload,
+  asyncHandler(obfuscateUploadedProject),
 );
 
 router.get("/short-links", attachUser, requireAuth, asyncHandler(listShortLinks));

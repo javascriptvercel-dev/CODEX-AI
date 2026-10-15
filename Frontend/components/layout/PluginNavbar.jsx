@@ -17,6 +17,9 @@ const navLinks = [
 export default function PluginNavbar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const visibleLinks = user
+    ? [...navLinks, { href: "/dashboard", label: "Dashboard" }]
+    : navLinks;
   const [loggingOut, setLoggingOut] = useState(false);
 
   // Only the Create Plugin page gets a logout control, and only once
@@ -61,7 +64,7 @@ export default function PluginNavbar() {
           CODEX <span className="text-fg">AI BOT</span>
         </>
       }
-      links={navLinks}
+      links={visibleLinks}
       renderLink={renderLink}
       persistentExtra={showLogout ? <Avatar size={34} /> : null}
       desktopExtra={
