@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Activity,
   ArrowUpRight,
@@ -215,6 +216,7 @@ function IntegrationManager({ tokens, onRefresh }) {
 
 export default function DashboardPage() {
   const { user, loading: authLoading, refresh } = useAuth();
+  const router = useRouter();
   const [data, setData] = useState(null);
   const [tokens, setTokens] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -225,6 +227,12 @@ export default function DashboardPage() {
   const [mode, setMode] = useState("easy");
   const clickDays = lastSevenClickDays(data?.links.dailyClicks);
   const maxDailyClicks = Math.max(1, ...clickDays.map((entry) => entry.clicks));
+
+  useEffect(() => {
+    if (!authLoading && user?.role === "admin") {
+      router.replace("/console?tab=overview");
+    }
+  }, [authLoading, router, user]);
 
   const fetchDashboard = useCallback(async () => {
     const [dashboard, saved] = await Promise.all([
@@ -238,7 +246,7 @@ export default function DashboardPage() {
   }, [user]);
 
   useEffect(() => {
-    if (!user) return undefined;
+    if (!user || user.role === "admin") return undefined;
     let current = true;
     fetchDashboard()
       .then(({ dashboard, saved, integrations }) => {
@@ -304,6 +312,13 @@ export default function DashboardPage() {
             <div className="mx-auto max-w-xl py-16 text-center">
               {authLoading ? (
                 <LoaderCircle className="mx-auto animate-spin text-azure-500" />
+              ) : user.role === "admin" ? (
+                <div className="grid min-h-64 place-items-center text-sm text-muted">
+                  <span className="inline-flex items-center gap-2">
+                    <LoaderCircle size={16} className="animate-spin text-azure-500" />
+                    Opening the admin console…
+                  </span>
+                </div>
               ) : (
                 <>
                   <h1 className="font-display text-2xl font-bold">Your dashboard</h1>

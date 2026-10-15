@@ -18,7 +18,9 @@ export default function PluginNavbar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
   const visibleLinks = user
-    ? [...navLinks, { href: "/dashboard", label: "Dashboard" }]
+    ? [...navLinks, user.role === "admin"
+      ? { href: "/console?tab=overview", label: "Console" }
+      : { href: "/dashboard", label: "Dashboard" }]
     : navLinks;
   const [loggingOut, setLoggingOut] = useState(false);
 

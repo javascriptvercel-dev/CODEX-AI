@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {
   BellRing,
   BookOpenCheck,
+  LayoutDashboard,
   Mail,
   MessageSquareText,
   PackagePlus,
@@ -25,6 +26,7 @@ import StateBlock from "@/components/ui/StateBlock";
 import AdminEmailOptInModal, {
   shouldShowEmailPrompt,
 } from "@/components/admin/AdminEmailOptInModal";
+import AdminOverviewPanel from "@/components/admin/AdminOverviewPanel";
 import PluginSubmitForm from "@/components/plugins/PluginSubmitForm";
 import VerifiedBadge from "@/components/ui/VerifiedBadge";
 import { useAuth } from "@/context/AuthContext";
@@ -39,6 +41,7 @@ const CONSOLE_GREETINGS = [
 ];
 
 const TABS = [
+  { id: "overview", label: "Overview", icon: LayoutDashboard },
   { id: "submissions", label: "Submissions", icon: ShieldCheck },
   { id: "suggestions", label: "Feedback", icon: MessageSquareText },
   { id: "faqDrafts", label: "FAQ drafts", icon: BookOpenCheck },
@@ -423,7 +426,7 @@ function ConsolePageInner() {
     ? urlTab
     : legacyView === "settings"
       ? "settings"
-      : "submissions";
+      : "overview";
 
   const tab = initialTab;
   const [statusFilter, setStatusFilter] = useState("pending");
@@ -811,7 +814,9 @@ function ConsolePageInner() {
         )}
 
         <div className="mt-4">
-          {tab === "users" ? (
+          {tab === "overview" ? (
+            <AdminOverviewPanel />
+          ) : tab === "users" ? (
             <AdminUsersPanel />
           ) : tab === "settings" ? (
             <SettingsTab />
