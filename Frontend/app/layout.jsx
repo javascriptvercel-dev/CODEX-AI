@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/context/ThemeContext";
 import { AuthProvider } from "@/context/AuthContext";
 import RobotWidget from "@/components/robot/RobotWidget";
 import CookieNotice from "@/components/layout/CookieNotice";
+import ToastViewport from "@/components/ui/ToastViewport";
 const display = Space_Grotesk({
   subsets: ["latin"],
   variable: "--font-display",
@@ -124,6 +125,7 @@ export default function RootLayout({ children }) {
             {children}
             <RobotWidget />
             <CookieNotice />
+            <ToastViewport />
             <script
               type="application/ld+json"
               dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

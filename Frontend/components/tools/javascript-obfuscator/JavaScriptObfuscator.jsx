@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { api } from "@/lib/api";
+import { showToast } from "@/lib/toast";
 import { useAuth } from "@/context/AuthContext";
 
 const MAX_CODE_LENGTH = 50_000;
@@ -43,7 +44,6 @@ export default function JavaScriptObfuscator() {
   const [working, setWorking] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
   const [uploadFile, setUploadFile] = useState(null);
   const [uploading, setUploading] = useState(false);
 
@@ -69,13 +69,11 @@ export default function JavaScriptObfuscator() {
     setOutput("");
     setCopied(false);
     setError("");
-    setMessage("");
   }
 
   async function obfuscate(event) {
     event.preventDefault();
     setError("");
-    setMessage("");
     setOutput("");
     setCopied(false);
 
@@ -92,7 +90,7 @@ export default function JavaScriptObfuscator() {
     try {
       const result = await api.obfuscateJavaScript(source, mode);
       setOutput(result.code);
-      setMessage("Obfuscated code is ready. Review it before using it.");
+      showToast("Obfuscated code is ready. Review it before using it.");
     } catch (requestError) {
       setError(requestError?.message || "Could not obfuscate this code.");
     } finally {
@@ -105,6 +103,7 @@ export default function JavaScriptObfuscator() {
       await navigator.clipboard.writeText(output);
       setCopied(true);
       setError("");
+      showToast("Obfuscated code copied.");
     } catch {
       setError("Could not copy automatically. Select the output and copy it instead.");
     }
@@ -133,7 +132,6 @@ export default function JavaScriptObfuscator() {
     }
     setUploading(true);
     setError("");
-    setMessage("");
     try {
       const blob = await api.obfuscateJavaScriptUpload(uploadFile, mode);
       const downloadUrl = URL.createObjectURL(blob);
@@ -144,7 +142,7 @@ export default function JavaScriptObfuscator() {
       anchor.click();
       anchor.remove();
       window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
-      setMessage("Your obfuscated download is ready.");
+      showToast("Your obfuscated download is ready.");
     } catch (requestError) {
       setError(requestError?.message || "Could not obfuscate this upload.");
     } finally {
@@ -191,7 +189,6 @@ export default function JavaScriptObfuscator() {
                     setOutput("");
                     setCopied(false);
                     setError("");
-                    setMessage("");
                   }}
                   className="mt-1 accent-azure-500"
                 />
@@ -328,11 +325,6 @@ export default function JavaScriptObfuscator() {
             className="rounded-lg border border-red-500/30 bg-red-500/5 px-3 py-2 text-sm text-red-400"
           >
             {error}
-          </p>
-        )}
-        {message && (
-          <p role="status" className="text-sm text-azure-400">
-            {message}
           </p>
         )}
       </form>

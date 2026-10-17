@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, PackagePlus, UploadCloud } from "lucide-react";
 import { api } from "@/lib/api";
 import Button from "@/components/ui/Button";
+import { showToast } from "@/lib/toast";
 
 const CODE_PLACEHOLDER = `// Example
 const axios = require('axios');
@@ -57,6 +58,7 @@ export default function PluginSubmitForm({
       if (file) formData.append("file", file);
       await api.submitPlugin(formData);
       onSubmitted?.();
+      showToast("Submitted — you'll see it in the library once it's tested and approved.");
       setStatus({ state: "success", message: "Submitted — you'll see it in the library once it's tested and approved." });
     } catch (err) {
       setStatus({ state: "error", message: err?.message || "We could not submit this plugin. Please check the form and try again." });

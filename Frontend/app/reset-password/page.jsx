@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { api } from "@/lib/api";
 import Button from "@/components/ui/Button";
+import { showToast } from "@/lib/toast";
 function ResetPasswordInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -39,6 +40,7 @@ function ResetPasswordInner() {
     try {
       await api.resetPassword({ email, token, password });
       setDone(true);
+      showToast("Your password has been reset.");
     } catch (err) {
       setStatus({
         state: "error",

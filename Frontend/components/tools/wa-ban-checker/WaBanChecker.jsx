@@ -13,6 +13,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { api } from "@/lib/api";
+import { showToast } from "@/lib/toast";
 
 /* ------------------------------ constants ------------------------------ */
 
@@ -112,6 +113,7 @@ function Result({ r, onAgain }) {
     try {
       await navigator.clipboard.writeText(summaryText(r));
       setCopyLabel("Copied");
+      showToast("Ban check result copied.");
     } catch {
       setCopyLabel("Copy failed");
     }

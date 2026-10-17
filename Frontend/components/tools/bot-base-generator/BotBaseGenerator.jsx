@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Bot, Download, FileArchive, LoaderCircle, Sparkles } from "lucide-react";
 import { api } from "@/lib/api";
+import { showToast } from "@/lib/toast";
 
 const INITIAL_VALUES = {
   botName: "",
@@ -51,7 +52,7 @@ export default function BotBaseGenerator() {
     try {
       const archive = await api.generateBotBase(values);
       setArchive(archive);
-      setMessage("Your customized bot base is ready to download.");
+      showToast("Your customized bot base is ready to download.");
     } catch (error) {
       setIsError(true);
       setMessage(error.message || "The bot base couldn't be generated. Try again.");
@@ -197,13 +198,11 @@ export default function BotBaseGenerator() {
           </button>
         ) : null}
 
-        <p
-          role={isError ? "alert" : "status"}
-          aria-live="polite"
-          className={`text-sm ${isError ? "text-red-400" : "text-muted"}`}
-        >
-          {message}
-        </p>
+        {message && (
+          <p role="alert" aria-live="polite" className="text-sm text-red-400">
+            {message}
+          </p>
+        )}
       </form>
     </div>
   );

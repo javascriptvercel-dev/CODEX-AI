@@ -1,67 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Check, LoaderCircle, RefreshCw, Search, X } from "lucide-react";
+import { LoaderCircle, RefreshCw, Search } from "lucide-react";
 import AdminEditUserModal from "@/components/admin/AdminEditUserModal";
 import AdminDeleteUserModal from "@/components/admin/AdminDeleteUserModal";
 import { api } from "@/lib/api";
-
-function DeleteToast({ message, onDismiss }) {
-  const [visible, setVisible] = useState(false);
-  const touchStartX = useRef(null);
-  const exitTimer = useRef(null);
-
-  const dismiss = useCallback(() => {
-    if (exitTimer.current) return;
-    setVisible(false);
-    exitTimer.current = window.setTimeout(onDismiss, 250);
-  }, [onDismiss]);
-
-  useEffect(() => {
-    const frame = window.requestAnimationFrame(() => setVisible(true));
-    const timeout = window.setTimeout(dismiss, 6000);
-    return () => {
-      window.cancelAnimationFrame(frame);
-      window.clearTimeout(timeout);
-      window.clearTimeout(exitTimer.current);
-    };
-  }, [dismiss]);
-
-  return (
-    <aside
-      role="status"
-      aria-live="polite"
-      onTouchStart={(event) => {
-        touchStartX.current = event.changedTouches[0]?.clientX ?? null;
-      }}
-      onTouchEnd={(event) => {
-        if (
-          touchStartX.current !== null &&
-          Math.abs(event.changedTouches[0].clientX - touchStartX.current) > 48
-        ) {
-          dismiss();
-        }
-        touchStartX.current = null;
-      }}
-      className={`fixed inset-x-3 bottom-3 z-[80] mx-auto flex w-fit max-w-[calc(100vw-1.5rem)] items-center gap-3 rounded-xl border border-emerald-500/30 bg-surface p-3.5 text-sm text-emerald-500 shadow-2xl transition-[opacity,transform] duration-200 ease-out sm:inset-x-auto sm:bottom-5 sm:right-5 ${
-        visible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
-      }`}
-    >
-      <span className="grid h-9 w-9 flex-none place-items-center rounded-lg bg-emerald-500/10">
-        <Check size={18} aria-hidden="true" />
-      </span>
-      <p className="min-w-0 flex-1 break-words">{message}</p>
-      <button
-        type="button"
-        onClick={dismiss}
-        aria-label="Dismiss deletion notification"
-        className="focus-ring grid h-8 w-8 flex-none place-items-center rounded-md text-muted transition hover:bg-surface2 hover:text-fg"
-      >
-        <X size={16} aria-hidden="true" />
-      </button>
-    </aside>
-  );
-}
+import { showToast } from "@/lib/toast";
 
 export default function UsersPanel() {
   const [users, setUsers] = useState([]);
@@ -74,13 +18,9 @@ export default function UsersPanel() {
   const [busyId, setBusyId] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [notice, setNotice] = useState("");
-  const [deleteToast, setDeleteToast] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
   const [deletingUser, setDeletingUser] = useState(null);
   const debounceRef = useRef(null);
-  const dismissDeleteToast = useCallback(() => setDeleteToast(""), []);
-
   // Debounced search: one request after the admin stops typing.
   useEffect(() => {
     clearTimeout(debounceRef.current);
@@ -130,7 +70,6 @@ export default function UsersPanel() {
   async function saveUser(userId, changes) {
     setBusyId(userId);
     setError("");
-    setNotice("");
     try {
       const result = await api.updateAdminUser(userId, changes);
       setSelectedUser((current) =>
@@ -144,7 +83,7 @@ export default function UsersPanel() {
             }
           : current,
       );
-      setNotice(
+      showToast(
         result.isPremium && result.premiumUntil
           ? "Saved. Premium grant recorded in the history."
           : "User updated.",
@@ -163,10 +102,11 @@ export default function UsersPanel() {
   async function deleteUser(target) {
     setBusyId(target.id);
     setError("");
-    setNotice("");
     try {
       const result = await api.deleteAdminUser(target.id);
-      setDeleteToast(result.cleanupWarning || `Deleted ${target.email}.`);
+      showToast(result.cleanupWarning || `Deleted ${target.email}.`, {
+        type: result.cleanupWarning ? "warning" : "success",
+      });
       setDeletingUser(null);
       setSelectedUser(null);
       if (users.length === 1 && page > 1) {
@@ -204,7 +144,6 @@ export default function UsersPanel() {
             placeholder="Search name or email"
             onChange={(event) => {
               setError("");
-              setNotice("");
               setSearchInput(event.target.value);
             }}
             className="focus-ring h-10 w-full rounded-lg border border-edge bg-surface2 pl-9 pr-3 text-sm text-fg outline-none"
@@ -213,8 +152,6 @@ export default function UsersPanel() {
       </div>
 
       {error && <p role="alert" className="mt-4 rounded-lg border border-red-400/30 bg-red-400/5 p-3 text-sm text-red-400">{error}</p>}
-      {notice && <p role="status" className="mt-4 rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3 text-sm text-emerald-500">{notice}</p>}
-
       {loading ? (
         <div className="grid min-h-36 place-items-center text-sm text-muted">
           <span className="inline-flex items-center gap-2"><LoaderCircle size={14} className="animate-spin" /> Loading users…</span>
@@ -233,7 +170,6 @@ export default function UsersPanel() {
                 onClick={() => {
                   setSelectedUser(account);
                   setError("");
-                  setNotice("");
                 }}
                 className="focus-ring flex w-full items-center justify-between gap-3 py-4 text-left hover:bg-surface2/40"
               >
@@ -317,13 +253,6 @@ export default function UsersPanel() {
           busy={busyId === deletingUser.id}
           onClose={() => setDeletingUser(null)}
           onConfirm={deleteUser}
-        />
-      )}
-      {deleteToast && (
-        <DeleteToast
-          key={deleteToast}
-          message={deleteToast}
-          onDismiss={dismissDeleteToast}
         />
       )}
     </section>

@@ -16,6 +16,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { api } from "@/lib/api";
+import { showToast } from "@/lib/toast";
 import VerifiedBadge from "@/components/ui/VerifiedBadge";
 
 function SubmissionStatusBadge({ status }) {
@@ -146,9 +147,11 @@ export default function SubmissionCard({
     try {
       await navigator.clipboard.writeText(code);
       setCopied(true);
+      showToast("Plugin code copied.");
       setTimeout(() => setCopied(false), 1500);
     } catch {
       setCopied(false);
+      showToast("Could not copy plugin code.", { type: "warning" });
     }
   };
 
@@ -163,7 +166,10 @@ export default function SubmissionCard({
       }
     });
     setConfirmApprove(null);
-    if (ok) closeAll();
+    if (ok) {
+      showToast("Plugin approved.");
+      closeAll();
+    }
   };
 
   const handleConfirmReject = async () => {
@@ -171,7 +177,10 @@ export default function SubmissionCard({
       await onReject(submission.id, rejectionNote);
     });
     setShowRejectPrompt(false);
-    if (ok) closeAll();
+    if (ok) {
+      showToast("Plugin rejected.");
+      closeAll();
+    }
   };
 
   // Handle Tab key indentation in textarea

@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, CalendarDays, Check, Copy, User } from "lucide-react";
 import VerifiedBadge from "@/components/ui/VerifiedBadge";
+import { showToast } from "@/lib/toast";
 
 function formatDate(value) {
   if (!value) return "—";
@@ -19,9 +20,11 @@ function CopyAction({ label, value }) {
     try {
       await navigator.clipboard.writeText(value);
       setCopied(true);
+      showToast("Copied to clipboard.");
       window.setTimeout(() => setCopied(false), 1500);
     } catch {
       setCopied(false);
+      showToast("Could not copy to clipboard.", { type: "warning" });
     }
   };
 

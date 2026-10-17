@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { API_URL } from "@/lib/api";
 import Button from "@/components/ui/Button";
+import { showToast } from "@/lib/toast";
 const FAIL_PATTERN = /unavailable|failed|invalid|error/i;
 export default function PairConsole() {
   const [mode, setMode] = useState("pair");
@@ -71,6 +72,7 @@ export default function PairConsole() {
           setQr(null);
           setLoading(false);
           setResult({ state: "ok", text: "Connected successfully. Check WhatsApp for your session ID." });
+          showToast("WhatsApp connected successfully.");
           return;
         }
         if (data.state === "failed") {
@@ -123,6 +125,7 @@ export default function PairConsole() {
           ? data.error || "We could not generate a pairing code. Please verify the number and try again."
           : code,
       });
+      if (!failed) showToast("Pairing code generated.");
     } catch (error) {
       if (error?.name === "AbortError") return;
       setResult({
@@ -148,6 +151,7 @@ export default function PairConsole() {
       return;
     }
     setCopied(true);
+    showToast("Pairing code copied.");
     setTimeout(() => setCopied(false), 1500);
   };
   return (

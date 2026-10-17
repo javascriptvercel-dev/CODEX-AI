@@ -22,6 +22,7 @@ import Button from "@/components/ui/Button";
 import StateBlock from "@/components/ui/StateBlock";
 import SubmissionCard from "@/components/admin/SubmissionCard";
 import { api } from "@/lib/api";
+import { showToast } from "@/lib/toast";
 
 const cardClass = "rounded-xl border border-edge bg-surface p-4 sm:p-5";
 const fieldClass = "focus-ring w-full rounded-lg border border-edge bg-surface2 px-3 py-2.5 text-sm text-fg outline-none";
@@ -57,17 +58,15 @@ function Metric({ icon: Icon, label, value, detail }) {
 function AdminAccountForm({ premiumAvailable }) {
   const [form, setForm] = useState({ fullName: "", email: "", password: "", grantPremium: false });
   const [busy, setBusy] = useState(false);
-  const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
 
   async function submit(event) {
     event.preventDefault();
     setBusy(true);
-    setNotice("");
     setError("");
     try {
       const { account } = await api.createAdminAccount(form);
-      setNotice(`Created ${account.email}${account.premiumUntil ? ` with Premium until ${formatDate(account.premiumUntil)}` : ""}.`);
+      showToast(`Created ${account.email}${account.premiumUntil ? ` with Premium until ${formatDate(account.premiumUntil)}` : ""}.`);
       setForm({ fullName: "", email: "", password: "", grantPremium: false });
     } catch (requestError) {
       setError(requestError.message);
@@ -107,7 +106,6 @@ function AdminAccountForm({ premiumAvailable }) {
           </Button>
         </div>
       </form>
-      {notice && <p role="status" className="mt-3 text-sm text-emerald-500">{notice}</p>}
       {error && <p role="alert" className="mt-3 text-sm text-red-400">{error}</p>}
     </section>
   );
@@ -129,6 +127,7 @@ function IntegrationManager({ tokens, onRefresh }) {
       const result = await api.createIntegrationToken(name);
       setSecret(result.secret);
       setName("");
+      showToast("Integration key created. Copy it now; it will not be shown again.");
       await onRefresh();
     } catch (requestError) {
       setError(requestError.message);
@@ -141,6 +140,7 @@ function IntegrationManager({ tokens, onRefresh }) {
     setError("");
     try {
       await api.revokeIntegrationToken(id);
+      showToast("Integration key revoked.");
       await onRefresh();
     } catch (requestError) {
       setError(requestError.message);
@@ -151,6 +151,7 @@ function IntegrationManager({ tokens, onRefresh }) {
     try {
       await navigator.clipboard.writeText(secret);
       setCopied(true);
+      showToast("Integration key copied.");
     } catch {
       setError("Copy failed. Select and copy the integration key manually.");
     }
@@ -220,7 +221,6 @@ export default function AdminOverviewPanel() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [notice, setNotice] = useState("");
   const clickDays = lastSevenClickDays(data?.links.dailyClicks);
   const maxDailyClicks = Math.max(1, ...clickDays.map((entry) => entry.clicks));
 
@@ -326,10 +326,9 @@ export default function AdminOverviewPanel() {
     event.preventDefault();
     setBusy(true);
     setError("");
-    setNotice("");
     try {
       await api.saveDashboardToolSettings("javascript-obfuscator", { mode });
-      setNotice("Obfuscator settings saved.");
+      showToast("Obfuscator settings saved.");
       await refresh();
     } catch (requestError) {
       setError(requestError.message);
@@ -356,8 +355,6 @@ export default function AdminOverviewPanel() {
         </Button>
       </div>
       {error && <p role="alert" className="rounded-lg border border-red-400/30 bg-red-400/5 p-3 text-sm text-red-400">{error}</p>}
-      {notice && <p role="status" className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3 text-sm text-emerald-500">{notice}</p>}
-
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="Account overview">
         <Metric icon={Activity} label="Tool runs" value={data.usage.totalRuns} detail="Last 30 days" />
         <Metric icon={Link2} label="Short links" value={data.links.total} detail={`${data.links.maxActive ?? "Unlimited"} active-link capacity`} />

@@ -5,6 +5,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import Button from "@/components/ui/Button";
 import { api } from "@/lib/api";
+import { showToast } from "@/lib/toast";
 
 export default function SuggestPage() {
   const [email, setEmail] = useState("");
@@ -19,7 +20,8 @@ export default function SuggestPage() {
 
     try {
       await api.submitSuggestion({ email, idea });
-      setStatus({ state: "success", message: "Thanks — your idea is in." });
+      showToast("Thanks — your idea is in.");
+      setStatus({ state: "idle", message: "" });
       setEmail("");
       setIdea("");
     } catch (error) {
@@ -78,7 +80,7 @@ export default function SuggestPage() {
               />
             </label>
 
-            {status.message ? (
+            {status.state === "error" && status.message ? (
               <p className={`text-sm ${status.state === "error" ? "text-red-400" : "text-azure-500"}`}>
                 {status.message}
               </p>

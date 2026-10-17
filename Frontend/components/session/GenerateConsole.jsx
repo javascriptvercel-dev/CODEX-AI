@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { API_URL } from "@/lib/api";
+import { showToast } from "@/lib/toast";
 
 function buildScript({
   name,
@@ -59,15 +60,20 @@ export default function GenerateConsole() {
         autostatus: autostatus ? "true" : "false",
       })
     );
+    showToast("Your index.js is ready.");
   };
 
   const copyCode = async () => {
     if (!code) return;
 
-    await navigator.clipboard.writeText(code);
-    setCopied(true);
-
-    setTimeout(() => setCopied(false), 1500);
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      showToast("Code copied.");
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      showToast("Could not copy the generated code.", { type: "warning" });
+    }
   };
 
   const downloadCode = () => {

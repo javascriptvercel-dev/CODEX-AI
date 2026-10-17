@@ -25,6 +25,7 @@ import StateBlock from "@/components/ui/StateBlock";
 import VerifiedBadge from "@/components/ui/VerifiedBadge";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
+import { showToast } from "@/lib/toast";
 
 const cardClass = "rounded-xl border border-edge bg-surface p-5 sm:p-6";
 const fieldClass = "focus-ring w-full rounded-lg border border-edge bg-surface2 px-3 py-2.5 text-sm text-fg outline-none";
@@ -67,7 +68,6 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [notice, setNotice] = useState("");
   const [settings, setSettings] = useState([]);
   const [mode, setMode] = useState("easy");
   const clickDays = lastSevenClickDays(data?.links.dailyClicks);
@@ -129,7 +129,7 @@ export default function DashboardPage() {
     setError("");
     try {
       await api.saveDashboardToolSettings("javascript-obfuscator", { mode });
-      setNotice("Obfuscator settings saved.");
+      showToast("Obfuscator settings saved.");
       await loadDashboard();
     } catch (requestError) {
       setError(requestError.message);
@@ -179,7 +179,6 @@ export default function DashboardPage() {
                   {error}
                 </div>
               )}
-              {notice && <p role="status" className="mb-5 rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3 text-sm text-emerald-500">{notice}</p>}
               {loading && !data ? (
                 <div className="grid min-h-64 place-items-center"><LoaderCircle className="animate-spin text-azure-500" /></div>
               ) : error && !data ? (

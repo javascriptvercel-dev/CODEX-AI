@@ -14,6 +14,7 @@ import {
 import Button from "@/components/ui/Button";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
+import { showToast } from "@/lib/toast";
 
 export default function UrlShortener() {
   const { user } = useAuth();
@@ -23,7 +24,6 @@ export default function UrlShortener() {
   const [creating, setCreating] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
   const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
   const [copiedId, setCopiedId] = useState(null);
 
   useEffect(() => {
@@ -51,7 +51,7 @@ export default function UrlShortener() {
     try {
       await navigator.clipboard.writeText(link.shortUrl);
       setCopiedId(link.id);
-      setMessage("Short link copied.");
+      showToast("Short link copied.");
       setError("");
     } catch {
       setError("Could not copy automatically. Select and copy the link instead.");
@@ -62,12 +62,11 @@ export default function UrlShortener() {
     event.preventDefault();
     setCreating(true);
     setError("");
-    setMessage("");
     try {
       const { link } = await api.createShortLink(url);
       setLinks((current) => [link, ...current].slice(0, maxLinks));
       setUrl("");
-      setMessage("Your short link is ready.");
+      showToast("Your short link is ready.");
     } catch (err) {
       setError(err?.message || "Could not create the short link.");
     } finally {
@@ -81,11 +80,10 @@ export default function UrlShortener() {
     }
     setDeletingId(link.id);
     setError("");
-    setMessage("");
     try {
       await api.deleteShortLink(link.id);
       setLinks((current) => current.filter((item) => item.id !== link.id));
-      setMessage("Short link deleted.");
+      showToast("Short link deleted.");
     } catch (err) {
       setError(err?.message || "Could not delete the short link.");
     } finally {
@@ -154,12 +152,6 @@ export default function UrlShortener() {
             {error}
           </p>
         )}
-        {message && (
-          <p role="status" className="text-sm text-azure-400">
-            {message}
-          </p>
-        )}
-
         <section aria-labelledby="your-short-links">
           <div className="flex items-center justify-between gap-3 border-b border-edge pb-3">
             <h3 id="your-short-links" className="font-display font-bold">

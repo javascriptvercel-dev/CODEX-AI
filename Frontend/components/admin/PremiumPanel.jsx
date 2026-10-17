@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Crown, LoaderCircle, RefreshCw } from "lucide-react";
 import AdminEditUserModal from "@/components/admin/AdminEditUserModal";
 import { api } from "@/lib/api";
+import { showToast } from "@/lib/toast";
 
 const cardClass = "rounded-xl border border-edge bg-surface p-4 sm:p-5";
 const formatDate = (value) =>
@@ -37,7 +38,6 @@ export default function PremiumPanel() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [notice, setNotice] = useState("");
   const [busyId, setBusyId] = useState("");
   const [editingUser, setEditingUser] = useState(null);
 
@@ -66,7 +66,6 @@ export default function PremiumPanel() {
   async function renew(member, days = 30) {
     setBusyId(member.id);
     setError("");
-    setNotice("");
     try {
       await api.updateAdminUser(member.id, {
         fullName: member.fullName || "Unnamed account",
@@ -75,7 +74,7 @@ export default function PremiumPanel() {
         premiumUntil: getRenewalExpiration(member, days),
         grantNote: `Renewed +${days} days from the Premium tab`,
       });
-      setNotice(`Extended ${member.email} by ${days} days.`);
+      showToast(`Extended ${member.email} by ${days} days.`);
       await refresh();
     } catch (requestError) {
       setError(requestError.message || "Could not renew Premium.");
@@ -132,8 +131,6 @@ export default function PremiumPanel() {
   return (
     <div className="space-y-6">
       {error && <p role="alert" className="rounded-lg border border-red-400/30 bg-red-400/5 p-3 text-sm text-red-400">{error}</p>}
-      {notice && <p role="status" className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3 text-sm text-emerald-500">{notice}</p>}
-
       <section className={cardClass}>
         <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
           <div>
@@ -281,10 +278,9 @@ export default function PremiumPanel() {
           onSave={async (id, changes) => {
             setBusyId(id);
             setError("");
-            setNotice("");
             try {
               await api.updateAdminUser(id, changes);
-              setNotice("Saved. The grant history has been updated.");
+              showToast("Saved. The grant history has been updated.");
               setEditingUser(null);
               await load();
             } catch (requestError) {

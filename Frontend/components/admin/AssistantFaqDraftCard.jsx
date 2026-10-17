@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { BookOpenCheck, Check, X } from "lucide-react";
 import { api } from "@/lib/api";
+import { showToast } from "@/lib/toast";
 
 export default function AssistantFaqDraftCard({ faq, onReviewed }) {
   const [question, setQuestion] = useState(faq.question);
@@ -20,6 +21,7 @@ export default function AssistantFaqDraftCard({ faq, onReviewed }) {
         answer,
       });
       await onReviewed();
+      showToast(status === "approved" ? "FAQ draft approved." : "FAQ draft rejected.");
     } catch (err) {
       setError(err?.message || "Could not update this FAQ draft.");
     } finally {
