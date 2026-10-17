@@ -1,10 +1,67 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { LoaderCircle, RefreshCw, Search } from "lucide-react";
+import { Check, LoaderCircle, RefreshCw, Search, X } from "lucide-react";
 import AdminEditUserModal from "@/components/admin/AdminEditUserModal";
 import AdminDeleteUserModal from "@/components/admin/AdminDeleteUserModal";
 import { api } from "@/lib/api";
+
+function DeleteToast({ message, onDismiss }) {
+  const [visible, setVisible] = useState(false);
+  const touchStartX = useRef(null);
+  const exitTimer = useRef(null);
+
+  const dismiss = useCallback(() => {
+    if (exitTimer.current) return;
+    setVisible(false);
+    exitTimer.current = window.setTimeout(onDismiss, 250);
+  }, [onDismiss]);
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => setVisible(true));
+    const timeout = window.setTimeout(dismiss, 6000);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(timeout);
+      window.clearTimeout(exitTimer.current);
+    };
+  }, [dismiss]);
+
+  return (
+    <aside
+      role="status"
+      aria-live="polite"
+      onTouchStart={(event) => {
+        touchStartX.current = event.changedTouches[0]?.clientX ?? null;
+      }}
+      onTouchEnd={(event) => {
+        if (
+          touchStartX.current !== null &&
+          Math.abs(event.changedTouches[0].clientX - touchStartX.current) > 48
+        ) {
+          dismiss();
+        }
+        touchStartX.current = null;
+      }}
+      className={`fixed inset-x-3 bottom-3 z-[80] mx-auto flex w-fit max-w-[calc(100vw-1.5rem)] items-center gap-3 rounded-xl border border-emerald-500/30 bg-surface p-3.5 text-sm text-emerald-500 shadow-2xl transition-[opacity,transform] duration-200 ease-out sm:inset-x-auto sm:bottom-5 sm:right-5 ${
+        visible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
+      }`}
+    >
+      <span className="grid h-9 w-9 flex-none place-items-center rounded-lg bg-emerald-500/10">
+        <Check size={18} aria-hidden="true" />
+      </span>
+      <p className="min-w-0 flex-1 break-words">{message}</p>
+      <button
+        type="button"
+        onClick={dismiss}
+        aria-label="Dismiss deletion notification"
+        className="focus-ring grid h-8 w-8 flex-none place-items-center rounded-md text-muted transition hover:bg-surface2 hover:text-fg"
+      >
+        <X size={16} aria-hidden="true" />
+      </button>
+    </aside>
+  );
+}
 
 export default function UsersPanel() {
   const [users, setUsers] = useState([]);
@@ -18,9 +75,11 @@ export default function UsersPanel() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [deleteToast, setDeleteToast] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
   const [deletingUser, setDeletingUser] = useState(null);
   const debounceRef = useRef(null);
+  const dismissDeleteToast = useCallback(() => setDeleteToast(""), []);
 
   // Debounced search: one request after the admin stops typing.
   useEffect(() => {
@@ -107,8 +166,7 @@ export default function UsersPanel() {
     setNotice("");
     try {
       const result = await api.deleteAdminUser(target.id);
-      if (result.cleanupWarning) setNotice(result.cleanupWarning);
-      else setNotice(`Deleted ${target.email}.`);
+      setDeleteToast(result.cleanupWarning || `Deleted ${target.email}.`);
       setDeletingUser(null);
       setSelectedUser(null);
       if (users.length === 1 && page > 1) {
@@ -259,6 +317,13 @@ export default function UsersPanel() {
           busy={busyId === deletingUser.id}
           onClose={() => setDeletingUser(null)}
           onConfirm={deleteUser}
+        />
+      )}
+      {deleteToast && (
+        <DeleteToast
+          key={deleteToast}
+          message={deleteToast}
+          onDismiss={dismissDeleteToast}
         />
       )}
     </section>
