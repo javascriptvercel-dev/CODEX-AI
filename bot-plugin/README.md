@@ -14,7 +14,13 @@ The URL is unlisted, not access-controlled. Do not put secrets in the plugin sou
 
 ## Use
 
-Send these commands in a private chat with the bot:
+The plugin can be tested in a group without exposing credentials:
+
+```text
+.createaccount test
+```
+
+Log in and create accounts only in a private chat with the bot:
 
 ```text
 .createaccount login <admin-email> | <admin-password>
@@ -24,4 +30,4 @@ Send these commands in a private chat with the bot:
 
 Login is verified by the CODEX AI website's existing `/api/auth/login` endpoint, and the plugin only accepts a successful login whose returned user role is `admin`. The session stays in memory for 15 minutes and is cleared when the bot restarts. Five failed attempts lock that sender for 10 minutes. Account creation uses the authenticated admin-only website endpoint; no integration token is needed in the plugin.
 
-Treat the login command as sensitive: send it only in a private bot chat, never in a group. The website password is sent to the website over HTTPS for verification and is not saved by the plugin. Newly generated account credentials are returned only in the private chat. Premium grants work only when Premium is enabled on the website.
+In groups, `test` confirms the plugin is active. Login, logout, and account creation are restricted to a private chat, so admin credentials and new account passwords are never posted to a group. The website password is sent to the website over HTTPS for verification and is not saved by the plugin. The website's admin role is the authorization check. Newly generated account credentials are returned only in the private chat. Premium grants work only when Premium is enabled on the website.
