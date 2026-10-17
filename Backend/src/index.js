@@ -12,6 +12,7 @@ import { getPublicStats } from "./controllers/stats.controller.js";
 import sessionRouter from "./session/router.js";
 import dashboardRoutes from "./routes/dashboard.routes.js";
 const app = express();
+app.set("trust proxy", env.trustProxyHops);
 app.use(cors({ origin: env.frontendUrl, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());

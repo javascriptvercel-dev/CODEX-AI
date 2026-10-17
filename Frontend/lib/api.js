@@ -110,6 +110,8 @@ export const api = {
       body: JSON.stringify({ note }),
     }),
   adminSuggestions: () => request("/api/admin/suggestions"),
+  adminStats: () => request("/api/admin/stats"),
+  adminPremium: () => request("/api/admin/premium"),
   adminUsers: ({ page = 1, q = "" } = {}) =>
     request(`/api/admin/users?page=${page}&q=${encodeURIComponent(q)}`),
   updateAdminUser: (id, body) =>
@@ -168,11 +170,6 @@ export const api = {
     }),
   createAdminAccount: (body) =>
     request("/api/dashboard/admin/accounts", { method: "POST", body: JSON.stringify(body) }),
-  integrationTokens: () => request("/api/dashboard/admin/integrations"),
-  createIntegrationToken: (name) =>
-    request("/api/dashboard/admin/integrations", { method: "POST", body: JSON.stringify({ name }) }),
-  revokeIntegrationToken: (id) =>
-    request(`/api/dashboard/admin/integrations/${encodeURIComponent(id)}`, { method: "DELETE" }),
   shortLinks: () => request("/api/tools/short-links"),
   createShortLink: (url) =>
     request("/api/tools/short-links", {
@@ -184,4 +181,4 @@ export const api = {
       method: "DELETE",
     }),
 };
-export const CREATE_SESSION_MAX_AGE_MS = 45 * 60 * 1000;
+export const CREATE_SESSION_MAX_AGE_MS = 12 * 60 * 60 * 1000;

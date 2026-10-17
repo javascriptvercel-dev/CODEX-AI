@@ -11,6 +11,7 @@ import {
   RefreshCw,
   Search,
   Settings,
+  Crown,
   ShieldCheck,
   Trash2,
   Users,
@@ -27,7 +28,9 @@ import StateBlock from "@/components/ui/StateBlock";
 import AdminEmailOptInModal, {
   shouldShowEmailPrompt,
 } from "@/components/admin/AdminEmailOptInModal";
-import AdminOverviewPanel from "@/components/admin/AdminOverviewPanel";
+import AdminOverview from "@/components/admin/AdminOverview";
+import UsersPanel from "@/components/admin/UsersPanel";
+import PremiumPanel from "@/components/admin/PremiumPanel";
 import PluginSubmitForm from "@/components/plugins/PluginSubmitForm";
 import VerifiedBadge from "@/components/ui/VerifiedBadge";
 import { useAuth } from "@/context/AuthContext";
@@ -47,374 +50,12 @@ const TABS = [
   { id: "suggestions", label: "Feedback", icon: MessageSquareText },
   { id: "faqDrafts", label: "FAQ drafts", icon: BookOpenCheck },
   { id: "users", label: "Users", icon: Users },
+  { id: "premium", label: "Premium", icon: Crown },
   { id: "create", label: "Create plugin", icon: PackagePlus },
   { id: "settings", label: "Settings", icon: Settings },
 ];
 const TAB_IDS = TABS.map((t) => t.id);
 const STATUSES = ["pending", "approved", "rejected"];
-
-function AdminUserEditor({ user, premiumEnabled, busy, onSave, onDelete, onBack }) {
-  const [fullName, setFullName] = useState(user.fullName || "");
-  const [email, setEmail] = useState(user.email);
-  const [isPremium, setIsPremium] = useState(user.isPremium);
-  const [premiumDate, setPremiumDate] = useState(user.premiumUntil?.slice(0, 10) || "");
-
-  function updatePremiumStatus(value) {
-    setIsPremium(value);
-    if (value && (!premiumDate || Date.parse(`${premiumDate}T23:59:59.999Z`) <= Date.now())) {
-      const defaultExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-      setPremiumDate(defaultExpiry.toISOString().slice(0, 10));
-    }
-  }
-
-  async function save(event) {
-    event.preventDefault();
-    const changes = { fullName, email };
-    if (premiumEnabled) {
-      changes.isPremium = isPremium;
-      changes.premiumUntil = isPremium
-        ? new Date(`${premiumDate}T23:59:59.999Z`).toISOString()
-        : null;
-    }
-    await onSave(user.id, changes);
-  }
-
-  return (
-    <section className="rounded-xl border border-edge bg-surface p-4 sm:p-6">
-      <button
-        type="button"
-        onClick={onBack}
-        className="focus-ring mb-5 inline-flex items-center gap-1.5 text-sm font-semibold text-azure-500 hover:underline"
-      >
-        ← Back to search results
-      </button>
-      <div className="mb-5 flex flex-wrap items-center gap-2">
-        <div>
-          <h3 className="font-display text-lg font-bold">Edit user</h3>
-          <p className="mt-1 text-xs text-muted">Joined {new Date(user.createdAt).toLocaleDateString()}</p>
-        </div>
-        <span className={`ml-auto rounded-full px-2.5 py-1 text-xs font-semibold ${
-          user.role === "admin" ? "bg-violet-500/10 text-violet-400" : "bg-surface2 text-muted"
-        }`}>
-          {user.role}
-        </span>
-      </div>
-
-      <form onSubmit={save} className="grid gap-4 sm:max-w-xl">
-        <label className="text-sm font-medium">
-          <span className="mb-1.5 block text-muted">Name</span>
-          <input
-            required
-            maxLength={100}
-            value={fullName}
-            onChange={(event) => setFullName(event.target.value)}
-            className="focus-ring h-10 w-full rounded-lg border border-edge bg-surface2 px-3 text-sm text-fg"
-          />
-        </label>
-        <label className="text-sm font-medium">
-          <span className="mb-1.5 block text-muted">Email</span>
-          <input
-            required
-            type="email"
-            maxLength={254}
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            className="focus-ring h-10 w-full rounded-lg border border-edge bg-surface2 px-3 text-sm text-fg"
-          />
-        </label>
-        {user.role === "admin" ? (
-          <div className="rounded-lg border border-amber-400/25 bg-amber-400/5 p-4 text-sm">
-            <p className="font-semibold text-amber-400">Premium — no expiration</p>
-            <p className="mt-1 text-xs text-muted">Administrator accounts have permanent Premium status.</p>
-          </div>
-        ) : premiumEnabled && (
-          <div className="grid gap-4 rounded-lg border border-edge bg-surface2/40 p-4 sm:grid-cols-2">
-            <label className="text-sm font-medium">
-              <span className="mb-1.5 block text-muted">Account status</span>
-              <select
-                value={isPremium ? "premium" : "free"}
-                onChange={(event) => updatePremiumStatus(event.target.value === "premium")}
-                className="focus-ring h-10 w-full rounded-lg border border-edge bg-surface2 px-3 text-sm text-fg"
-              >
-                <option value="free">Free</option>
-                <option value="premium">Premium</option>
-              </select>
-            </label>
-            {isPremium && (
-              <label className="text-sm font-medium">
-                <span className="mb-1.5 block text-muted">Premium through</span>
-                <input
-                  required
-                  type="date"
-                  value={premiumDate}
-                  onChange={(event) => setPremiumDate(event.target.value)}
-                  className="focus-ring h-10 w-full rounded-lg border border-edge bg-surface2 px-3 text-sm text-fg"
-                />
-              </label>
-            )}
-          </div>
-        )}
-
-        <div className="flex flex-wrap items-center gap-2 pt-1">
-          <button
-            type="submit"
-            disabled={busy}
-            className="focus-ring h-10 rounded-lg border border-azure-500 bg-azure-500 px-4 text-sm font-semibold text-white hover:bg-azure-600 disabled:opacity-50"
-          >
-            {busy ? "Saving…" : "Save changes"}
-          </button>
-          <button
-            type="button"
-            disabled={busy || user.role === "admin"}
-            title={user.role === "admin" ? "Administrator accounts cannot be deleted here." : "Delete account"}
-            onClick={() => onDelete(user)}
-            className="focus-ring inline-flex h-10 items-center gap-1.5 rounded-lg border border-red-500/30 px-4 text-sm font-semibold text-red-400 hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            <Trash2 size={14} />
-            Delete account
-          </button>
-        </div>
-      </form>
-    </section>
-  );
-}
-
-function AdminUsersPanel() {
-  const [users, setUsers] = useState([]);
-  const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
-  const [pageSize, setPageSize] = useState(25);
-  const [premiumEnabled, setPremiumEnabled] = useState(false);
-  const [busyId, setBusyId] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [notice, setNotice] = useState("");
-  const [reloadKey, setReloadKey] = useState(0);
-  const [selectedUser, setSelectedUser] = useState(null);
-
-  useEffect(() => {
-    let active = true;
-    api.adminUsers({ page, q: search.trim() })
-      .then((result) => {
-        if (!active) return;
-        setUsers(result.users);
-        setTotal(result.total);
-        setPageSize(result.pageSize);
-        setPremiumEnabled(result.premiumEnabled);
-      })
-      .catch((requestError) => {
-        if (!active) return;
-        setUsers([]);
-        setError(requestError.message || "Could not load users.");
-      })
-      .finally(() => {
-        if (active) setLoading(false);
-      });
-    return () => {
-      active = false;
-    };
-  }, [page, reloadKey, search]);
-
-  function reloadUsers() {
-    setLoading(true);
-    setError("");
-    setReloadKey((current) => current + 1);
-  }
-
-  async function saveUser(userId, changes) {
-    setBusyId(userId);
-    setError("");
-    setNotice("");
-    try {
-      const result = await api.updateAdminUser(userId, changes);
-      const updatedUser = {
-        ...selectedUser,
-        ...result,
-        fullName: result.fullName,
-        email: result.email,
-        premiumUntil: result.premiumUntil || null,
-        isPremium: result.isPremium,
-      };
-      setSelectedUser(updatedUser);
-      setUsers((current) => current.map((account) =>
-        account.id === userId ? { ...account, ...updatedUser } : account,
-      ));
-      setReloadKey((current) => current + 1);
-      setNotice("User updated.");
-    } catch (requestError) {
-      setError(requestError.message || "Could not update this user.");
-    } finally {
-      setBusyId("");
-    }
-  }
-
-  async function deleteAccount(target) {
-    if (!window.confirm(`Permanently delete ${target.email} and their account data? This cannot be undone.`)) return;
-    setBusyId(target.id);
-    setError("");
-    setNotice("");
-    try {
-      const result = await api.deleteAdminUser(target.id);
-      if (result.cleanupWarning) setNotice(result.cleanupWarning);
-      else setNotice(`Deleted ${target.email}.`);
-      setSelectedUser(null);
-      if (users.length === 1 && page > 1) {
-        setLoading(true);
-        setPage((current) => current - 1);
-      }
-      else {
-        setUsers((current) => current.filter((user) => user.id !== target.id));
-        setTotal((current) => Math.max(0, current - 1));
-      }
-    } catch (requestError) {
-      setError(requestError.message || "Could not delete this account.");
-    } finally {
-      setBusyId("");
-    }
-  }
-
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
-
-  return (
-    <section className="rounded-xl border border-edge bg-surface p-4 sm:p-5">
-      <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
-        <div>
-          <h2 className="font-display text-lg font-bold">Users</h2>
-          <p className="mt-1 text-xs text-muted">All accounts are listed below. Search by name or email to narrow the list.</p>
-        </div>
-        <label className="relative block w-full sm:max-w-xs">
-          <span className="sr-only">Search users by name or email</span>
-          <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
-          <input
-            type="search"
-            value={search}
-            maxLength={100}
-            placeholder="Search name or email"
-            onChange={(event) => {
-              setLoading(true);
-              setError("");
-              setNotice("");
-              setSelectedUser(null);
-              setSearch(event.target.value);
-              setPage(1);
-            }}
-            className="focus-ring h-10 w-full rounded-lg border border-edge bg-surface2 pl-9 pr-3 text-sm text-fg outline-none"
-          />
-        </label>
-      </div>
-
-      {!premiumEnabled && (
-        <p className="mt-4 rounded-lg border border-amber-400/25 bg-amber-400/5 p-3 text-xs text-amber-400">
-          Premium editing and account integrations are disabled. In Supabase, run migration 012 first if it has not
-          been applied, then run <code className="font-mono">migration_013_premium_dashboard.sql</code>. In Render,
-          set <code className="font-mono">PREMIUM_FEATURES_ENABLED=true</code> and restart the backend. User listing,
-          profile editing, and account deletion remain available without Premium.
-        </p>
-      )}
-      {error && <p role="alert" className="mt-4 rounded-lg border border-red-400/30 bg-red-400/5 p-3 text-sm text-red-400">{error}</p>}
-      {notice && <p role="status" className="mt-4 rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3 text-sm text-emerald-500">{notice}</p>}
-
-      {selectedUser ? (
-        <div className="mt-5">
-          <AdminUserEditor
-            key={`${selectedUser.id}-${selectedUser.email}-${selectedUser.fullName}-${selectedUser.premiumUntil}`}
-            user={selectedUser}
-            premiumEnabled={premiumEnabled}
-            busy={busyId === selectedUser.id}
-            onSave={saveUser}
-            onDelete={deleteAccount}
-            onBack={() => {
-              setSelectedUser(null);
-              setError("");
-              setNotice("");
-            }}
-          />
-        </div>
-      ) : loading ? (
-        <div className="grid min-h-36 place-items-center text-sm text-muted">
-          <span className="inline-flex items-center gap-2"><RefreshCw size={14} className="animate-spin" /> Loading users…</span>
-        </div>
-      ) : error && !users.length ? (
-        <div className="flex items-center justify-between gap-3 py-6 text-sm text-muted">
-          <span>Try changing your search or reload the user list.</span>
-          <button type="button" onClick={reloadUsers} className="focus-ring rounded-md border border-edge px-3 py-1.5 text-xs font-semibold text-fg">Retry</button>
-        </div>
-      ) : users.length ? (
-        <ul className="mt-2">
-          {users.map((account) => (
-            <li key={account.id} className="border-b border-edge last:border-b-0">
-              <button
-                type="button"
-                onClick={() => {
-                  setSelectedUser(account);
-                  setError("");
-                  setNotice("");
-                }}
-                className="focus-ring flex w-full items-center justify-between gap-3 py-4 text-left hover:bg-surface2/40"
-              >
-                <span className="min-w-0">
-                  <span className="flex flex-wrap items-center gap-2">
-                    <span className="truncate text-sm font-semibold text-fg">{account.fullName || "Unnamed account"}</span>
-                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${
-                      account.role === "admin" ? "bg-violet-500/10 text-violet-400" : "bg-surface2 text-muted"
-                    }`}>{account.role}</span>
-                    {(premiumEnabled || account.role === "admin") && (
-                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-                        account.role === "admin" || account.isPremium ? "bg-amber-400/10 text-amber-400" : "bg-surface2 text-muted"
-                      }`}>{account.role === "admin" || account.isPremium ? "Premium" : "Free"}</span>
-                    )}
-                  </span>
-                  <span className="mt-1 block truncate text-xs text-muted">{account.email}</span>
-                </span>
-                <span className="flex-none text-xs font-semibold text-azure-500">Edit user →</span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <div className="py-10 text-center text-sm text-muted">
-          {search.trim() ? "No users match this search." : "No user accounts found."}
-        </div>
-      )}
-
-      {!selectedUser && !loading && !error && (
-        <div className="mt-3 flex items-center justify-between border-t border-edge pt-3">
-          <p className="text-xs text-muted">
-            {total
-              ? `${(page - 1) * pageSize + 1}–${Math.min(page * pageSize, total)} of ${total} ${search.trim() ? "matching " : ""}users`
-              : "0 users"}
-          </p>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                setLoading(true);
-                setPage((current) => Math.max(1, current - 1));
-              }}
-              disabled={page <= 1 || loading}
-              className="focus-ring rounded-md border border-edge px-3 py-1.5 text-xs font-semibold disabled:opacity-40"
-            >
-              Previous
-            </button>
-            <span className="text-xs text-muted">{page} / {totalPages}</span>
-            <button
-              type="button"
-              onClick={() => {
-                setLoading(true);
-                setPage((current) => Math.min(totalPages, current + 1));
-              }}
-              disabled={page >= totalPages || loading}
-              className="focus-ring rounded-md border border-edge px-3 py-1.5 text-xs font-semibold disabled:opacity-40"
-            >
-              Next
-            </button>
-          </div>
-        </div>
-      )}
-    </section>
-  );
-}
 
 function ConsolePageInner() {
   const { user, isAdmin, loading: authLoading, refresh } = useAuth();
@@ -712,7 +353,7 @@ function ConsolePageInner() {
         <div
           role="tablist"
           aria-label="Console sections"
-          className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-7"
+          className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-8"
         >
           {TABS.map(({ id, label, icon: Icon }, index) => {
             const active = tab === id;
@@ -813,9 +454,11 @@ function ConsolePageInner() {
 
         <div className="mt-6">
           {tab === "overview" ? (
-            <AdminOverviewPanel />
+            <AdminOverview />
           ) : tab === "users" ? (
-            <AdminUsersPanel />
+            <UsersPanel />
+          ) : tab === "premium" ? (
+            <PremiumPanel />
           ) : tab === "settings" ? (
             <SettingsTab />
           ) : tab === "create" ? (

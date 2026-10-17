@@ -11,10 +11,15 @@ import {
   listUsers,
   updateUser,
   deleteUser,
+  getAdminStats,
+  listPremium,
 } from "../controllers/admin.controller.js";
 import { listFaqDrafts, reviewFaqDraft } from "../controllers/assistantFaq.controller.js";
+
 const router = Router();
 router.use(attachUser, requireAuth, requireAdmin);
+router.get("/stats", asyncHandler(getAdminStats));
+router.get("/premium", asyncHandler(listPremium));
 router.get("/submissions", asyncHandler(listSubmissions));
 router.post("/submissions/:id/approve", asyncHandler(approveSubmission));
 router.patch("/submissions/:id", asyncHandler(updateAndApproveSubmission));

@@ -7,18 +7,15 @@ import {
   Activity,
   ArrowUpRight,
   BadgeCheck,
-  Check,
-  Copy,
   Crown,
   ExternalLink,
-  KeyRound,
   Link2,
   LoaderCircle,
+  MessageCircle,
   RefreshCw,
   ShieldCheck,
   Sparkles,
   Star,
-  Users,
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -33,6 +30,9 @@ const cardClass = "rounded-xl border border-edge bg-surface p-5 sm:p-6";
 const fieldClass = "focus-ring w-full rounded-lg border border-edge bg-surface2 px-3 py-2.5 text-sm text-fg outline-none";
 const formatDate = (value) =>
   value ? new Date(value).toLocaleDateString(undefined, { dateStyle: "medium" }) : "—";
+const formatTool = (slug) =>
+  slug.replace(/-/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+
 function lastSevenClickDays(entries = []) {
   const clickCounts = new Map(entries.map((entry) => [entry.day, entry.clicks]));
   const today = new Date();
@@ -60,165 +60,10 @@ function Metric({ icon: Icon, label, value, detail }) {
   );
 }
 
-function AdminAccountForm({ premiumAvailable }) {
-  const [form, setForm] = useState({ fullName: "", email: "", password: "", grantPremium: false });
-  const [busy, setBusy] = useState(false);
-  const [notice, setNotice] = useState("");
-  const [error, setError] = useState("");
-
-  async function submit(event) {
-    event.preventDefault();
-    setBusy(true);
-    setNotice("");
-    setError("");
-    try {
-      const { account } = await api.createAdminAccount(form);
-      setNotice(`Created ${account.email}${account.premiumUntil ? ` with Premium until ${formatDate(account.premiumUntil)}` : ""}.`);
-      setForm({ fullName: "", email: "", password: "", grantPremium: false });
-    } catch (requestError) {
-      setError(requestError.message);
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  return (
-    <section className={cardClass}>
-      <div className="mb-4 flex items-center gap-3">
-        <span className="grid h-10 w-10 place-items-center rounded-lg bg-azure-500/10 text-azure-500">
-          <Users size={19} aria-hidden="true" />
-        </span>
-        <div>
-          <h2 className="font-display font-bold">Create a member account</h2>
-          <p className="mt-0.5 text-xs text-muted">Admin-created Premium grants last 30 days.</p>
-        </div>
-      </div>
-      <form onSubmit={submit} className="grid gap-3 sm:grid-cols-2">
-        <input className={fieldClass} required maxLength={100} placeholder="Full name" value={form.fullName}
-          onChange={(event) => setForm({ ...form, fullName: event.target.value })} />
-        <input className={fieldClass} required type="email" maxLength={254} placeholder="Email address" value={form.email}
-          onChange={(event) => setForm({ ...form, email: event.target.value })} />
-        <input className={fieldClass} required type="password" minLength={12} maxLength={128}
-          autoComplete="new-password" placeholder="Temporary password (12+ characters)" value={form.password}
-          onChange={(event) => setForm({ ...form, password: event.target.value })} />
-        <label className={`flex items-center gap-2 rounded-lg border border-edge px-3 py-2 text-sm ${premiumAvailable ? "text-muted" : "text-muted/60"}`}>
-          <input type="checkbox" checked={form.grantPremium} disabled={!premiumAvailable}
-            onChange={(event) => setForm({ ...form, grantPremium: event.target.checked })} />
-          Grant 30 days of Premium{!premiumAvailable ? " (disabled)" : ""}
-        </label>
-        <div className="sm:col-span-2">
-          <Button type="submit" disabled={busy}>
-            {busy ? <LoaderCircle size={15} className="animate-spin" /> : <Users size={15} />}
-            Create account
-          </Button>
-        </div>
-      </form>
-      {notice && <p role="status" className="mt-3 text-sm text-emerald-500">{notice}</p>}
-      {error && <p role="alert" className="mt-3 text-sm text-red-400">{error}</p>}
-    </section>
-  );
-}
-
-function IntegrationManager({ tokens, onRefresh }) {
-  const [name, setName] = useState("");
-  const [secret, setSecret] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
-  const [copied, setCopied] = useState(false);
-
-  async function create(event) {
-    event.preventDefault();
-    setBusy(true);
-    setError("");
-    setSecret("");
-    try {
-      const result = await api.createIntegrationToken(name);
-      setSecret(result.secret);
-      setName("");
-      await onRefresh();
-    } catch (requestError) {
-      setError(requestError.message);
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function revoke(id) {
-    setError("");
-    try {
-      await api.revokeIntegrationToken(id);
-      await onRefresh();
-    } catch (requestError) {
-      setError(requestError.message);
-    }
-  }
-
-  async function copySecret() {
-    try {
-      await navigator.clipboard.writeText(secret);
-      setCopied(true);
-    } catch {
-      setError("Copy failed. Select and copy the integration key manually.");
-    }
-  }
-
-  return (
-    <section className={cardClass}>
-      <div className="mb-4 flex items-center gap-3">
-        <span className="grid h-10 w-10 place-items-center rounded-lg bg-azure-500/10 text-azure-500">
-          <KeyRound size={19} aria-hidden="true" />
-        </span>
-        <div>
-          <h2 className="font-display font-bold">Account integrations</h2>
-          <p className="mt-0.5 text-xs text-muted">Create members through your admin bot using a bearer token.</p>
-        </div>
-      </div>
-      <form onSubmit={create} className="flex flex-col gap-2 sm:flex-row">
-        <input className={fieldClass} required maxLength={80} placeholder="Integration name" value={name}
-          onChange={(event) => setName(event.target.value)} />
-        <Button type="submit" disabled={busy}>
-          {busy ? <LoaderCircle size={15} className="animate-spin" /> : <KeyRound size={15} />}
-          Create key
-        </Button>
-      </form>
-      {secret && (
-        <div className="mt-4 rounded-lg border border-amber-400/30 bg-amber-400/5 p-3">
-          <p className="text-xs font-semibold text-amber-500">Copy this key now. It will not be shown again.</p>
-          <div className="mt-2 flex gap-2">
-            <code className="min-w-0 flex-1 break-all text-xs text-fg">{secret}</code>
-            <button type="button" onClick={copySecret} aria-label="Copy integration key" className="text-muted hover:text-fg">
-              {copied ? <Check size={16} /> : <Copy size={16} />}
-            </button>
-          </div>
-        </div>
-      )}
-      {error && <p role="alert" className="mt-3 text-sm text-red-400">{error}</p>}
-      <ul className="mt-4 divide-y divide-edge">
-        {tokens.map((token) => (
-          <li key={token.id} className="flex items-center justify-between gap-3 py-3">
-            <div className="min-w-0">
-              <p className="truncate text-sm font-medium">{token.name}</p>
-              <p className="mt-0.5 text-xs text-muted">
-                {token.token_prefix}… · last used {formatDate(token.last_used_at)}
-                {token.revoked_at ? " · revoked" : ""}
-              </p>
-            </div>
-            {!token.revoked_at && (
-              <Button size="sm" variant="secondary" onClick={() => revoke(token.id)}>Revoke</Button>
-            )}
-          </li>
-        ))}
-        {!tokens.length && <li className="py-3 text-sm text-muted">No integration keys yet.</li>}
-      </ul>
-    </section>
-  );
-}
-
 export default function DashboardPage() {
-  const { user, loading: authLoading, refresh } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const [data, setData] = useState(null);
-  const [tokens, setTokens] = useState([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -239,21 +84,17 @@ export default function DashboardPage() {
       api.dashboard(),
       api.dashboardToolSettings(),
     ]);
-    const integrations = user?.role === "admin" && dashboard.premium.available
-      ? await api.integrationTokens()
-      : null;
-    return { dashboard, saved, integrations };
-  }, [user]);
+    return { dashboard, saved };
+  }, []);
 
   useEffect(() => {
     if (!user || user.role === "admin") return undefined;
     let current = true;
     fetchDashboard()
-      .then(({ dashboard, saved, integrations }) => {
+      .then(({ dashboard, saved }) => {
         if (!current) return;
         setData(dashboard);
         setSettings(saved.settings);
-        setTokens(integrations?.tokens || []);
         const savedMode = saved.settings.find((item) => item.tool === "javascript-obfuscator")?.values?.mode;
         if (["easy", "medium", "hard"].includes(savedMode)) setMode(savedMode);
       })
@@ -272,20 +113,14 @@ export default function DashboardPage() {
     setLoading(true);
     setError("");
     try {
-      const { dashboard, saved, integrations } = await fetchDashboard();
+      const { dashboard, saved } = await fetchDashboard();
       setData(dashboard);
       setSettings(saved.settings);
-      setTokens(integrations?.tokens || []);
     } catch (requestError) {
       setError(requestError.message);
     } finally {
       setLoading(false);
     }
-  }
-
-  async function refreshTokens() {
-    const result = await api.integrationTokens();
-    setTokens(result.tokens);
   }
 
   async function saveSettings(event) {
@@ -371,13 +206,30 @@ export default function DashboardPage() {
                           {data.premium.active
                             ? user.role === "admin"
                               ? "Your administrator account has permanent Premium status with no expiration."
-                              : `Your access is active until ${formatDate(data.premium.expiresAt)}.`
+                              : `Your access is active until ${formatDate(data.premium.expiresAt)} — 500 short links, unlimited saved settings, and Premium tools.`
                             : data.premium.available
-                              ? "Premium access is granted by an administrator."
+                              ? "Premium unlocks 500 short links, saved tool settings, the project obfuscator upload, and higher tool limits. It is granted manually by the admin after payment."
                               : "Premium features are being prepared. They will appear here once enabled."}
                         </p>
                       </div>
                     </div>
+                    {!data.premium.active && data.premium.available && (
+                      data.premium.contactUrl ? (
+                        <a
+                          href={data.premium.contactUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="focus-ring inline-flex flex-none items-center justify-center gap-2 rounded-lg border border-azure-500 bg-azure-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-azure-600 active:scale-[0.98]"
+                        >
+                          <MessageCircle size={15} />
+                          Request Premium
+                        </a>
+                      ) : (
+                        <span className="flex-none text-xs text-muted">
+                          Message the admin to get Premium.
+                        </span>
+                      )
+                    )}
                   </section>
 
                   <div className="grid gap-6 lg:grid-cols-2">
@@ -431,7 +283,7 @@ export default function DashboardPage() {
                       <ul className="divide-y divide-edge">
                         {data.usage.events.slice(0, 8).map((event) => (
                           <li key={event.id} className="flex items-center justify-between gap-3 py-3">
-                            <span className="text-sm">{event.tool.replaceAll("-", " ")}</span>
+                            <span className="text-sm">{formatTool(event.tool)}</span>
                             <time className="text-xs text-muted">{formatDate(event.createdAt)}</time>
                           </li>
                         ))}
@@ -479,21 +331,6 @@ export default function DashboardPage() {
                       </Link>
                     </section>
                   </div>
-
-                  {user.role === "admin" && (
-                    <section className="space-y-6 border-t border-edge pt-6">
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-azure-500">Administration</p>
-                        <h2 className="mt-1 font-display text-xl font-bold">Account management</h2>
-                      </div>
-                      <AdminAccountForm premiumAvailable={data.premium.available} />
-                      {data.premium.available ? (
-                        <IntegrationManager tokens={tokens} onRefresh={refreshTokens} />
-                      ) : (
-                        <p className="text-sm text-muted">Admin account integrations are unavailable while Premium is disabled.</p>
-                      )}
-                    </section>
-                  )}
                 </div>
               ) : null}
             </>

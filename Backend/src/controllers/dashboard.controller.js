@@ -1,8 +1,8 @@
-import { randomBytes, createHash } from "node:crypto";
 import { supabase } from "../config/supabase.js";
 import { hashPassword } from "../utils/password.js";
 import { env, isAdminEmail } from "../config/env.js";
 import { isPremiumUser } from "../utils/premium.js";
+import { logPremiumGrant } from "../utils/premiumGrants.js";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -72,6 +72,7 @@ export async function getDashboard(req, res) {
       active: isPremiumUser(req.user),
       expiresAt: req.user.role === "admin" ? null : req.user.premium_until || null,
       available: env.premiumFeaturesEnabled,
+      contactUrl: env.premiumContactUrl || null,
     },
     usage: {
       windowDays: 30,
@@ -156,7 +157,10 @@ export async function saveToolSettings(req, res) {
   return res.json({ tool: data.tool_slug, values: data.settings, updatedAt: data.updated_at });
 }
 
-async function createManagedAccount({ email, password, fullName, grantPremium }) {
+// Creates a member account on behalf of the admin (e.g. for someone who paid
+// on WhatsApp or Telegram). Optional Premium for 30 days, always logged in
+// the premium_grants audit table.
+async function createManagedAccount({ email, password, fullName, grantPremium, note }, adminEmail = "admin") {
   const normalizedEmail = email.trim().toLowerCase();
   if (!emailPattern.test(normalizedEmail) || normalizedEmail.length > 254) {
     return { status: 400, error: "Enter a valid email address." };
@@ -213,6 +217,17 @@ async function createManagedAccount({ email, password, fullName, grantPremium })
     return { status: 500, error: "Could not create the account." };
   }
 
+  if (grantPremium && user) {
+    await logPremiumGrant({
+      userId: user.id,
+      grantedBy: adminEmail || "admin",
+      source: "admin_account_create",
+      action: "granted",
+      expiresAt: premiumUntil,
+      note,
+    });
+  }
+
   return {
     status: 201,
     account: {
@@ -225,67 +240,7 @@ async function createManagedAccount({ email, password, fullName, grantPremium })
 }
 
 export async function createAdminAccount(req, res) {
-  const result = await createManagedAccount(req.body || {});
-  if (result.error) return res.status(result.status).json({ error: result.error });
-  return res.status(result.status).json({ account: result.account });
-}
-
-export async function listIntegrationTokens(req, res) {
-  const { data, error } = await supabase
-    .from("account_integration_tokens")
-    .select("id, name, token_prefix, last_used_at, revoked_at, created_at")
-    .eq("created_by", req.user.id)
-    .order("created_at", { ascending: false });
-  if (error) {
-    console.error("[dashboard] integration token list failed:", error);
-    return res.status(500).json({ error: "Could not load account integrations." });
-  }
-  return res.json({ tokens: data });
-}
-
-export async function createIntegrationToken(req, res) {
-  const { name } = req.body || {};
-  if (typeof name !== "string" || !name.trim() || name.trim().length > 80) {
-    return res.status(400).json({ error: "Enter an integration name up to 80 characters." });
-  }
-  const token = `codex_int_${randomBytes(32).toString("base64url")}`;
-  const tokenHash = createHash("sha256").update(token).digest("hex");
-  const { data, error } = await supabase
-    .from("account_integration_tokens")
-    .insert({
-      created_by: req.user.id,
-      name: name.trim(),
-      token_hash: tokenHash,
-      token_prefix: token.slice(0, 16),
-    })
-    .select("id, name, token_prefix, created_at")
-    .single();
-  if (error) {
-    console.error("[dashboard] integration token creation failed:", error);
-    return res.status(500).json({ error: "Could not create the account integration." });
-  }
-  return res.status(201).json({ token: data, secret: token });
-}
-
-export async function revokeIntegrationToken(req, res) {
-  const { data, error } = await supabase
-    .from("account_integration_tokens")
-    .update({ revoked_at: new Date().toISOString() })
-    .eq("id", req.params.id)
-    .eq("created_by", req.user.id)
-    .is("revoked_at", null)
-    .select("id")
-    .maybeSingle();
-  if (error) {
-    console.error("[dashboard] integration token revocation failed:", error);
-    return res.status(500).json({ error: "Could not revoke the integration." });
-  }
-  if (!data) return res.status(404).json({ error: "Integration not found." });
-  return res.json({ ok: true });
-}
-
-export async function createIntegrationAccount(req, res) {
-  const result = await createManagedAccount(req.body || {});
+  const result = await createManagedAccount(req.body || {}, req.user?.email);
   if (result.error) return res.status(result.status).json({ error: result.error });
   return res.status(result.status).json({ account: result.account });
 }

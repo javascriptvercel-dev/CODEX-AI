@@ -2,6 +2,7 @@ import { Router } from "express";
 import multer from "multer";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { attachUser, requireAuth } from "../middleware/auth.js";
+import { createRateLimiter } from "../utils/rateLimit.js";
 import {
   signup,
   login,
@@ -15,15 +16,23 @@ import {
   forgotPassword,
   resetPassword,
 } from "../controllers/auth.controller.js";
+
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 2 * 1024 * 1024 },
 });
+
+// Brute-force and email-bombing protection. Counters are per IP (and per
+// email for login), reset when their window rolls over.
+const signupLimiter = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 8 });
+const loginLimiter = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 10, keyBy: "email" });
+const forgotLimiter = createRateLimiter({ windowMs: 60 * 60 * 1000, max: 5 });
+
 const router = Router();
-router.post("/signup", asyncHandler(signup));
-router.post("/login", asyncHandler(login));
+router.post("/signup", signupLimiter, asyncHandler(signup));
+router.post("/login", loginLimiter, asyncHandler(login));
 router.post("/logout", asyncHandler(logout));
-router.post("/forgot-password", asyncHandler(forgotPassword));
+router.post("/forgot-password", forgotLimiter, asyncHandler(forgotPassword));
 router.post("/reset-password", asyncHandler(resetPassword));
 router.get("/me", attachUser, asyncHandler(me));
 router.patch(

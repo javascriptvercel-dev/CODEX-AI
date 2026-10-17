@@ -150,11 +150,14 @@ management. Premium adds higher tool/link limits and JavaScript/ZIP uploads to
 the obfuscator. The feature is disabled by default.
 
 Follow [the Premium deployment and rollback guide](./Backend/PREMIUM_DEPLOYMENT.md)
-before enabling it. The deployment requires the additive
+before enabling it. The deployment requires
 [`migration_013_premium_dashboard.sql`](./Backend/src/db/migration_013_premium_dashboard.sql)
-and `PREMIUM_FEATURES_ENABLED=true`. There are no payment or subscription
-integrations; administrators grant access when creating accounts, or by updating
-the user's `premium_until` value in Supabase.
+followed by
+[`migration_014_premium_grants.sql`](./Backend/src/db/migration_014_premium_grants.sql),
+and `PREMIUM_FEATURES_ENABLED=true`. Migration 014 retires the integration-token
+table; back up its records first if they are still needed. There are no payment
+or subscription integrations; administrators grant access when creating
+accounts, or by updating the user's `premium_until` value in Supabase.
 
 ---
 

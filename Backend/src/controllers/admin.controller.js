@@ -1,6 +1,7 @@
 import { supabase } from "../config/supabase.js";
 import { env } from "../config/env.js";
 import { notifyPluginCreatorOfDecision } from "../utils/mailer.js";
+import { logPremiumGrant, describePremiumChange } from "../utils/premiumGrants.js";
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const userSearchPattern = /^[\p{L}\p{N}@.+\- ']+$/u;
@@ -59,7 +60,7 @@ export const updateUser = async (req, res) => {
     return res.status(400).json({ error: "Invalid user ID." });
   }
 
-  const { fullName, email, isPremium, premiumUntil } = req.body || {};
+  const { fullName, email, isPremium, premiumUntil, grantNote } = req.body || {};
   if (
     typeof fullName !== "string" ||
     !fullName.trim() ||
@@ -74,7 +75,7 @@ export const updateUser = async (req, res) => {
 
   const { data: target, error: targetError } = await supabase
     .from("users")
-    .select("role")
+    .select(env.premiumFeaturesEnabled ? "role, premium_until" : "role")
     .eq("id", req.params.id)
     .maybeSingle();
   if (targetError) {
@@ -121,6 +122,21 @@ export const updateUser = async (req, res) => {
     return res.status(500).json({ error: "Could not update this account." });
   }
   if (!data) return res.status(404).json({ error: "User not found." });
+
+  if (canEditPremium) {
+    const action = describePremiumChange(target.premium_until || null, data.premium_until || null);
+    if (action) {
+      await logPremiumGrant({
+        userId: data.id,
+        grantedBy: req.user?.email,
+        source: "admin_console",
+        action,
+        expiresAt: data.premium_until || null,
+        note: typeof grantNote === "string" ? grantNote : null,
+      });
+    }
+  }
+
   return res.json({
     id: data.id,
     email: data.email,
@@ -414,4 +430,162 @@ export const rejectSubmission = async (req, res) => {
     console.error("rejectSubmission: notification failed", err),
   );
   res.json({ ok: true });
+};
+
+// Site-wide numbers for the console overview — replaces the old
+// "overview" that only showed the admin's own personal stats.
+export const getAdminStats = async (_req, res) => {
+  const now = new Date().toISOString();
+  const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const [
+    usersCount,
+    premiumCount,
+    newUsersCount,
+    pendingCount,
+    pluginsCount,
+    suggestionsCount,
+    signupsResult,
+    grantsResult,
+  ] = await Promise.all([
+    supabase.from("users").select("id", { count: "exact", head: true }),
+    env.premiumFeaturesEnabled
+      ? supabase
+          .from("users")
+          .select("id", { count: "exact", head: true })
+          .or(`role.eq.admin,premium_until.gt.${now}`)
+      : Promise.resolve({ count: null, error: null }),
+    supabase
+      .from("users")
+      .select("id", { count: "exact", head: true })
+      .gte("created_at", weekAgo),
+    supabase
+      .from("plugin_submissions")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "pending"),
+    supabase.from("plugins").select("id", { count: "exact", head: true }),
+    supabase.from("suggestions").select("id", { count: "exact", head: true }),
+    supabase
+      .from("users")
+      .select("id, email, full_name, role, created_at")
+      .order("created_at", { ascending: false })
+      .limit(10),
+    env.premiumFeaturesEnabled
+      ? supabase
+          .from("premium_grants")
+          .select("id, user_id, granted_by, source, action, expires_at, note, created_at")
+          .order("created_at", { ascending: false })
+          .limit(15)
+      : Promise.resolve({ data: [], error: null }),
+  ]);
+
+  const firstError = [
+    usersCount, premiumCount, newUsersCount, pendingCount,
+    pluginsCount, suggestionsCount, signupsResult, grantsResult,
+  ].find((result) => result.error);
+  if (firstError) {
+    console.error("getAdminStats failed", firstError.error);
+    return res.status(500).json({ error: "Could not load the overview." });
+  }
+
+  const grantUserIds = [...new Set((grantsResult.data || []).map((grant) => grant.user_id))];
+  const { data: grantUsers } = grantUserIds.length
+    ? await supabase.from("users").select("id, email, full_name").in("id", grantUserIds)
+    : { data: [] };
+  const grantUserMap = new Map((grantUsers || []).map((user) => [user.id, user]));
+
+  return res.json({
+    totals: {
+      users: usersCount.count ?? 0,
+      premium: premiumCount.count ?? null,
+      newUsers7d: newUsersCount.count ?? 0,
+      pendingSubmissions: pendingCount.count ?? 0,
+      plugins: pluginsCount.count ?? 0,
+      suggestions: suggestionsCount.count ?? 0,
+    },
+    premiumEnabled: env.premiumFeaturesEnabled,
+    recentSignups: (signupsResult.data || []).map((user) => ({
+      id: user.id,
+      email: user.email,
+      fullName: user.full_name,
+      role: user.role,
+      createdAt: user.created_at,
+    })),
+    recentGrants: (grantsResult.data || []).map((grant) => ({
+      id: grant.id,
+      userEmail: grantUserMap.get(grant.user_id)?.email || "Unknown",
+      userName: grantUserMap.get(grant.user_id)?.full_name || null,
+      grantedBy: grant.granted_by,
+      source: grant.source,
+      action: grant.action,
+      expiresAt: grant.expires_at,
+      note: grant.note,
+      createdAt: grant.created_at,
+    })),
+  });
+};
+
+// Premium members plus the manual-grant audit trail, for the console's
+// Premium tab. Members include admins (permanent) and anyone with a
+// premium_until value, active or expired.
+export const listPremium = async (_req, res) => {
+  if (!env.premiumFeaturesEnabled) {
+    return res.json({ premiumEnabled: false, members: [], grants: [] });
+  }
+  const [membersResult, grantsResult] = await Promise.all([
+    supabase
+      .from("users")
+      .select("id, email, full_name, role, premium_until")
+      .or("role.eq.admin,premium_until.not.is.null")
+      .order("premium_until", { ascending: true, nullsFirst: false })
+      .limit(200),
+    supabase
+      .from("premium_grants")
+      .select("id, user_id, granted_by, source, action, expires_at, note, created_at")
+      .order("created_at", { ascending: false })
+      .limit(60),
+  ]);
+  if (membersResult.error || grantsResult.error) {
+    console.error("listPremium failed", membersResult.error || grantsResult.error);
+    return res.status(500).json({ error: "Could not load Premium members." });
+  }
+
+  const userIds = [...new Set([
+    ...(membersResult.data || []).map((member) => member.id),
+    ...(grantsResult.data || []).map((grant) => grant.user_id),
+  ])];
+  const { data: userRows } = userIds.length
+    ? await supabase.from("users").select("id, email, full_name").in("id", userIds)
+    : { data: [] };
+  const userMap = new Map((userRows || []).map((user) => [user.id, user]));
+  const now = Date.now();
+
+  return res.json({
+    premiumEnabled: true,
+    members: (membersResult.data || []).map((member) => {
+      const expiresAt = member.role === "admin" ? null : member.premium_until || null;
+      const expiresMs = expiresAt ? Date.parse(expiresAt) : null;
+      return {
+        id: member.id,
+        email: member.email,
+        fullName: member.full_name,
+        role: member.role,
+        premiumUntil: expiresAt,
+        isPremium: member.role === "admin" || Boolean(expiresMs && expiresMs > now),
+        daysLeft: member.role === "admin"
+          ? null
+          : expiresMs ? Math.ceil((expiresMs - now) / 86_400_000) : null,
+      };
+    }),
+    grants: (grantsResult.data || []).map((grant) => ({
+      id: grant.id,
+      userEmail: userMap.get(grant.user_id)?.email || "Unknown",
+      userName: userMap.get(grant.user_id)?.full_name || null,
+      grantedBy: grant.granted_by,
+      source: grant.source,
+      action: grant.action,
+      expiresAt: grant.expires_at,
+      note: grant.note,
+      createdAt: grant.created_at,
+    })),
+  });
 };

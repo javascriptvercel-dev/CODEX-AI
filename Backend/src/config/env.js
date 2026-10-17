@@ -8,9 +8,21 @@ function parseBool(value, fallback = false) {
   const normalized = String(value).trim().toLowerCase();
   return ["1", "true", "yes", "on"].includes(normalized);
 }
+function parseProxyHops(value, fallback) {
+  if (value === undefined || value.trim() === "") return fallback;
+  const hops = Number(value);
+  if (!Number.isSafeInteger(hops) || hops < 0) {
+    throw new Error("TRUST_PROXY_HOPS must be a non-negative integer.");
+  }
+  return hops;
+}
 export const env = {
   port: Number(process.env.PORT || 4000),
   nodeEnv: process.env.NODE_ENV || "development",
+  trustProxyHops: parseProxyHops(
+    process.env.TRUST_PROXY_HOPS,
+    process.env.RENDER_EXTERNAL_URL ? 1 : 0,
+  ),
   frontendUrl: required("FRONTEND_URL", "http://localhost:3000"),
   publicFrontendUrl: (process.env.PUBLIC_FRONTEND_URL || process.env.FRONTEND_URL || "https://codex-ai-v3.vercel.app").replace(/\/+$/, ""),
   // The backend's own public URL — used to build links (like the plugin
@@ -29,6 +41,7 @@ export const env = {
     .map((email) => email.trim().toLowerCase())
     .filter(Boolean),
   premiumFeaturesEnabled: parseBool(process.env.PREMIUM_FEATURES_ENABLED),
+  premiumContactUrl: (process.env.PREMIUM_CONTACT_URL || "").trim(),
   github: {
     clientId: process.env.GITHUB_CLIENT_ID,
     clientSecret: process.env.GITHUB_CLIENT_SECRET,

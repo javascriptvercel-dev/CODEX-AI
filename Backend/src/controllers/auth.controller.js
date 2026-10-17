@@ -8,8 +8,11 @@ import {
 } from "../utils/jwt.js";
 import { sendPasswordResetEmail } from "../utils/mailer.js";
 import crypto from "crypto";
+
 const RESET_TOKEN_TTL_MS = 60 * 60 * 1000;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const OAUTH_STATE_COOKIE = "codex_oauth_state";
+
 const publicUser = (user, authenticatedAt) =>
   user && {
     id: user.id,
@@ -26,6 +29,7 @@ const publicUser = (user, authenticatedAt) =>
     emailNotificationsEnabled: user.email_notifications_enabled,
     authenticatedAt,
   };
+
 export const signup = async (req, res) => {
   const { email, password, fullName } = req.body || {};
   if (!email || !EMAIL_PATTERN.test(email.trim())) {
@@ -71,6 +75,7 @@ export const signup = async (req, res) => {
   setSessionCookie(res, token);
   res.status(201).json({ user: publicUser(user, Date.now()) });
 };
+
 export const login = async (req, res) => {
   const { email, password } = req.body || {};
   if (!email || !password)
@@ -84,19 +89,17 @@ export const login = async (req, res) => {
     console.error("login: fetch failed", fetchError);
     return res.status(500).json({ error: "We could not verify your login right now." });
   }
-  if (!user)
+  // Generic responses for both "unknown email" and "wrong password" so the
+  // login endpoint cannot be used to discover which emails have accounts.
+  if (!user || !user.password_hash)
     return res
       .status(401)
-      .json({ error: "Invalid login credentials. No account exists for that email." });
-  if (!user.password_hash)
-    return res
-      .status(401)
-      .json({ error: "This account uses GitHub login. Continue with GitHub instead." });
+      .json({ error: "Incorrect email or password." });
   const valid = await comparePassword(password, user.password_hash);
   if (!valid)
     return res
       .status(401)
-      .json({ error: "The email is recognized, but the password is incorrect." });
+      .json({ error: "Incorrect email or password." });
   const role = isAdminEmail(user.email) ? "admin" : user.role;
   if (role !== user.role) {
     await supabase.from("users").update({ role }).eq("id", user.id);
@@ -105,10 +108,12 @@ export const login = async (req, res) => {
   setSessionCookie(res, signSession(user));
   res.json({ user: publicUser(user, Date.now()) });
 };
+
 export const logout = async (_req, res) => {
   clearSessionCookie(res);
   res.status(204).end();
 };
+
 export const forgotPassword = async (req, res) => {
   const { email } = req.body || {};
   if (!email) return res.status(400).json({ error: "Enter your email." });
@@ -138,6 +143,7 @@ export const forgotPassword = async (req, res) => {
     message: "If that email has an account, we've sent a reset link.",
   });
 };
+
 export const resetPassword = async (req, res) => {
   const { email, token, password } = req.body || {};
   if (!email || !token || !password || password.length < 8) {
@@ -170,6 +176,8 @@ export const resetPassword = async (req, res) => {
       password_hash: passwordHash,
       reset_token_hash: null,
       reset_token_expires_at: null,
+      // Invalidate every session issued before this reset.
+      session_version: Number(user.session_version ?? 0) + 1,
     })
     .eq("id", user.id);
   if (error) {
@@ -180,9 +188,11 @@ export const resetPassword = async (req, res) => {
   }
   res.json({ ok: true });
 };
+
 export const me = async (req, res) => {
   res.json({ user: publicUser(req.user, req.authenticatedAt) });
 };
+
 export const uploadAvatar = async (req, res) => {
   if (!req.file)
     return res.status(400).json({ error: "Choose an image to upload." });
@@ -216,6 +226,7 @@ export const uploadAvatar = async (req, res) => {
   }
   res.json({ user: publicUser(updated, req.authenticatedAt) });
 };
+
 export const updateNotifications = async (req, res) => {
   const { enabled } = req.body || {};
   const { data, error } = await supabase
@@ -232,6 +243,7 @@ export const updateNotifications = async (req, res) => {
   }
   res.json({ user: publicUser(data, req.authenticatedAt) });
 };
+
 export const deleteAccount = async (req, res) => {
   const { error } = await supabase.from("users").delete().eq("id", req.user.id);
   if (error) {
@@ -241,6 +253,7 @@ export const deleteAccount = async (req, res) => {
   clearSessionCookie(res);
   res.status(204).end();
 };
+
 const SAFE_NEXT_PATTERN = /^\/[a-zA-Z0-9\-_\/]*$/;
 function safeNextPath(value, fallback = "/create") {
   if (typeof value === "string" && SAFE_NEXT_PATTERN.test(value) && !value.startsWith("//")) {
@@ -248,21 +261,45 @@ function safeNextPath(value, fallback = "/create") {
   }
   return fallback;
 }
+
+const OAUTH_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: env.nodeEnv === "production",
+  sameSite: "lax",
+  path: "/",
+  maxAge: 10 * 60 * 1000,
+};
+
 export const githubStart = (req, res) => {
   const next = safeNextPath(req.query.next, "/create");
+  // state must be an unpredictable nonce; the redirect path travels in the
+  // cookie instead, so the callback cannot be forged (login CSRF).
+  const nonce = crypto.randomBytes(16).toString("hex");
+  res.cookie(OAUTH_STATE_COOKIE, `${nonce}.${next}`, OAUTH_COOKIE_OPTIONS);
   const params = new URLSearchParams({
     client_id: env.github.clientId,
     redirect_uri: env.github.callbackUrl,
     scope: "read:user user:email",
     allow_signup: "true",
-    state: next,
+    state: nonce,
   });
   res.redirect(`https://github.com/login/oauth/authorize?${params.toString()}`);
 };
+
 export const githubCallback = async (req, res) => {
   const { code, state } = req.query;
-  const next = safeNextPath(state, "/create");
-  if (!code) return res.redirect(`${env.frontendUrl}${next}?auth=error`);
+  const cookieState = req.cookies?.[OAUTH_STATE_COOKIE];
+  const stateValid =
+    typeof state === "string" &&
+    typeof cookieState === "string" &&
+    cookieState.startsWith(`${state}.`);
+  const next = stateValid
+    ? safeNextPath(cookieState.slice(state.length + 1), "/create")
+    : "/create";
+  res.clearCookie(OAUTH_STATE_COOKIE, { ...OAUTH_COOKIE_OPTIONS, maxAge: undefined });
+  if (!code || !stateValid) {
+    return res.redirect(`${env.frontendUrl}/login?auth=error`);
+  }
   try {
     const tokenRes = await fetch(
       "https://github.com/login/oauth/access_token",
@@ -292,11 +329,12 @@ export const githubCallback = async (req, res) => {
     ]);
     const profile = await profileRes.json();
     const emails = await emailsRes.json();
+    // Only verified GitHub emails may become the account identity.
     const primaryEmail = Array.isArray(emails)
-      ? emails.find((e) => e.primary && e.verified)?.email || emails[0]?.email
+      ? emails.find((entry) => entry.primary && entry.verified)?.email || null
       : null;
     if (!primaryEmail)
-      throw new Error("GitHub account has no accessible email");
+      throw new Error("GitHub account has no verified email");
     const { data: existing } = await supabase
       .from("users")
       .select("*")
@@ -347,6 +385,6 @@ export const githubCallback = async (req, res) => {
     res.redirect(successUrl.toString());
   } catch (err) {
     console.error("GitHub OAuth failed", err);
-    res.redirect(`${env.frontendUrl}${next}?auth=error`);
+    res.redirect(`${env.frontendUrl}/login?auth=error`);
   }
 };

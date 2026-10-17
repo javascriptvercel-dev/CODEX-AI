@@ -11,10 +11,18 @@ remain available while Premium is disabled.
 1. Deploy the backend and frontend with Premium disabled.
 2. Apply [`src/db/migration_013_premium_dashboard.sql`](./src/db/migration_013_premium_dashboard.sql)
    in the Supabase SQL editor. Back up the database first.
-3. Set `PREMIUM_FEATURES_ENABLED=true` in the backend environment and restart
-   the backend. No payment-provider credentials or webhook configuration are
-   needed.
-4. Deploy the frontend. Users can sign in at `/login`; successful default
+3. Apply [`src/db/migration_014_premium_grants.sql`](./src/db/migration_014_premium_grants.sql)
+   in the Supabase SQL editor. This adds Premium grant history and session
+   versioning, and permanently drops the retired `account_integration_tokens`
+   table. Back up any integration-token records you need before running it;
+   the old token secrets cannot be recovered.
+4. Set `PREMIUM_FEATURES_ENABLED=true` in the backend environment and restart
+   the backend. On Render, client-IP rate limiting trusts one proxy hop by
+   default. Set `TRUST_PROXY_HOPS` to the exact number of trusted proxies in
+   front of the backend if your hosting path differs; use `0` when connecting
+   directly without a proxy. No payment-provider credentials or webhook
+   configuration are needed.
+5. Deploy the frontend. Users can sign in at `/login`; successful default
    sign-in goes to `/dashboard`, while tool/Create links preserve their return
    destination.
 
@@ -34,9 +42,8 @@ where email = 'member@example.com';
 Set `premium_until` to a future timestamp to grant access, or `NULL` to remove
 it. The `premium_until` field is the source of truth for Premium status.
 
-The dashboard's integration-token controls and account-integration endpoint
-remain unchanged. We can focus on the admin bot account-creation workflow next;
-store generated integration secrets securely and revoke exposed tokens.
+External account creation uses the authenticated administrator session. The
+retired integration-token table and endpoint are not used by this deployment.
 
 Premium upload constraints are enforced server-side: the uploaded `.js` or
 `.zip` must be at most 100 MB; ZIP expanded size is at most 100 MB and 1,000

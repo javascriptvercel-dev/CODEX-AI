@@ -1,10 +1,14 @@
 import jwt from "jsonwebtoken";
 import { env } from "../config/env.js";
 const COOKIE_NAME = "codex_session";
+// `ver` carries the user's session_version so password resets and account
+// changes can invalidate every token issued before them.
 export const signSession = (user) =>
-  jwt.sign({ sub: user.id, role: user.role }, env.jwtSecret, {
-    expiresIn: "30d",
-  });
+  jwt.sign(
+    { sub: user.id, role: user.role, ver: Number(user.session_version ?? 0) },
+    env.jwtSecret,
+    { expiresIn: "30d" },
+  );
 export const verifySession = (token) => {
   try {
     return jwt.verify(token, env.jwtSecret);
