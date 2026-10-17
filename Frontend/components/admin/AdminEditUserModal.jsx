@@ -175,7 +175,7 @@ export default function AdminEditUserModal({ user, premiumEnabled, busy, onClose
           </div>
         )}
 
-        <div className="mt-1 flex gap-2">
+        <div className="mt-1 grid grid-cols-1 gap-2 sm:grid-cols-2">
           <Button type="button" variant="secondary" size="lg" full disabled={busy} onClick={onClose}>
             Cancel
           </Button>

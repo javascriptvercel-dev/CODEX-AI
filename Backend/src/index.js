@@ -11,6 +11,7 @@ import assistantFaqRoutes from "./routes/assistantFaq.routes.js";
 import { getPublicStats } from "./controllers/stats.controller.js";
 import sessionRouter from "./session/router.js";
 import dashboardRoutes from "./routes/dashboard.routes.js";
+import { startPremiumExpiryReminderJob } from "./utils/premiumExpiryReminders.js";
 const app = express();
 app.set("trust proxy", env.trustProxyHops);
 app.use(cors({ origin: env.frontendUrl, credentials: true }));
@@ -32,4 +33,5 @@ app.use((err, _req, res, _next) => {
 });
 app.listen(env.port, () => {
   console.log(`CODEX AI backend listening on :${env.port}`);
+  startPremiumExpiryReminderJob();
 });

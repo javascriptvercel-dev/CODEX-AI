@@ -20,7 +20,7 @@ export const SUPPORT_CHANNELS = [
   {
     name: "Join our WhatsApp Group",
     description: "Ask questions and chat with other users.",
-    href: "https://chat.whatsapp.com/If0d4XKHITO2NUf6YvQ3Eg?s=cl&p=a&mlu=4&ilr=4",
+    href: "https://chat.whatsapp.com/D4h54lfB8neBvOzXMW19Tm?s=cl&p=a&mlu=4&ilr=4",
     icon: SiWhatsapp,
     color: "#25D366",
     group: "community",

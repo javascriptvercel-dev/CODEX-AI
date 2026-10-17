@@ -37,7 +37,7 @@ export default function AdminDeleteUserModal({ user, busy, onClose, onConfirm })
           />
         </label>
       </div>
-      <div className="mt-5 flex gap-2">
+      <div className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-2">
         <Button variant="secondary" size="lg" full disabled={busy} onClick={onClose}>
           Cancel
         </Button>

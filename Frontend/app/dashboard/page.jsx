@@ -208,7 +208,7 @@ export default function DashboardPage() {
                               ? "Your administrator account has permanent Premium status with no expiration."
                               : `Your access is active until ${formatDate(data.premium.expiresAt)} — 500 short links, unlimited saved settings, and Premium tools.`
                             : data.premium.available
-                              ? "Premium unlocks 500 short links, saved tool settings, the project obfuscator upload, and higher tool limits. It is granted manually by the admin after payment."
+                              ? "Premium unlocks 500 short links, saved tool settings, the project obfuscator upload, and higher tool limits."
                               : "Premium features are being prepared. They will appear here once enabled."}
                         </p>
                       </div>
@@ -226,7 +226,7 @@ export default function DashboardPage() {
                         </a>
                       ) : (
                         <span className="flex-none text-xs text-muted">
-                          Message the admin to get Premium.
+                          Premium upgrades aren’t available right now. Please check back soon.
                         </span>
                       )
                     )}

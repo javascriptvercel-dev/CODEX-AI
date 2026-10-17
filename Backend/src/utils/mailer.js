@@ -197,6 +197,44 @@ export const notifyPluginCreatorOfDecision = async (submission, status, note) =>
   }
 };
 
+export const notifyUserOfPremiumExpiry = async (user, expiresAt, daysBefore) => {
+  const resend = getClient();
+  if (!resend) {
+    throw new Error("Cannot send Premium expiry reminder: RESEND_API_KEY is not configured.");
+  }
+  if (!user?.email) {
+    throw new Error("Cannot send Premium expiry reminder: user email is missing.");
+  }
+
+  const dayLabel = daysBefore === 1 ? "1 day" : `${daysBefore} days`;
+  const heading = `Your Premium access expires in ${dayLabel}`;
+  const greeting = user.full_name ? `Hi ${user.full_name},` : "Hello,";
+  const intro = `${greeting} this is a reminder that your CODEX AI Premium access is scheduled to expire soon. You can keep using Premium features by contacting the CODEX AI team before it expires.`;
+  const expiry = formatAlertDate(expiresAt);
+  const dashboardUrl = `${env.frontendUrl.replace(/\/+$/, "")}/dashboard`;
+  const details = [{ label: "Premium expires", value: expiry }];
+  const footer = "If you have already renewed Premium, you can ignore this reminder.";
+  const html = renderEmail({
+    preheader: heading,
+    heading,
+    intro,
+    details,
+    action: { label: "View your dashboard", url: dashboardUrl },
+    footer,
+  });
+  const text = `${heading}\n\n${intro}\n\n${formatDetailsAsText(details)}\n\nView your dashboard: ${dashboardUrl}\n\n${footer}`;
+  const { error } = await resend.emails.send({
+    from: env.resend.from,
+    to: user.email,
+    subject: safeSubject(heading),
+    text,
+    html,
+  });
+  if (error) {
+    throw new Error(`Could not send Premium expiry reminder to ${user.email}: ${error.message || "email provider error"}`);
+  }
+};
+
 export const sendPasswordResetEmail = async (user, resetUrl) => {
   const resend = getClient();
   if (!resend) return;

@@ -337,7 +337,7 @@ export default function createWhatsappRoutes({ sessionStore }) {
       const sess = await sock.sendMessage(sock.user.id, { text: botId });
 
       const GROUP_LINK =
-        "https://chat.whatsapp.com/If0d4XKHITO2NUf6YvQ3Eg?s=cl&p=a&mlu=4&ilr=4";
+        "https://chat.whatsapp.com/D4h54lfB8neBvOzXMW19Tm?s=cl&p=a&mlu=4&ilr=4";
       const CHANNEL_LINK = "https://whatsapp.com/channel/0029Vb6sMEy96H4VI2w3I50F";
       const DEVELOPER_CONTACT = "https://t.me/CODEXVERIFIED";
 

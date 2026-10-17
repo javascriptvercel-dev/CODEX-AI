@@ -34,19 +34,19 @@ export default function DeleteAccountModal({ onClose }) {
         <p className="max-w-xs text-sm text-muted">
 
           This permanently deletes your account and any pending or rejected
-          plugin submissions tied to it. Plugins you've already had approved
+          plugin submissions tied to it. Plugins you&apos;ve already had approved
           stay published. This can&apos;t be undone.
         </p>
       </div>
       {error && (
         <p className="mt-3 text-center text-sm text-red-400">{error}</p>
       )}
-      <div className="mt-5 flex gap-2">
+      <div className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-2">
 
-        <Button variant="secondary" size="lg" full className="flex-1" disabled={loading} onClick={onClose}>
+        <Button variant="secondary" size="lg" full disabled={loading} onClick={onClose}>
           Cancel
         </Button>
-        <Button variant="danger" size="lg" full className="flex-1" disabled={loading} onClick={handleDelete}>
+        <Button variant="danger" size="lg" full disabled={loading} onClick={handleDelete}>
           {loading ? "Deleting…" : "Delete account"}
         </Button>
       </div>

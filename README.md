@@ -43,6 +43,7 @@ CODEX AI is a full-stack platform for spinning up **WhatsApp bot sessions** in s
 | 📱 **Pairing Code Flow** | Prefer typing a code on your phone instead of scanning? Pair by WhatsApp number directly |
 | 🧩 **Plugin Marketplace** | Browse, search, and `.install <url>` community plugins across Utility, Fun, Moderation, AI, and more |
 | ✍️ **Plugin Submissions** | Ship your own plugin — paste code or upload a file, and it lands straight in the admin review queue |
+| 👑 **Premium expiry reminders** | Premium members are emailed 7 and 1 UTC calendar days before their access expires |
 | 🤖 **Site Assistant FAQs** | Assistant conversations can create summarized FAQ drafts for admin review; approved answers appear on Support |
 | 💡 **Suggestion Box** | Users can pitch new features directly to the team |
 | 🌓 **Light/Dark UI** | Because good tools should look good at 2am too |
@@ -61,7 +62,7 @@ CODEX AI is a full-stack platform for spinning up **WhatsApp bot sessions** in s
 - [Baileys](https://github.com/WhiskeySockets/Baileys) for the WhatsApp Web protocol
 - [Supabase](https://supabase.com/) for Postgres + object storage
 - JWT session cookies (`jsonwebtoken`, `cookie-parser`, `bcryptjs`)
-- [Resend](https://resend.com/) for transactional email (admin notifications, password resets)
+- [Resend](https://resend.com/) for transactional email (admin notifications, password resets, and Premium expiry reminders)
 - [qrcode](https://www.npmjs.com/package/qrcode) for QR pairing, [nanoid](https://github.com/ai/nanoid) for public IDs
 
 ---

@@ -108,7 +108,7 @@ function ConsolePageInner() {
       setLoading(true);
       setError(null);
     }
-    router.replace(id === "submissions" ? "/console" : `/console?tab=${id}`, {
+    router.replace(`/console?tab=${id}`, {
       scroll: false,
     });
   };

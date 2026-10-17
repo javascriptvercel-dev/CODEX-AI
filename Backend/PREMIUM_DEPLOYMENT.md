@@ -16,13 +16,20 @@ remain available while Premium is disabled.
    versioning, and permanently drops the retired `account_integration_tokens`
    table. Back up any integration-token records you need before running it;
    the old token secrets cannot be recovered.
-4. Set `PREMIUM_FEATURES_ENABLED=true` in the backend environment and restart
+4. Apply [`src/db/migration_015_premium_expiry_reminders.sql`](./src/db/migration_015_premium_expiry_reminders.sql)
+   in the Supabase SQL editor. This stores sent Premium expiry reminders and
+   prevents duplicate emails for the same expiry date.
+5. Set `PREMIUM_FEATURES_ENABLED=true` and `RESEND_API_KEY` in the backend
+   environment and restart
    the backend. On Render, client-IP rate limiting trusts one proxy hop by
    default. Set `TRUST_PROXY_HOPS` to the exact number of trusted proxies in
    front of the backend if your hosting path differs; use `0` when connecting
    directly without a proxy. No payment-provider credentials or webhook
-   configuration are needed.
-5. Deploy the frontend. Users can sign in at `/login`; successful default
+   configuration are needed. Premium members receive one reminder 7 UTC
+   calendar days before expiry and another 1 UTC calendar day before expiry.
+   These transactional reminders are separate from the admin-only Email alerts
+   setting in Console Settings.
+6. Deploy the frontend. Users can sign in at `/login`; successful default
    sign-in goes to `/dashboard`, while tool/Create links preserve their return
    destination.
 
@@ -60,7 +67,10 @@ also allow 100 MB multipart requests and allow enough time for larger projects.
    leaving normal sign-in and the dashboard available.
 2. If fully reverting the application, deploy the previous backend/frontend
    version before running the rollback SQL.
-3. Back up any Premium/activity data that should be retained, then run
+3. If removing Premium expiry reminder emails, run the commented rollback
+   statement in [`src/db/migration_015_premium_expiry_reminders.sql`](./src/db/migration_015_premium_expiry_reminders.sql).
+   This deletes reminder delivery records.
+4. Back up any Premium/activity data that should be retained, then run
    [`src/db/migration_013_premium_dashboard_rollback.sql`](./src/db/migration_013_premium_dashboard_rollback.sql).
    The script permanently removes integration, settings, usage, and click-event
    records. It intentionally leaves `users.premium_until` in place so the
