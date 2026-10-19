@@ -17,11 +17,14 @@ const navLinks = [
 export default function PluginNavbar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const pageLinks = pathname === "/"
+    ? navLinks.filter((link) => link.href !== "/")
+    : navLinks;
   const visibleLinks = user
     ? user.role === "admin"
-      ? navLinks
-      : [...navLinks, { href: "/dashboard", label: "Dashboard" }]
-    : navLinks;
+      ? pageLinks
+      : [...pageLinks, { href: "/dashboard", label: "Dashboard" }]
+    : pageLinks;
   const [loggingOut, setLoggingOut] = useState(false);
 
   // Only the Create Plugin page gets a logout control, and only once

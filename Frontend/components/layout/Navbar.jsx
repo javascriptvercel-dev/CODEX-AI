@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import NavShell from "./NavShell";
 import LockedModal from "@/components/modals/LockedModal";
 import { getLockedPage } from "@/lib/lockedPages";
@@ -20,12 +21,16 @@ const links = [
 
 export default function Navbar({ navLinks = links, onOpenSection }) {
   const [lockedPage, setLockedPage] = useState(null);
+  const pathname = usePathname();
   const { user } = useAuth();
+  const pageLinks = pathname === "/"
+    ? navLinks.filter((link) => link.href !== "/")
+    : navLinks;
   const visibleLinks = user
     ? user.role === "admin"
-      ? navLinks
-      : [...navLinks, { href: "/dashboard", label: "Dashboard" }]
-    : navLinks;
+      ? pageLinks
+      : [...pageLinks, { href: "/dashboard", label: "Dashboard" }]
+    : pageLinks;
 
   const handleLockedLink = (event, href) => {
     const page = getLockedPage(href);

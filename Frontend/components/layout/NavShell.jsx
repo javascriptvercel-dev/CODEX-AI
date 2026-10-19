@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import Link from "next/link";
 import ThemeToggle from "./ThemeToggle";
 
 /**
@@ -18,7 +17,6 @@ import ThemeToggle from "./ThemeToggle";
  */
 export default function NavShell({
   brand,
-  brandHref = "/",
   badge,
   links = [],
   renderLink,
@@ -41,13 +39,9 @@ export default function NavShell({
     >
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-5">
         <div className="flex min-w-0 items-center gap-2">
-          <Link
-            href={brandHref}
-            onClick={close}
-            className="focus-ring whitespace-nowrap rounded-md font-display text-lg font-bold tracking-tight text-fg"
-          >
+          <div className="whitespace-nowrap rounded-md font-display text-lg font-bold tracking-tight text-fg">
             {brand}
-          </Link>
+          </div>
           {badge}
         </div>
 
