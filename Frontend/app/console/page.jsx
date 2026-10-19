@@ -87,7 +87,7 @@ function ConsolePageInner() {
 
   useEffect(() => {
     if (!authLoading && !user) {
-      router.replace("/login?next=%2Fconsole&cancel=%2Fplugins");
+      router.replace("/login?next=%2Fconsole&cancel=%2F");
     } else if (!authLoading && user && !isAdmin) {
       router.replace("/");
     }

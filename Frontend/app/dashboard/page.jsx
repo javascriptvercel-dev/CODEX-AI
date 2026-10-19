@@ -151,7 +151,7 @@ export default function DashboardPage() {
                 <>
                   <h1 className="font-display text-2xl font-bold">Your dashboard</h1>
                   <p className="mt-2 text-sm text-muted">Sign in to view your account, tools, and Premium status.</p>
-                  <Button href="/login?next=%2Fdashboard" className="mt-5">Sign in</Button>
+                  <Button href="/login?next=%2Fdashboard&cancel=%2F" className="mt-5">Sign in</Button>
                 </>
               )}
             </div>
