@@ -40,7 +40,7 @@ import { robot } from "@/lib/robot";
 
 const CONSOLE_GREETINGS = [
   "Welcome back, {name}! Let's see what's waiting for review.",
-  "Good to see you, {name}. I'll keep an eye on things too.",
+  "Good to see you, {name}. I'll keep an eye on things from here too.",
   "Hey {name}! Ready when you are.",
   "{name}, the console is all yours.",
 ];
@@ -280,7 +280,7 @@ function ConsolePageInner() {
           </div>
           <p className="mt-4 font-semibold text-fg">Console access required</p>
           <p className="mt-1 text-sm text-muted">
-            This area is limited to administrators. Taking you back home…
+            Unauthorized access
           </p>
         </div>
       </div>
@@ -312,9 +312,6 @@ function ConsolePageInner() {
             <p className="mt-1 text-sm text-muted">{user.email}</p>
           </div>
         </div>
-        <p className="max-w-xs text-sm text-muted sm:max-w-sm sm:text-right">
-          Your dashboard and administration tools, together in one place.
-        </p>
       </div>
 
         <div className="mt-5 max-w-xs">
