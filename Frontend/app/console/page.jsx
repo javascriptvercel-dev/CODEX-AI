@@ -33,6 +33,7 @@ import UsersPanel from "@/components/admin/UsersPanel";
 import PremiumPanel from "@/components/admin/PremiumPanel";
 import PluginSubmitForm from "@/components/plugins/PluginSubmitForm";
 import VerifiedBadge from "@/components/ui/VerifiedBadge";
+import Avatar from "@/components/layout/Avatar";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
 import { robot } from "@/lib/robot";
@@ -296,17 +297,20 @@ function ConsolePageInner() {
 
   return (
     <div className="flex min-h-dvh flex-col bg-bg text-fg">
-    <Navbar />
+    <Navbar showDashboardButton={false} />
     <main className="flex-1">
       <Container className="pb-16 pt-9 sm:pt-12">
       <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
-        <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-azure-500">Administrator account center</p>
-          <h1 className="mt-2 flex flex-wrap items-center gap-2 font-display text-3xl font-bold">
-            Welcome, {user.fullName || user.email}
-            <VerifiedBadge size={18} label="Verified administrator" />
-          </h1>
-          <p className="mt-1 text-sm text-muted">{user.email}</p>
+        <div className="flex min-w-0 items-center gap-4">
+          <Avatar size={56} />
+          <div className="min-w-0">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-azure-500">Administrator account center</p>
+            <h1 className="mt-2 flex flex-wrap items-center gap-2 font-display text-3xl font-bold">
+              Welcome, {user.fullName || user.email}
+              <VerifiedBadge size={18} label="Verified administrator" />
+            </h1>
+            <p className="mt-1 text-sm text-muted">{user.email}</p>
+          </div>
         </div>
         <p className="max-w-xs text-sm text-muted sm:max-w-sm sm:text-right">
           Your dashboard and administration tools, together in one place.

@@ -10,19 +10,19 @@ import {
   Crown,
   ExternalLink,
   Link2,
+  LayoutDashboard,
   LoaderCircle,
   MessageCircle,
   RefreshCw,
   ShieldCheck,
   Sparkles,
+  Settings,
   Star,
 } from "lucide-react";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import Container from "@/components/ui/Container";
+import DashboardShell from "@/components/dashboard/DashboardShell";
+import ProfileSettings from "@/components/dashboard/ProfileSettings";
 import Button from "@/components/ui/Button";
 import StateBlock from "@/components/ui/StateBlock";
-import VerifiedBadge from "@/components/ui/VerifiedBadge";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
 import { showToast } from "@/lib/toast";
@@ -48,6 +48,15 @@ function lastSevenClickDays(entries = []) {
   });
 }
 
+const SECTIONS = [
+  { id: "overview", label: "Overview", icon: LayoutDashboard },
+  { id: "links", label: "Short links", icon: Link2 },
+  { id: "activity", label: "Tool activity", icon: Activity },
+  { id: "tools", label: "Tool settings", icon: Sparkles },
+  { id: "submissions", label: "Plugin submissions", icon: ShieldCheck },
+  { id: "settings", label: "Settings", icon: Settings },
+];
+
 function Metric({ icon: Icon, label, value, detail }) {
   return (
     <div className={cardClass}>
@@ -70,11 +79,17 @@ export default function DashboardPage() {
   const [error, setError] = useState("");
   const [settings, setSettings] = useState([]);
   const [mode, setMode] = useState("easy");
+  const [section, setSection] = useState("overview");
   const clickDays = lastSevenClickDays(data?.links.dailyClicks);
   const maxDailyClicks = Math.max(1, ...clickDays.map((entry) => entry.clicks));
 
   useEffect(() => {
-    if (!authLoading && user?.role === "admin") {
+    if (authLoading) return;
+    if (!user) {
+      // The dashboard has no public entry point: signed-out visitors are
+      // sent to sign in and come straight back here afterwards.
+      router.replace("/login?next=%2Fdashboard&cancel=%2F");
+    } else if (user.role === "admin") {
       router.replace("/console?tab=overview");
     }
   }, [authLoading, router, user]);
@@ -138,60 +153,63 @@ export default function DashboardPage() {
     }
   }
 
-  return (
-    <div className="flex min-h-dvh flex-col bg-bg text-fg">
-      <Navbar />
-      <main className="flex-1">
-        <Container className="pb-16 pt-9 sm:pt-12">
-          {authLoading || !user ? (
-            <div className="mx-auto max-w-xl py-16 text-center">
-              {authLoading ? (
-                <LoaderCircle className="mx-auto animate-spin text-azure-500" />
-              ) : (
-                <>
-                  <h1 className="font-display text-2xl font-bold">Your dashboard</h1>
-                  <p className="mt-2 text-sm text-muted">Sign in to view your account, tools, and Premium status.</p>
-                  <Button href="/login?next=%2Fdashboard&cancel=%2F" className="mt-5">Sign in</Button>
-                </>
-              )}
-            </div>
-          ) : (
-            <>
-              <header className="mb-7 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-azure-500">Account center</p>
-                  <h1 className="mt-2 flex items-center gap-2 font-display text-3xl font-bold">
-                    Welcome, {user.fullName || user.email}
-                    {user.role === "admin"
-                      ? <VerifiedBadge size={18} label="Verified administrator" />
-                      : data?.premium.active && <Star size={18} fill="currentColor" className="text-violet-400 drop-shadow-[0_0_6px_rgba(139,92,246,0.75)]" aria-label="Premium member" />}
-                  </h1>
-                  <p className="mt-1 text-sm text-muted">{user.email}</p>
-                </div>
-                <Button variant="secondary" onClick={loadDashboard} disabled={loading}>
-                  {loading ? <LoaderCircle size={15} className="animate-spin" /> : <RefreshCw size={15} />}
-                  Refresh dashboard
-                </Button>
-              </header>
+  const activeSection = SECTIONS.find((item) => item.id === section) || SECTIONS[0];
 
-              {error && (
-                <div role="alert" className="mb-5 rounded-lg border border-red-400/30 bg-red-400/5 p-3 text-sm text-red-400">
-                  {error}
-                </div>
-              )}
-              {loading && !data ? (
-                <div className="grid min-h-64 place-items-center"><LoaderCircle className="animate-spin text-azure-500" /></div>
-              ) : error && !data ? (
-                <StateBlock tone="error" title="Dashboard unavailable" message={error} onRetry={loadDashboard} retryLabel="Try again" />
-              ) : data ? (
-                <div className="space-y-6">
+  if (authLoading || !user || user.role === "admin") {
+    return (
+      <div className="grid min-h-dvh place-items-center bg-bg text-fg">
+        <LoaderCircle className="animate-spin text-azure-500" aria-label="Loading" />
+      </div>
+    );
+  }
+
+  return (
+    <DashboardShell
+      sections={SECTIONS}
+      active={section}
+      onSelect={setSection}
+      title={activeSection.label}
+    >
+      <header className="mb-7 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-azure-500">{activeSection.label}</p>
+          <h1 className="mt-2 flex items-center gap-2 font-display text-3xl font-bold">
+            Welcome, {user.fullName || user.email}
+            {data?.premium.active && <Star size={18} fill="currentColor" className="text-violet-400 drop-shadow-[0_0_6px_rgba(139,92,246,0.75)]" aria-label="Premium member" />}
+          </h1>
+          <p className="mt-1 text-sm text-muted">{user.email}</p>
+        </div>
+        {section !== "settings" && (
+          <Button variant="secondary" onClick={loadDashboard} disabled={loading}>
+            {loading ? <LoaderCircle size={15} className="animate-spin" /> : <RefreshCw size={15} />}
+            Refresh dashboard
+          </Button>
+        )}
+      </header>
+
+      {section === "settings" ? (
+        <ProfileSettings />
+      ) : (
+        <>
+          {error && (
+            <div role="alert" className="mb-5 rounded-lg border border-red-400/30 bg-red-400/5 p-3 text-sm text-red-400">
+              {error}
+            </div>
+          )}
+          {loading && !data ? (
+            <div className="grid min-h-64 place-items-center"><LoaderCircle className="animate-spin text-azure-500" /></div>
+          ) : error && !data ? (
+            <StateBlock tone="error" title="Dashboard unavailable" message={error} onRetry={loadDashboard} retryLabel="Try again" />
+          ) : data ? (
+            <div className="space-y-6">
+              {section === "overview" && (
+                <>
                   <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="Account overview">
                     <Metric icon={Activity} label="Tool runs" value={data.usage.totalRuns} detail="Last 30 days" />
                     <Metric icon={Link2} label="Short links" value={data.links.total} detail={`${data.links.maxActive ?? "Unlimited"} active-link capacity`} />
                     <Metric icon={ArrowUpRight} label="Link clicks" value={data.links.totalClicks.toLocaleString()} detail="All active links" />
                     <Metric icon={BadgeCheck} label="Plugin submissions" value={data.submissions.length} detail="Your recent submissions" />
                   </section>
-
                   <section className={`${cardClass} flex flex-col justify-between gap-5 sm:flex-row sm:items-center`}>
                     <div className="flex items-start gap-3">
                       <span className="grid h-10 w-10 flex-none place-items-center rounded-lg bg-amber-400/10 text-amber-400">
@@ -230,8 +248,9 @@ export default function DashboardPage() {
                       )
                     )}
                   </section>
-
-                  <div className="grid gap-6 lg:grid-cols-2">
+                </>
+              )}
+              {section === "links" && (
                     <section className={cardClass}>
                       <div className="mb-4 flex items-center gap-3">
                         <Link2 size={18} className="text-azure-500" />
@@ -273,7 +292,8 @@ export default function DashboardPage() {
                         Open URL Shortener <ArrowUpRight size={14} />
                       </Link>
                     </section>
-
+              )}
+              {section === "activity" && (
                     <section className={cardClass}>
                       <div className="mb-4 flex items-center gap-3">
                         <Activity size={18} className="text-azure-500" />
@@ -289,7 +309,8 @@ export default function DashboardPage() {
                         {!data.usage.events.length && <li className="py-3 text-sm text-muted">Tool activity will appear as you use the tools.</li>}
                       </ul>
                     </section>
-
+              )}
+              {section === "tools" && (
                     <section className={cardClass}>
                       <div className="mb-4 flex items-center gap-3">
                         <Sparkles size={18} className="text-azure-500" />
@@ -308,7 +329,8 @@ export default function DashboardPage() {
                       </form>
                       {settings.length > 0 && <p className="mt-3 text-xs text-muted">{settings.length} saved tool configuration{settings.length === 1 ? "" : "s"}.</p>}
                     </section>
-
+              )}
+              {section === "submissions" && (
                     <section className={cardClass}>
                       <div className="mb-4 flex items-center gap-3">
                         <ShieldCheck size={18} className="text-azure-500" />
@@ -329,14 +351,11 @@ export default function DashboardPage() {
                         Create a plugin <ArrowUpRight size={14} />
                       </Link>
                     </section>
-                  </div>
-                </div>
-              ) : null}
-            </>
-          )}
-        </Container>
-      </main>
-      <Footer />
-    </div>
+              )}
+            </div>
+          ) : null}
+        </>
+      )}
+    </DashboardShell>
   );
 }

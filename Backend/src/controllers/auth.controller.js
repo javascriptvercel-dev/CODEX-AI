@@ -6,10 +6,11 @@ import {
   setSessionCookie,
   clearSessionCookie,
 } from "../utils/jwt.js";
-import { sendPasswordResetEmail } from "../utils/mailer.js";
+import { sendPasswordResetEmail, sendEmailChangeConfirmation } from "../utils/mailer.js";
 import crypto from "crypto";
 
 const RESET_TOKEN_TTL_MS = 60 * 60 * 1000;
+const EMAIL_CHANGE_TTL_MS = 24 * 60 * 60 * 1000;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const OAUTH_STATE_COOKIE = "codex_oauth_state";
 
@@ -27,6 +28,12 @@ const publicUser = (user, authenticatedAt) =>
     ),
     premiumExpiresAt: user.role === "admin" ? null : user.premium_until || null,
     emailNotificationsEnabled: user.email_notifications_enabled,
+    pendingEmail:
+      user.pending_email &&
+      user.pending_email_expires_at &&
+      Date.parse(user.pending_email_expires_at) > Date.now()
+        ? user.pending_email
+        : null,
     authenticatedAt,
   };
 
@@ -225,6 +232,243 @@ export const uploadAvatar = async (req, res) => {
     return res.status(500).json({ error: "Could not save your new photo." });
   }
   res.json({ user: publicUser(updated, req.authenticatedAt) });
+};
+
+// Shared by the request step and the confirm step so the rules can't drift.
+const checkEmailChange = async (user, nextEmail) => {
+  const wasAdmin = user.role === "admin";
+  const becomesAdmin = isAdminEmail(nextEmail);
+  // Roles are derived from ADMIN_EMAILS at login, so an email change must
+  // never grant or silently drop admin access.
+  if (!wasAdmin && becomesAdmin) {
+    return { status: 400, error: "That email can't be used on this account." };
+  }
+  if (wasAdmin && !becomesAdmin) {
+    return {
+      status: 400,
+      error: "Administrator emails must be listed in ADMIN_EMAILS before you can switch to them.",
+    };
+  }
+  const { data: taken, error } = await supabase
+    .from("users")
+    .select("id")
+    .eq("email", nextEmail)
+    .neq("id", user.id)
+    .maybeSingle();
+  if (error) {
+    console.error("checkEmailChange: lookup failed", error);
+    return { status: 500, error: "We could not check that email right now." };
+  }
+  if (taken) {
+    return { status: 409, error: "An account with that email already exists." };
+  }
+  return null;
+};
+
+export const updateProfile = async (req, res) => {
+  const { fullName, email } = req.body || {};
+  const updates = {};
+  let requestedEmail = null;
+
+  if (fullName !== undefined) {
+    const name = String(fullName).trim();
+    if (name.length > 80) {
+      return res.status(400).json({ error: "Name must be 80 characters or fewer." });
+    }
+    updates.full_name = name || null;
+  }
+
+  if (email !== undefined) {
+    const nextEmail = String(email).trim().toLowerCase();
+    if (!EMAIL_PATTERN.test(nextEmail)) {
+      return res.status(400).json({ error: "Enter a valid email address." });
+    }
+    if (nextEmail !== req.user.email) {
+      const problem = await checkEmailChange(req.user, nextEmail);
+      if (problem) return res.status(problem.status).json({ error: problem.error });
+      requestedEmail = nextEmail;
+    }
+  }
+
+  let current = req.user;
+  if (Object.keys(updates).length) {
+    const { data, error } = await supabase
+      .from("users")
+      .update(updates)
+      .eq("id", req.user.id)
+      .select()
+      .single();
+    if (error) {
+      console.error("updateProfile: update failed", error);
+      return res.status(500).json({ error: "Could not save your profile." });
+    }
+    current = data;
+  }
+
+  if (requestedEmail) {
+    // Only a hash of the token is stored; the raw token lives in the email.
+    const token = crypto.randomBytes(32).toString("hex");
+    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+    const { data: pending, error: pendingError } = await supabase
+      .from("users")
+      .update({
+        pending_email: requestedEmail,
+        pending_email_token_hash: tokenHash,
+        pending_email_expires_at: new Date(Date.now() + EMAIL_CHANGE_TTL_MS).toISOString(),
+      })
+      .eq("id", req.user.id)
+      .select()
+      .single();
+    if (pendingError) {
+      console.error("updateProfile: pending email save failed", pendingError);
+      return res.status(500).json({
+        error:
+          pendingError.code === "42703"
+            ? "Email changes need database migration 016 to be applied first."
+            : "Could not start your email change.",
+      });
+    }
+    try {
+      await sendEmailChangeConfirmation(
+        pending,
+        requestedEmail,
+        `${env.frontendUrl}/confirm-email?token=${token}`,
+      );
+    } catch (mailError) {
+      console.error("updateProfile: confirmation email failed", mailError);
+      await supabase
+        .from("users")
+        .update({ pending_email: null, pending_email_token_hash: null, pending_email_expires_at: null })
+        .eq("id", req.user.id);
+      return res.status(502).json({
+        error: "We couldn't send the confirmation email. Check the address and try again.",
+      });
+    }
+    current = pending;
+  }
+
+  res.json({ user: publicUser(current, req.authenticatedAt), confirmationSentTo: requestedEmail });
+};
+
+export const confirmEmailChange = async (req, res) => {
+  const { token } = req.body || {};
+  if (!token || typeof token !== "string") {
+    return res.status(400).json({ error: "This confirmation link is invalid." });
+  }
+  const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+  const { data: account } = await supabase
+    .from("users")
+    .select("*")
+    .eq("pending_email_token_hash", tokenHash)
+    .maybeSingle();
+  const valid =
+    account &&
+    account.pending_email &&
+    account.pending_email_expires_at &&
+    new Date(account.pending_email_expires_at) > new Date();
+  if (!valid) {
+    return res.status(400).json({
+      error: "That confirmation link is invalid or has expired. Request the change again from Settings.",
+    });
+  }
+  // Re-check at confirm time: the address may have been taken since the request.
+  const problem = await checkEmailChange(account, account.pending_email);
+  if (problem) return res.status(problem.status).json({ error: problem.error });
+
+  let { data: updated, error } = await supabase
+    .from("users")
+    .update({
+      email: account.pending_email,
+      pending_email: null,
+      pending_email_token_hash: null,
+      pending_email_expires_at: null,
+      // The login identity changed, so sign out every other session.
+      session_version: Number(account.session_version ?? 0) + 1,
+    })
+    .eq("id", account.id)
+    .select()
+    .single();
+  if (error && error.code === "42703") {
+    ({ data: updated, error } = await supabase
+      .from("users")
+      .update({
+        email: account.pending_email,
+        pending_email: null,
+        pending_email_token_hash: null,
+        pending_email_expires_at: null,
+      })
+      .eq("id", account.id)
+      .select()
+      .single());
+  }
+  if (error) {
+    console.error("confirmEmailChange: update failed", error);
+    return res.status(500).json({ error: "Could not confirm your new email. Please try again." });
+  }
+  // Keep this browser signed in only if it already belonged to this account.
+  if (req.user?.id === updated.id) setSessionCookie(res, signSession(updated));
+  res.json({ ok: true, email: updated.email });
+};
+
+export const cancelEmailChange = async (req, res) => {
+  const { data, error } = await supabase
+    .from("users")
+    .update({ pending_email: null, pending_email_token_hash: null, pending_email_expires_at: null })
+    .eq("id", req.user.id)
+    .select()
+    .single();
+  if (error) {
+    console.error("cancelEmailChange: failed", error);
+    return res.status(500).json({ error: "Could not cancel the email change." });
+  }
+  res.json({ user: publicUser(data, req.authenticatedAt) });
+};
+
+export const changePassword = async (req, res) => {
+  const { currentPassword, newPassword } = req.body || {};
+  if (!newPassword || String(newPassword).length < 8) {
+    return res.status(400).json({ error: "Enter a new password of at least 8 characters." });
+  }
+  const { data: account, error: fetchError } = await supabase
+    .from("users")
+    .select("*")
+    .eq("id", req.user.id)
+    .single();
+  if (fetchError || !account) {
+    console.error("changePassword: fetch failed", fetchError);
+    return res.status(500).json({ error: "Could not verify your account right now." });
+  }
+  // GitHub-only accounts have no password yet, so there is nothing to verify.
+  if (account.password_hash) {
+    const valid = await comparePassword(String(currentPassword || ""), account.password_hash);
+    if (!valid) {
+      return res.status(400).json({ error: "Your current password is incorrect." });
+    }
+  }
+  const passwordHash = await hashPassword(String(newPassword));
+  const nextVersion = Number(account.session_version ?? 0) + 1;
+  let { data: updated, error } = await supabase
+    .from("users")
+    .update({ password_hash: passwordHash, session_version: nextVersion })
+    .eq("id", req.user.id)
+    .select()
+    .single();
+  if (error && error.code === "42703") {
+    // session_version (migration 014) not applied yet: still save the password.
+    ({ data: updated, error } = await supabase
+      .from("users")
+      .update({ password_hash: passwordHash })
+      .eq("id", req.user.id)
+      .select()
+      .single());
+  }
+  if (error) {
+    console.error("changePassword: update failed", error);
+    return res.status(500).json({ error: "Could not change your password." });
+  }
+  // Other devices are signed out by the version bump; keep this one signed in.
+  setSessionCookie(res, signSession(updated));
+  res.json({ ok: true });
 };
 
 export const updateNotifications = async (req, res) => {

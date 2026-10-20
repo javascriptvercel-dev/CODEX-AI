@@ -4,6 +4,7 @@ import { Check, Mail, Trash2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
 import DeleteAccountModal from "./DeleteAccountModal";
+import ProfileSettings from "@/components/dashboard/ProfileSettings";
 import { showToast } from "@/lib/toast";
 export default function SettingsTab() {
   const { user, refresh } = useAuth();
@@ -40,7 +41,8 @@ export default function SettingsTab() {
   const enabled = optimisticEnabled;
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
+      <ProfileSettings />
       {error && <p role="alert" className="rounded-lg border border-red-400/30 bg-red-400/5 p-3 text-sm text-red-400">{error}</p>}
 
       <button

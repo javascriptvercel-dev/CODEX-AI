@@ -20,10 +20,14 @@ export const attachUser = async (req, _res, next) => {
     "email_notifications_enabled",
     "created_at",
   ];
+  const premiumFields = env.premiumFeaturesEnabled ? ["premium_until"] : [];
+  // Migration 016 columns (pending email change) are optional until applied.
+  const pendingFields = ["pending_email", "pending_email_expires_at"];
   const fields = [
     ...baseFields,
     "session_version",
-    ...(env.premiumFeaturesEnabled ? ["premium_until"] : []),
+    ...premiumFields,
+    ...pendingFields,
   ].join(", ");
 
   let { data, error } = await supabase
@@ -31,6 +35,16 @@ export const attachUser = async (req, _res, next) => {
     .select(fields)
     .eq("id", payload.sub)
     .maybeSingle();
+
+  if (error && error.code === "42703") {
+    // Migration 016 not applied yet: retry without the pending-email columns
+    // so session_version checks (migration 014) stay enforced.
+    ({ data, error } = await supabase
+      .from("users")
+      .select([...baseFields, "session_version", ...premiumFields].join(", "))
+      .eq("id", payload.sub)
+      .maybeSingle());
+  }
 
   if (error && error.code === "42703") {
     // session_version (migration 014) has not been applied yet —

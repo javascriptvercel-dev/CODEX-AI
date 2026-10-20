@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import ThemeToggle from "./ThemeToggle";
+import OpenDashboardButton from "./OpenDashboardButton";
 
 /**
  * Shared header shell for every navbar variant in the app.
@@ -24,6 +25,7 @@ export default function NavShell({
   persistentExtra,
   mobileExtra,
   headerClassName = "",
+  showDashboardButton = true,
 }) {
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
@@ -51,6 +53,7 @@ export default function NavShell({
 
         <div className="flex items-center gap-2">
           <div className="hidden items-center gap-2 lg:flex">{desktopExtra}</div>
+          {showDashboardButton ? <OpenDashboardButton /> : null}
           <ThemeToggle />
           {persistentExtra}
           <button
@@ -85,6 +88,11 @@ export default function NavShell({
               renderLink(link, { mobile: true, close, focusable: open }),
             )}
           </nav>
+          {showDashboardButton ? (
+            <div className="flex flex-col gap-1 border-t border-edge px-5 py-3 sm:hidden">
+              <OpenDashboardButton mobile tabIndex={open ? undefined : -1} onNavigate={close} />
+            </div>
+          ) : null}
           {mobileExtra ? (
             <div className="flex flex-col gap-1 border-t border-edge px-5 py-3">
               {typeof mobileExtra === "function"

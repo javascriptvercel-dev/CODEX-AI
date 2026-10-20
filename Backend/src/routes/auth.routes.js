@@ -9,6 +9,10 @@ import {
   logout,
   me,
   updateNotifications,
+  updateProfile,
+  changePassword,
+  confirmEmailChange,
+  cancelEmailChange,
   uploadAvatar,
   deleteAccount,
   githubStart,
@@ -26,6 +30,7 @@ const upload = multer({
 // email for login), reset when their window rolls over.
 const signupLimiter = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 8 });
 const loginLimiter = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 10, keyBy: "email" });
+const passwordLimiter = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 10 });
 const forgotLimiter = createRateLimiter({ windowMs: 60 * 60 * 1000, max: 5 });
 
 const router = Router();
@@ -40,6 +45,22 @@ router.patch(
   attachUser,
   requireAuth,
   asyncHandler(updateNotifications),
+);
+router.patch(
+  "/profile",
+  attachUser,
+  requireAuth,
+  passwordLimiter,
+  asyncHandler(updateProfile),
+);
+router.post("/confirm-email", attachUser, passwordLimiter, asyncHandler(confirmEmailChange));
+router.delete("/pending-email", attachUser, requireAuth, asyncHandler(cancelEmailChange));
+router.post(
+  "/password",
+  attachUser,
+  requireAuth,
+  passwordLimiter,
+  asyncHandler(changePassword),
 );
 router.post(
   "/avatar",

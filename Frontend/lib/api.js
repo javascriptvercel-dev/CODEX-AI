@@ -84,6 +84,13 @@ export const api = {
     formData.append("avatar", file);
     return request("/api/auth/avatar", { method: "POST", body: formData });
   },
+  updateProfile: (body) =>
+    request("/api/auth/profile", { method: "PATCH", body: JSON.stringify(body) }),
+  confirmEmailChange: (token) =>
+    request("/api/auth/confirm-email", { method: "POST", body: JSON.stringify({ token }) }),
+  cancelEmailChange: () => request("/api/auth/pending-email", { method: "DELETE" }),
+  changePassword: (body) =>
+    request("/api/auth/password", { method: "POST", body: JSON.stringify(body) }),
   deleteAccount: () => request("/api/auth/account", { method: "DELETE" }),
   listPlugins: (q) =>
     request(`/api/plugins${q ? `?q=${encodeURIComponent(q)}` : ""}`),

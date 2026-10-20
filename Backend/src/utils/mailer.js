@@ -261,3 +261,32 @@ export const sendPasswordResetEmail = async (user, resetUrl) => {
     throw new Error(`Could not send password reset email to ${user.email}: ${error.message || "email provider error"}`);
   }
 };
+
+// Unlike the fire-and-forget notifications above, this throws when email is not
+// configured: an email change cannot complete without the confirmation link.
+export const sendEmailChangeConfirmation = async (user, newEmail, confirmUrl) => {
+  const resend = getClient();
+  if (!resend) throw new Error("Email sending is not configured.");
+
+  const heading = "Confirm your new CODEX AI email";
+  const intro = `We received a request to change the email on your CODEX AI account to ${newEmail}. Use the button below to confirm this address.`;
+  const expiry = "This link expires in 24 hours. If you did not request this change, you can ignore this email; your account email will stay the same.";
+  const html = renderEmail({
+    preheader: "Confirm your new email address.",
+    heading,
+    intro,
+    action: { label: "Confirm new email", url: confirmUrl },
+    footer: expiry,
+  });
+  const text = `${heading}\n\n${intro}\n\nConfirm: ${confirmUrl}\n\n${expiry}\n\nThe CODEX AI team`;
+  const { error } = await resend.emails.send({
+    from: env.resend.supportFrom,
+    to: newEmail,
+    subject: heading,
+    text,
+    html,
+  });
+  if (error) {
+    throw new Error(`Could not send email-change confirmation to ${newEmail}: ${error.message || "email provider error"}`);
+  }
+};
