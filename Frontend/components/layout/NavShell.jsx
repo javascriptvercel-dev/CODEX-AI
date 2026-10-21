@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import ThemeToggle from "./ThemeToggle";
-import OpenDashboardButton from "./OpenDashboardButton";
+import { useAuth } from "@/context/AuthContext";
 
 /**
  * Shared header shell for every navbar variant in the app.
@@ -25,10 +25,19 @@ export default function NavShell({
   persistentExtra,
   mobileExtra,
   headerClassName = "",
-  showDashboardButton = true,
+  showAccountLink = true,
 }) {
   const [open, setOpen] = useState(false);
+  const { user, loading } = useAuth();
   const close = () => setOpen(false);
+  const accountLink =
+    showAccountLink && !loading && user
+      ? {
+          href: user.role === "admin" ? "/console" : "/dashboard",
+          label: user.role === "admin" ? "Console" : "Dashboard",
+        }
+      : null;
+  const navLinks = accountLink ? [...links, accountLink] : links;
 
   return (
     <header
@@ -48,12 +57,11 @@ export default function NavShell({
         </div>
 
         <nav className="hidden items-center gap-1 lg:flex">
-          {links.map((link) => renderLink(link, { mobile: false, close }))}
+          {navLinks.map((link) => renderLink(link, { mobile: false, close }))}
         </nav>
 
         <div className="flex items-center gap-2">
           <div className="hidden items-center gap-2 lg:flex">{desktopExtra}</div>
-          {showDashboardButton ? <OpenDashboardButton /> : null}
           <ThemeToggle />
           {persistentExtra}
           <button
@@ -84,15 +92,10 @@ export default function NavShell({
       >
         <div className="overflow-hidden">
           <nav className="flex flex-col border-t border-edge px-5 py-3">
-            {links.map((link) =>
+            {navLinks.map((link) =>
               renderLink(link, { mobile: true, close, focusable: open }),
             )}
           </nav>
-          {showDashboardButton ? (
-            <div className="flex flex-col gap-1 border-t border-edge px-5 py-3 sm:hidden">
-              <OpenDashboardButton mobile tabIndex={open ? undefined : -1} onNavigate={close} />
-            </div>
-          ) : null}
           {mobileExtra ? (
             <div className="flex flex-col gap-1 border-t border-edge px-5 py-3">
               {typeof mobileExtra === "function"

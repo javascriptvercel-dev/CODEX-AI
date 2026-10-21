@@ -10,6 +10,19 @@ import { useRouter, usePathname } from "next/navigation";
 import { api, CREATE_SESSION_MAX_AGE_MS } from "@/lib/api";
 import { robot } from "@/lib/robot";
 const AuthContext = createContext(null);
+const LOGOUT_RETURN_PATH_KEY = "codex-logout-return-path";
+
+function getSafeReturnPath(value) {
+  if (
+    typeof value === "string" &&
+    /^\/[a-zA-Z0-9\-._~!$&'()*+,;=:@%/?]*$/.test(value) &&
+    !value.startsWith("//")
+  ) {
+    return value;
+  }
+  return "/";
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -37,9 +50,16 @@ export function AuthProvider({ children }) {
       router.replace("/console");
     }
   };
+  const setLogoutReturnPath = (path) => {
+    window.sessionStorage.setItem(
+      LOGOUT_RETURN_PATH_KEY,
+      getSafeReturnPath(path),
+    );
+  };
   const login = async (credentials) => {
-    const { nextPath, ...loginCredentials } = credentials;
+    const { nextPath, returnPath, ...loginCredentials } = credentials;
     const { user: signedIn } = await api.login(loginCredentials);
+    setLogoutReturnPath(returnPath);
     setUser(signedIn);
     robot.say("Hey! Welcome.");
     robot.mood("happy");
@@ -47,8 +67,9 @@ export function AuthProvider({ children }) {
     return signedIn;
   };
   const signup = async (credentials) => {
-    const { nextPath, ...signupCredentials } = credentials;
+    const { nextPath, returnPath, ...signupCredentials } = credentials;
     const { user: created } = await api.signup(signupCredentials);
+    setLogoutReturnPath(returnPath);
     setUser(created);
     robot.say("Hey! Welcome.");
     robot.mood("happy");
@@ -56,17 +77,16 @@ export function AuthProvider({ children }) {
     return created;
   };
   const logout = async () => {
+    const returnPath = getSafeReturnPath(
+      window.sessionStorage.getItem(LOGOUT_RETURN_PATH_KEY),
+    );
+    window.sessionStorage.removeItem(LOGOUT_RETURN_PATH_KEY);
     try {
       await api.logout();
     } finally {
       setUser(null);
-      router.replace("/plugins");
+      router.replace(returnPath);
     }
-  };
-  const deleteAccount = async () => {
-    await api.deleteAccount();
-    setUser(null);
-    router.push("/");
   };
   const hasFreshSession = () =>
     Boolean(user?.authenticatedAt) &&
@@ -78,8 +98,8 @@ export function AuthProvider({ children }) {
         loading,
         login,
         signup,
+        setLogoutReturnPath,
         logout,
-        deleteAccount,
         refresh,
         isAdmin: user?.role === "admin",
         hasFreshSession,

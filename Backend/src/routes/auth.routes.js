@@ -14,7 +14,8 @@ import {
   confirmEmailChange,
   cancelEmailChange,
   uploadAvatar,
-  deleteAccount,
+  requestAccountDeletion,
+  confirmAccountDeletion,
   githubStart,
   githubCallback,
   forgotPassword,
@@ -32,6 +33,8 @@ const signupLimiter = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 8 });
 const loginLimiter = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 10, keyBy: "email" });
 const passwordLimiter = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 10 });
 const forgotLimiter = createRateLimiter({ windowMs: 60 * 60 * 1000, max: 5 });
+const accountDeletionRequestLimiter = createRateLimiter({ windowMs: 60 * 60 * 1000, max: 3 });
+const accountDeletionConfirmLimiter = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 10 });
 
 const router = Router();
 router.post("/signup", signupLimiter, asyncHandler(signup));
@@ -69,7 +72,19 @@ router.post(
   upload.single("avatar"),
   asyncHandler(uploadAvatar),
 );
-router.delete("/account", attachUser, requireAuth, asyncHandler(deleteAccount));
+router.post(
+  "/account/deletion-request",
+  attachUser,
+  requireAuth,
+  accountDeletionRequestLimiter,
+  asyncHandler(requestAccountDeletion),
+);
+router.post(
+  "/account/deletion-confirm",
+  attachUser,
+  accountDeletionConfirmLimiter,
+  asyncHandler(confirmAccountDeletion),
+);
 router.get("/github", githubStart);
 router.get("/github/callback", asyncHandler(githubCallback));
 export default router;

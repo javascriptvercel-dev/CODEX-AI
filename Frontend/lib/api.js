@@ -91,7 +91,13 @@ export const api = {
   cancelEmailChange: () => request("/api/auth/pending-email", { method: "DELETE" }),
   changePassword: (body) =>
     request("/api/auth/password", { method: "POST", body: JSON.stringify(body) }),
-  deleteAccount: () => request("/api/auth/account", { method: "DELETE" }),
+  requestAccountDeletion: () =>
+    request("/api/auth/account/deletion-request", { method: "POST" }),
+  confirmAccountDeletion: (token) =>
+    request("/api/auth/account/deletion-confirm", {
+      method: "POST",
+      body: JSON.stringify({ token }),
+    }),
   listPlugins: (q) =>
     request(`/api/plugins${q ? `?q=${encodeURIComponent(q)}` : ""}`),
   getPlugin: (id) => request(`/api/plugins/${id}`),

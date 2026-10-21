@@ -21,6 +21,7 @@ function LoginPageInner() {
       <AuthModal
         message="Sign in to continue."
         nextPath={nextPath}
+        returnPath={cancelPath}
         onClose={() => router.replace(cancelPath)}
         onSuccess={({ isNewAccount }) => {
           if (
