@@ -21,6 +21,8 @@ create table if not exists public.users (
   pending_email text,                  -- new address awaiting confirmation, null when none
   pending_email_token_hash text,       -- sha256 hex of the confirmation token
   pending_email_expires_at timestamptz, -- confirmation link is invalid once past this time
+  pending_deletion_token_hash text,    -- sha256 hex of the account-deletion confirmation token
+  pending_deletion_expires_at timestamptz,
   created_at timestamptz not null default now()
 );
 

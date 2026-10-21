@@ -290,3 +290,30 @@ export const sendEmailChangeConfirmation = async (user, newEmail, confirmUrl) =>
     throw new Error(`Could not send email-change confirmation to ${newEmail}: ${error.message || "email provider error"}`);
   }
 };
+
+export const sendAccountDeletionConfirmation = async (user, confirmUrl) => {
+  const resend = getClient();
+  if (!resend) throw new Error("Email sending is not configured.");
+
+  const heading = "Confirm account deletion";
+  const intro = "We received a request to permanently delete your CODEX AI account. Confirm only if you made this request.";
+  const expiry = "This link expires in 1 hour. If you did not request account deletion, you can ignore this email. Your account will remain active.";
+  const html = renderEmail({
+    preheader: "Confirm your CODEX AI account deletion.",
+    heading,
+    intro,
+    action: { label: "Confirm account deletion", url: confirmUrl },
+    footer: expiry,
+  });
+  const text = `${heading}\n\n${intro}\n\nConfirm account deletion: ${confirmUrl}\n\n${expiry}\n\nThe CODEX AI team`;
+  const { error } = await resend.emails.send({
+    from: env.resend.supportFrom,
+    to: user.email,
+    subject: heading,
+    text,
+    html,
+  });
+  if (error) {
+    throw new Error(`Could not send account-deletion confirmation to ${user.email}: ${error.message || "email provider error"}`);
+  }
+};

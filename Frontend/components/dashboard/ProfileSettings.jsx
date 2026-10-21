@@ -1,12 +1,13 @@
 "use client";
 import { useState } from "react";
-import { Eye, EyeOff, LoaderCircle, LogOut, MailCheck } from "lucide-react";
+import { Eye, EyeOff, LoaderCircle, MailCheck, Trash2 } from "lucide-react";
 import Avatar from "@/components/layout/Avatar";
 import Button from "@/components/ui/Button";
 import VerifiedBadge from "@/components/ui/VerifiedBadge";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
 import { showToast } from "@/lib/toast";
+import DeleteAccountModal from "./DeleteAccountModal";
 
 const cardClass = "rounded-xl border border-edge bg-surface p-5 sm:p-6";
 const fieldClass =
@@ -50,12 +51,10 @@ function PasswordField({ id, label, value, onChange, autoComplete }) {
 }
 
 /**
- * Profile, security and sign-out controls. Shared by the user dashboard
- * (Settings section) and the admin console (Settings tab) so both get the
- * same behaviour — profile photos live only in those two places.
+ * Profile and security controls shared by the user dashboard and admin console.
  */
 export default function ProfileSettings() {
-  const { user, refresh, logout, isAdmin } = useAuth();
+  const { user, refresh, isAdmin } = useAuth();
   const [fullName, setFullName] = useState(user?.fullName || "");
   const [email, setEmail] = useState(user?.email || "");
   const [profileBusy, setProfileBusy] = useState(false);
@@ -67,7 +66,7 @@ export default function ProfileSettings() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordBusy, setPasswordBusy] = useState(false);
   const [passwordError, setPasswordError] = useState("");
-  const [loggingOut, setLoggingOut] = useState(false);
+  const [showDelete, setShowDelete] = useState(false);
 
   if (!user) return null;
 
@@ -134,11 +133,6 @@ export default function ProfileSettings() {
     } finally {
       setPasswordBusy(false);
     }
-  }
-
-  async function handleLogout() {
-    setLoggingOut(true);
-    await logout();
   }
 
   return (
@@ -242,16 +236,19 @@ export default function ProfileSettings() {
         </form>
       </section>
 
-      <section className={`${cardClass} flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between`}>
+      <section className={`${cardClass} flex flex-col gap-4 border-red-500/30 sm:flex-row sm:items-center sm:justify-between`}>
         <div>
-          <h2 className="font-display text-lg font-bold">Sign out</h2>
-          <p className="mt-1 text-sm text-muted">End your session on this device.</p>
+          <h2 className="font-display text-lg font-bold">Delete account</h2>
+          <p className="mt-1 text-sm text-muted">
+            Request a confirmation link before permanently deleting your account.
+          </p>
         </div>
-        <Button variant="secondary" onClick={handleLogout} disabled={loggingOut}>
-          {loggingOut ? <LoaderCircle size={15} className="animate-spin" /> : <LogOut size={15} />}
-          Log out
+        <Button variant="danger" onClick={() => setShowDelete(true)}>
+          <Trash2 size={15} />
+          Delete account
         </Button>
       </section>
+      {showDelete && <DeleteAccountModal onClose={() => setShowDelete(false)} />}
     </div>
   );
 }

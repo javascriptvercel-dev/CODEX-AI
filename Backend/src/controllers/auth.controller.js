@@ -6,11 +6,16 @@ import {
   setSessionCookie,
   clearSessionCookie,
 } from "../utils/jwt.js";
-import { sendPasswordResetEmail, sendEmailChangeConfirmation } from "../utils/mailer.js";
+import {
+  sendPasswordResetEmail,
+  sendEmailChangeConfirmation,
+  sendAccountDeletionConfirmation,
+} from "../utils/mailer.js";
 import crypto from "crypto";
 
 const RESET_TOKEN_TTL_MS = 60 * 60 * 1000;
 const EMAIL_CHANGE_TTL_MS = 24 * 60 * 60 * 1000;
+const ACCOUNT_DELETION_TTL_MS = 60 * 60 * 1000;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const OAUTH_STATE_COOKIE = "codex_oauth_state";
 
@@ -317,7 +322,7 @@ export const updateProfile = async (req, res) => {
         pending_email_expires_at: new Date(Date.now() + EMAIL_CHANGE_TTL_MS).toISOString(),
       })
       .eq("id", req.user.id)
-      .select()
+      .select("email")
       .single();
     if (pendingError) {
       console.error("updateProfile: pending email save failed", pendingError);
@@ -488,14 +493,80 @@ export const updateNotifications = async (req, res) => {
   res.json({ user: publicUser(data, req.authenticatedAt) });
 };
 
-export const deleteAccount = async (req, res) => {
-  const { error } = await supabase.from("users").delete().eq("id", req.user.id);
+export const requestAccountDeletion = async (req, res) => {
+  const token = crypto.randomBytes(32).toString("hex");
+  const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+  const { data: pending, error } = await supabase
+    .from("users")
+    .update({
+      pending_deletion_token_hash: tokenHash,
+      pending_deletion_expires_at: new Date(Date.now() + ACCOUNT_DELETION_TTL_MS).toISOString(),
+    })
+    .eq("id", req.user.id)
+    .select()
+    .single();
+
   if (error) {
-    console.error("deleteAccount failed", error);
-    return res.status(500).json({ error: "Could not delete your account." });
+    console.error("requestAccountDeletion: token save failed", error);
+    return res.status(500).json({
+      error:
+        error.code === "42703"
+          ? "Account deletion is temporarily unavailable. Please try again later."
+          : "Could not start account deletion.",
+    });
   }
-  clearSessionCookie(res);
-  res.status(204).end();
+
+  try {
+    await sendAccountDeletionConfirmation(
+      pending,
+      `${env.frontendUrl}/confirm-account-deletion?token=${token}`,
+    );
+  } catch (mailError) {
+    console.error("requestAccountDeletion: confirmation email failed", mailError);
+    const { error: clearError } = await supabase
+      .from("users")
+      .update({
+        pending_deletion_token_hash: null,
+        pending_deletion_expires_at: null,
+      })
+      .eq("id", req.user.id)
+      .eq("pending_deletion_token_hash", tokenHash);
+    if (clearError) {
+      console.error("requestAccountDeletion: could not clear unused token", clearError);
+    }
+    return res.status(502).json({
+      error: "We couldn't send the confirmation email. Please try again later.",
+    });
+  }
+
+  res.json({ ok: true });
+};
+
+export const confirmAccountDeletion = async (req, res) => {
+  const { token } = req.body || {};
+  if (typeof token !== "string" || !/^[a-f0-9]{64}$/.test(token)) {
+    return res.status(400).json({ error: "This account deletion link is invalid or has expired." });
+  }
+
+  const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+  const { data: deleted, error } = await supabase
+    .from("users")
+    .delete()
+    .eq("pending_deletion_token_hash", tokenHash)
+    .gt("pending_deletion_expires_at", new Date().toISOString())
+    .select("id")
+    .maybeSingle();
+
+  if (error) {
+    console.error("confirmAccountDeletion: delete failed", error);
+    return res.status(500).json({ error: "Could not delete the account. Please try again." });
+  }
+  if (!deleted) {
+    return res.status(400).json({ error: "This account deletion link is invalid or has expired." });
+  }
+
+  if (req.user?.id === deleted.id) clearSessionCookie(res);
+  res.json({ ok: true });
 };
 
 const SAFE_NEXT_PATTERN = /^\/[a-zA-Z0-9\-_\/]*$/;

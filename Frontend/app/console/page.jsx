@@ -9,16 +9,12 @@ import {
   MessageSquareText,
   PackagePlus,
   RefreshCw,
-  Search,
   Settings,
   Crown,
   ShieldCheck,
-  Trash2,
   Users,
 } from "lucide-react";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import Container from "@/components/ui/Container";
+import DashboardShell from "@/components/dashboard/DashboardShell";
 import SubmissionCard from "@/components/admin/SubmissionCard";
 import SuggestionCard from "@/components/admin/SuggestionCard";
 import AssistantFaqDraftCard from "@/components/admin/AssistantFaqDraftCard";
@@ -112,17 +108,6 @@ function ConsolePageInner() {
     router.replace(`/console?tab=${id}`, {
       scroll: false,
     });
-  };
-
-  const onTabKeyDown = (event, index) => {
-    if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
-    event.preventDefault();
-    const next =
-      event.key === "ArrowRight"
-        ? (index + 1) % TABS.length
-        : (index - 1 + TABS.length) % TABS.length;
-    selectTab(TABS[next].id);
-    document.getElementById(`console-tab-${TABS[next].id}`)?.focus();
   };
 
   const loadSubmissions = useCallback(async () => {
@@ -296,10 +281,13 @@ function ConsolePageInner() {
   const isListTab = ["submissions", "suggestions", "faqDrafts"].includes(tab);
 
   return (
-    <div className="flex min-h-dvh flex-col bg-bg text-fg">
-    <Navbar showDashboardButton={false} />
-    <main className="flex-1">
-      <Container className="pb-16 pt-9 sm:pt-12">
+    <>
+      <DashboardShell
+        sections={TABS}
+        active={tab}
+        onSelect={selectTab}
+        title="Admin console"
+      >
       <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
         <div className="flex min-w-0 items-center gap-4">
           <Avatar size={56} />
@@ -350,35 +338,6 @@ function ConsolePageInner() {
             </button>
           </section>
         )}
-
-        <div
-          role="tablist"
-          aria-label="Console sections"
-          className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-8"
-        >
-          {TABS.map(({ id, label, icon: Icon }, index) => {
-            const active = tab === id;
-            return (
-              <button
-                key={id}
-                id={`console-tab-${id}`}
-                role="tab"
-                type="button"
-                aria-selected={active}
-                tabIndex={active ? 0 : -1}
-                onKeyDown={(e) => onTabKeyDown(e, index)}
-                onClick={() => selectTab(id)}
-                className={`focus-ring flex min-h-11 items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-semibold transition ${
-                  active
-                    ? "border-azure-500/50 bg-azure-500/10 text-fg"
-                    : "border-edge bg-surface text-muted hover:border-azure-500/30 hover:text-fg"
-                }`}
-              >
-                <Icon size={14} /> {label}
-              </button>
-            );
-          })}
-        </div>
 
         {isListTab && (
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
@@ -562,10 +521,7 @@ function ConsolePageInner() {
             </div>
           )}
         </div>
-        </Container>
-      </main>
-
-      <Footer />
+      </DashboardShell>
 
       {showEmailPrompt && (
         <AdminEmailOptInModal
@@ -575,7 +531,7 @@ function ConsolePageInner() {
           }}
         />
       )}
-    </div>
+    </>
   );
 }
 

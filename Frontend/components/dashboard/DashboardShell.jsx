@@ -22,7 +22,7 @@ function SidebarContent({ sections, active, onSelect, onNavigate }) {
         CODEX <span className="ml-1 text-azure-500">AI</span>
       </div>
 
-      <nav aria-label="Dashboard sections" className="flex-1 space-y-1 overflow-y-auto p-3">
+      <nav aria-label="App sections" className="flex-1 space-y-1 overflow-y-auto p-3">
         {sections.map(({ id, label, icon: Icon }) => {
           const current = active === id;
           return (
@@ -54,7 +54,7 @@ function SidebarContent({ sections, active, onSelect, onNavigate }) {
           className="focus-ring flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-muted transition hover:bg-surface2 hover:text-fg"
         >
           <ArrowLeft size={17} aria-hidden="true" />
-          Back to site
+          Home
         </Link>
         <button
           type="button"
@@ -82,9 +82,8 @@ function SidebarContent({ sections, active, onSelect, onNavigate }) {
 }
 
 /**
- * Standalone app shell for the signed-in dashboard: a fixed sidebar on
- * desktop and a slide-over drawer on mobile. It intentionally does not use
- * the marketing Navbar/Footer.
+ * Standalone app shell for signed-in areas: a fixed sidebar on desktop and
+ * a slide-over drawer on mobile. It intentionally omits the marketing shell.
  */
 export default function DashboardShell({ sections, active, onSelect, title, children }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -106,7 +105,7 @@ export default function DashboardShell({ sections, active, onSelect, title, chil
         <button
           type="button"
           onClick={() => setDrawerOpen(true)}
-          aria-label="Open dashboard menu"
+          aria-label="Open app menu"
           className="focus-ring grid h-9 w-9 place-items-center rounded-lg border border-edge"
         >
           <Menu size={18} />
@@ -115,7 +114,7 @@ export default function DashboardShell({ sections, active, onSelect, title, chil
       </header>
 
       {drawerOpen && (
-        <div className="fixed inset-0 z-40 lg:hidden" role="dialog" aria-modal="true" aria-label="Dashboard menu">
+        <div className="fixed inset-0 z-40 lg:hidden" role="dialog" aria-modal="true" aria-label="App menu">
           <button
             type="button"
             aria-label="Close dashboard menu"

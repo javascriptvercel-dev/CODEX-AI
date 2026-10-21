@@ -63,11 +63,6 @@ export function AuthProvider({ children }) {
       router.replace("/plugins");
     }
   };
-  const deleteAccount = async () => {
-    await api.deleteAccount();
-    setUser(null);
-    router.push("/");
-  };
   const hasFreshSession = () =>
     Boolean(user?.authenticatedAt) &&
     Date.now() - user.authenticatedAt < CREATE_SESSION_MAX_AGE_MS;
@@ -79,7 +74,6 @@ export function AuthProvider({ children }) {
         login,
         signup,
         logout,
-        deleteAccount,
         refresh,
         isAdmin: user?.role === "admin",
         hasFreshSession,
