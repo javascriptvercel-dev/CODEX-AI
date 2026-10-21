@@ -55,10 +55,12 @@ module.exports = {
       keyframes: {
         blink: { "0%, 49%": { opacity: 1 }, "50%, 100%": { opacity: 0 } },
         rise: { from: { opacity: 0, transform: "translateY(10px)" }, to: { opacity: 1, transform: "translateY(0)" } },
+        "sidebar-in": { from: { opacity: 0, transform: "translateX(-12px)" }, to: { opacity: 1, transform: "translateX(0)" } },
       },
       animation: {
         blink: "blink 1s step-start infinite",
         rise: "rise 0.5s ease-out both",
+        "sidebar-in": "sidebar-in 0.3s ease-out both",
       },
     },
   },

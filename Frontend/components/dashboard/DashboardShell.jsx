@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, LoaderCircle, LogOut, Menu, X } from "lucide-react";
+import { LoaderCircle, LogOut, Menu, X } from "lucide-react";
 import Avatar from "@/components/layout/Avatar";
 import ThemeToggle from "@/components/layout/ThemeToggle";
 import VerifiedBadge from "@/components/ui/VerifiedBadge";
@@ -18,8 +18,15 @@ function SidebarContent({ sections, active, onSelect, onNavigate }) {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex h-16 flex-none items-center border-b border-edge px-5 font-display text-lg font-bold tracking-tight">
-        CODEX <span className="ml-1 text-azure-500">AI</span>
+      <div className="flex h-16 flex-none items-center border-b border-edge px-5">
+        <Link
+          href="/"
+          aria-label="CODEX AI home"
+          onClick={onNavigate}
+          className="font-display text-lg font-bold tracking-tight text-fg no-underline hover:text-fg hover:no-underline"
+        >
+          CODEX <span className="ml-1 text-azure-500">AI</span>
+        </Link>
       </div>
 
       <nav aria-label="App sections" className="flex-1 space-y-1 overflow-y-auto p-3">
@@ -48,14 +55,6 @@ function SidebarContent({ sections, active, onSelect, onNavigate }) {
       </nav>
 
       <div className="flex-none space-y-1 border-t border-edge p-3">
-        <Link
-          href="/"
-          onClick={onNavigate}
-          className="focus-ring flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-muted transition hover:bg-surface2 hover:text-fg"
-        >
-          <ArrowLeft size={17} aria-hidden="true" />
-          Home
-        </Link>
         <button
           type="button"
           onClick={handleLogout}
@@ -97,7 +96,7 @@ export default function DashboardShell({ sections, active, onSelect, title, chil
 
   return (
     <div className="min-h-dvh bg-bg text-fg">
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-edge bg-surface lg:block">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 animate-sidebar-in border-r border-edge bg-surface lg:block">
         <SidebarContent sections={sections} active={active} onSelect={onSelect} />
       </aside>
 
@@ -117,11 +116,11 @@ export default function DashboardShell({ sections, active, onSelect, title, chil
         <div className="fixed inset-0 z-40 lg:hidden" role="dialog" aria-modal="true" aria-label="App menu">
           <button
             type="button"
-            aria-label="Close dashboard menu"
+            aria-label="Close app menu"
             onClick={() => setDrawerOpen(false)}
             className="absolute inset-0 bg-black/60"
           />
-          <div className="absolute inset-y-0 left-0 w-72 max-w-[85vw] border-r border-edge bg-surface shadow-xl">
+          <div className="absolute inset-y-0 left-0 w-72 max-w-[85vw] animate-sidebar-in border-r border-edge bg-surface shadow-xl">
             <button
               type="button"
               onClick={() => setDrawerOpen(false)}

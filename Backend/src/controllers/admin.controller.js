@@ -10,7 +10,7 @@ const adminUserFields = "id, email, full_name, role, created_at";
 
 export const listUsers = async (req, res) => {
   const page = Number.parseInt(req.query.page, 10) || 1;
-  const pageSize = 25;
+  const pageSize = 10;
   const search = typeof req.query.q === "string" ? req.query.q.trim() : "";
   if (page < 1 || search.length > 100 || (search && !userSearchPattern.test(search))) {
     return res.status(400).json({ error: "Invalid user-list filter." });

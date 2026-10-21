@@ -13,7 +13,7 @@ export default function UsersPanel() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
-  const [pageSize, setPageSize] = useState(25);
+  const [pageSize, setPageSize] = useState(10);
   const [premiumEnabled, setPremiumEnabled] = useState(false);
   const [busyId, setBusyId] = useState("");
   const [loading, setLoading] = useState(true);
@@ -23,17 +23,17 @@ export default function UsersPanel() {
   const debounceRef = useRef(null);
   // Debounced search: one request after the admin stops typing.
   useEffect(() => {
+    const nextSearch = searchInput.trim();
+    if (nextSearch === search) return undefined;
+
     clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
-      const nextSearch = searchInput.trim();
-      if (nextSearch !== search || page !== 1) {
-        setLoading(true);
-        setSearch(nextSearch);
-        setPage(1);
-      }
+      setLoading(true);
+      setSearch(nextSearch);
+      setPage(1);
     }, 300);
     return () => clearTimeout(debounceRef.current);
-  }, [search, searchInput, page]);
+  }, [search, searchInput]);
 
   const load = useCallback(
     async (targetPage = page, targetSearch = search) => {
