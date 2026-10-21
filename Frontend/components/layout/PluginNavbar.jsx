@@ -38,8 +38,7 @@ export default function PluginNavbar() {
     );
   };
 
-  // Profile photo and logout live in the dashboard (or console for admins);
-  // this header only carries the shared "Open dashboard" button.
+  // Profile photo and logout live in the dashboard (or console for admins).
   return (
     <NavShell
       brand={

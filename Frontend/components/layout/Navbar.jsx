@@ -18,7 +18,7 @@ const links = [
   { href: "/suggest", label: "Suggest" },
 ];
 
-export default function Navbar({ navLinks = links, onOpenSection, showDashboardButton = true }) {
+export default function Navbar({ navLinks = links, onOpenSection, showAccountLink = true }) {
   const [lockedPage, setLockedPage] = useState(null);
   const pathname = usePathname();
   const pageLinks = pathname === "/"
@@ -85,7 +85,7 @@ export default function Navbar({ navLinks = links, onOpenSection, showDashboardB
         }
         links={visibleLinks}
         renderLink={renderLink}
-        showDashboardButton={showDashboardButton}
+        showAccountLink={showAccountLink}
       />
       {lockedPage ? (
         <LockedModal
