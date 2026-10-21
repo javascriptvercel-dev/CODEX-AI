@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Crown, LoaderCircle, RefreshCw } from "lucide-react";
+import { Crown, LoaderCircle, RefreshCw, Search } from "lucide-react";
 import AdminEditUserModal from "@/components/admin/AdminEditUserModal";
 import { api } from "@/lib/api";
 import { showToast } from "@/lib/toast";
@@ -40,6 +40,8 @@ export default function PremiumPanel() {
   const [error, setError] = useState("");
   const [busyId, setBusyId] = useState("");
   const [editingUser, setEditingUser] = useState(null);
+  const [grantSearch, setGrantSearch] = useState("");
+  const [grantAction, setGrantAction] = useState("all");
 
   const load = useCallback(async () => {
     try {
@@ -127,6 +129,14 @@ export default function PremiumPanel() {
   const expiringSoon = activeMembers.filter(
     (member) => member.role !== "admin" && member.daysLeft !== null && member.daysLeft <= 7,
   );
+  const normalizedGrantSearch = grantSearch.trim().toLocaleLowerCase();
+  const visibleGrants = data.grants.filter((grant) => {
+    const matchesEmail =
+      !normalizedGrantSearch ||
+      grant.userEmail.toLocaleLowerCase().includes(normalizedGrantSearch);
+    const matchesAction = grantAction === "all" || grant.action === grantAction;
+    return matchesEmail && matchesAction;
+  });
 
   return (
     <div className="space-y-6">
@@ -243,28 +253,103 @@ export default function PremiumPanel() {
       </section>
 
       <section className={cardClass}>
-        <h2 className="font-display text-lg font-bold">Grant history</h2>
-        <p className="mt-1 text-xs text-muted">Every manual grant, renewal, and revocation — your receipts.</p>
-        <ul className="mt-2 divide-y divide-edge">
-          {data.grants.map((grant) => (
-            <li key={grant.id} className="flex flex-wrap items-center justify-between gap-2 py-2.5">
-              <div className="min-w-0">
-                <p className="flex flex-wrap items-center gap-2 text-sm">
-                  <span className="truncate font-medium text-fg">{grant.userEmail}</span>
+        <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="font-display text-lg font-bold">Grant history</h2>
+              <span className="rounded-full bg-surface2 px-2 py-0.5 text-[11px] font-medium text-muted">
+                {visibleGrants.length}{normalizedGrantSearch || grantAction !== "all" ? ` of ${data.grants.length}` : ""} events
+              </span>
+            </div>
+            <p className="mt-1 text-xs text-muted">
+              Search the 60 most recent grants, renewals, and revocations.
+            </p>
+          </div>
+          <div className="grid gap-2 sm:w-auto sm:min-w-[23rem] sm:grid-cols-[minmax(0,1fr)_9rem]">
+            <label className="relative block">
+              <span className="sr-only">Search grant history by email</span>
+              <Search
+                size={15}
+                aria-hidden="true"
+                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted"
+              />
+              <input
+                type="search"
+                value={grantSearch}
+                onChange={(event) => setGrantSearch(event.target.value)}
+                placeholder="Search by email"
+                className="focus-ring h-10 w-full rounded-lg border border-edge bg-surface2 pl-9 pr-3 text-sm text-fg outline-none placeholder:text-muted"
+              />
+            </label>
+            <label>
+              <span className="sr-only">Filter by grant action</span>
+              <select
+                value={grantAction}
+                onChange={(event) => setGrantAction(event.target.value)}
+                className="focus-ring h-10 w-full rounded-lg border border-edge bg-surface2 px-3 text-sm text-fg outline-none"
+              >
+                <option value="all">All actions</option>
+                <option value="granted">Granted</option>
+                <option value="renewed">Renewed</option>
+                <option value="extended">Extended</option>
+                <option value="revoked">Revoked</option>
+              </select>
+            </label>
+          </div>
+        </div>
+        <ul className="mt-4 divide-y divide-edge border-t border-edge">
+          {visibleGrants.map((grant) => (
+            <li key={grant.id} className="flex flex-col gap-2.5 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-5">
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="break-all text-sm font-semibold text-fg">{grant.userEmail}</p>
                   <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize ${ACTION_STYLES[grant.action] || "bg-surface2 text-muted"}`}>
                     {grant.action}
                   </span>
-                  <span className="text-[11px] text-muted">{SOURCE_LABELS[grant.source] || grant.source} · by {grant.grantedBy}</span>
-                </p>
-                <p className="mt-0.5 truncate text-xs text-muted">
+                </div>
+                <p className="mt-1 break-words text-xs leading-relaxed text-muted">
                   {grant.note ? `${grant.note} · ` : ""}
-                  {grant.expiresAt ? `until ${formatDate(grant.expiresAt)}` : "no expiry"}
+                  {grant.expiresAt ? `Premium through ${formatDate(grant.expiresAt)}` : "No expiration"}
+                </p>
+                <p className="mt-1 text-[11px] text-muted">
+                  {SOURCE_LABELS[grant.source] || grant.source}
+                  <span aria-hidden="true"> · </span>
+                  By {grant.grantedBy}
                 </p>
               </div>
-              <span className="flex-none text-xs text-muted">{formatDate(grant.createdAt)}</span>
+              <time
+                dateTime={grant.createdAt}
+                title={new Date(grant.createdAt).toLocaleString()}
+                className="flex-none text-xs text-muted sm:w-32 sm:text-right"
+              >
+                {formatDate(grant.createdAt)}
+              </time>
             </li>
           ))}
-          {!data.grants.length && <li className="py-3 text-sm text-muted">No grants recorded yet.</li>}
+          {!visibleGrants.length && (
+            <li className="py-8 text-center">
+              <p className="text-sm font-medium text-fg">
+                {data.grants.length ? "No matching grant history" : "No grants recorded yet"}
+              </p>
+              <p className="mt-1 text-xs text-muted">
+                {data.grants.length
+                  ? "Try a different email or action filter."
+                  : "Manual grants, renewals, and revocations will appear here."}
+              </p>
+              {data.grants.length > 0 && (grantSearch || grantAction !== "all") && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setGrantSearch("");
+                    setGrantAction("all");
+                  }}
+                  className="focus-ring mt-3 rounded-lg px-3 py-1.5 text-xs font-semibold text-azure-500 transition hover:bg-azure-500/10"
+                >
+                  Clear filters
+                </button>
+              )}
+            </li>
+          )}
         </ul>
       </section>
 

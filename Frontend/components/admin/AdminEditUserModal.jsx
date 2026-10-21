@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Crown } from "lucide-react";
+import { CalendarDays, ChevronLeft, ChevronRight, Crown } from "lucide-react";
 import Modal from "@/components/modals/Modal";
 import Button from "@/components/ui/Button";
 
@@ -15,6 +15,132 @@ const DURATION_PRESETS = [
   { days: 180, label: "6 months" },
   { days: 365, label: "1 year" },
 ];
+
+const WEEKDAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+
+function dateInputValue(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function parseInputDate(value) {
+  if (!value) return null;
+  const [year, month, day] = value.split("-").map(Number);
+  return new Date(year, month - 1, day);
+}
+
+function PremiumDatePicker({ value, onChange }) {
+  const selectedDate = parseInputDate(value);
+  const [visibleMonth, setVisibleMonth] = useState(() => {
+    const initialDate = selectedDate || new Date();
+    return new Date(initialDate.getFullYear(), initialDate.getMonth(), 1);
+  });
+
+  const firstWeekday = new Date(
+    visibleMonth.getFullYear(),
+    visibleMonth.getMonth(),
+    1,
+  ).getDay();
+  const daysInMonth = new Date(
+    visibleMonth.getFullYear(),
+    visibleMonth.getMonth() + 1,
+    0,
+  ).getDate();
+  const monthLabel = visibleMonth.toLocaleDateString(undefined, {
+    month: "long",
+    year: "numeric",
+  });
+  const todayValue = dateInputValue(new Date());
+
+  function changeMonth(offset) {
+    setVisibleMonth(
+      (month) => new Date(month.getFullYear(), month.getMonth() + offset, 1),
+    );
+  }
+
+  return (
+    <div className="mt-2 overflow-hidden rounded-xl border border-edge bg-surface shadow-lg">
+      <div className="flex items-center justify-between gap-3 border-b border-edge px-3 py-3">
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => changeMonth(-1)}
+            aria-label="Previous month"
+            className="focus-ring grid h-8 w-8 place-items-center rounded-lg text-muted transition hover:bg-surface2 hover:text-fg"
+          >
+            <ChevronLeft size={17} />
+          </button>
+          <h3 className="min-w-32 text-center text-sm font-semibold">{monthLabel}</h3>
+          <button
+            type="button"
+            onClick={() => changeMonth(1)}
+            aria-label="Next month"
+            className="focus-ring grid h-8 w-8 place-items-center rounded-lg text-muted transition hover:bg-surface2 hover:text-fg"
+          >
+            <ChevronRight size={17} />
+          </button>
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            const today = new Date();
+            setVisibleMonth(new Date(today.getFullYear(), today.getMonth(), 1));
+            onChange(todayValue);
+          }}
+          className="focus-ring rounded-lg px-2.5 py-1.5 text-xs font-semibold text-azure-500 transition hover:bg-azure-500/10"
+        >
+          Today
+        </button>
+      </div>
+      <div className="grid grid-cols-7 gap-1 p-3">
+        {WEEKDAYS.map((weekday, index) => (
+          <span
+            key={weekday}
+            aria-label={["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][index]}
+            className="grid h-8 place-items-center text-[11px] font-medium text-muted"
+          >
+            {weekday}
+          </span>
+        ))}
+        {Array.from({ length: firstWeekday }, (_, index) => (
+          <span key={`blank-${index}`} aria-hidden="true" />
+        ))}
+        {Array.from({ length: daysInMonth }, (_, index) => {
+          const day = index + 1;
+          const dateValue = dateInputValue(
+            new Date(visibleMonth.getFullYear(), visibleMonth.getMonth(), day),
+          );
+          const isSelected = value === dateValue;
+          const isToday = todayValue === dateValue;
+          return (
+            <button
+              key={dateValue}
+              type="button"
+              aria-pressed={isSelected}
+              aria-label={new Date(
+                visibleMonth.getFullYear(),
+                visibleMonth.getMonth(),
+                day,
+              ).toLocaleDateString(undefined, { dateStyle: "full" })}
+              onClick={() => onChange(dateValue)}
+              className={`focus-ring grid aspect-square min-h-9 place-items-center rounded-lg text-sm transition ${
+                isSelected
+                  ? "bg-azure-500 font-semibold text-white"
+                  : isToday
+                    ? "border border-azure-500/50 text-azure-500 hover:bg-azure-500/10"
+                    : "text-fg hover:bg-surface2"
+              }`}
+            >
+              {day}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 function endOfDay(date) {
   return new Date(date).toISOString();
@@ -36,6 +162,8 @@ export default function AdminEditUserModal({ user, premiumEnabled, busy, onClose
     user.premiumUntil?.slice(0, 10) || "",
   );
   const [useCustomDate, setUseCustomDate] = useState(false);
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [dateError, setDateError] = useState("");
   const [note, setNote] = useState("");
   const isAdminAccount = user.role === "admin";
 
@@ -48,6 +176,11 @@ export default function AdminEditUserModal({ user, premiumEnabled, busy, onClose
 
   async function submit(event) {
     event.preventDefault();
+    if (premiumEnabled && !isAdminAccount && isPremium && useCustomDate && !customDate) {
+      setDateError("Select an expiration date to continue.");
+      setCalendarOpen(true);
+      return;
+    }
     const changes = { fullName, email };
     if (premiumEnabled && !isAdminAccount) {
       changes.isPremium = isPremium;
@@ -123,7 +256,11 @@ export default function AdminEditUserModal({ user, premiumEnabled, busy, onClose
                   <select
                     value={useCustomDate ? "custom" : duration}
                     onChange={(event) => {
-                      if (event.target.value === "custom") setUseCustomDate(true);
+                      if (event.target.value === "custom") {
+                        setUseCustomDate(true);
+                        setCalendarOpen(true);
+                        setDateError("");
+                      }
                       else {
                         setUseCustomDate(false);
                         setDuration(event.target.value);
@@ -142,16 +279,47 @@ export default function AdminEditUserModal({ user, premiumEnabled, busy, onClose
               )}
             </div>
             {isPremium && useCustomDate && (
-              <label className="text-sm font-medium">
+              <div className="text-sm font-medium">
                 <span className="mb-1.5 block text-muted">Premium through</span>
-                <input
-                  required
-                  type="date"
-                  value={customDate}
-                  onChange={(event) => setCustomDate(event.target.value)}
-                  className={fieldClass}
-                />
-              </label>
+                <button
+                  type="button"
+                  aria-expanded={calendarOpen}
+                  aria-label={
+                    customDate
+                      ? `Premium through ${parseInputDate(customDate).toLocaleDateString()}`
+                      : "Choose premium expiration date"
+                  }
+                  onClick={() => setCalendarOpen((open) => !open)}
+                  className={`${fieldClass} flex items-center justify-between text-left transition hover:border-azure-500/50`}
+                >
+                  <span className={customDate ? "text-fg" : "text-muted"}>
+                    {customDate
+                      ? parseInputDate(customDate).toLocaleDateString(undefined, {
+                          weekday: "short",
+                          month: "long",
+                          day: "numeric",
+                          year: "numeric",
+                        })
+                      : "Select a date"}
+                  </span>
+                  <CalendarDays size={17} className="text-muted" aria-hidden="true" />
+                </button>
+                {calendarOpen && (
+                  <PremiumDatePicker
+                    value={customDate}
+                    onChange={(date) => {
+                      setCustomDate(date);
+                      setDateError("");
+                      setCalendarOpen(false);
+                    }}
+                  />
+                )}
+                {dateError && (
+                  <p role="alert" className="mt-2 text-xs text-red-400">
+                    {dateError}
+                  </p>
+                )}
+              </div>
             )}
             {isPremium && (
               <label className="text-sm font-medium">
