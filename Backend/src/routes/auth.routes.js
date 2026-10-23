@@ -18,6 +18,8 @@ import {
   confirmAccountDeletion,
   githubStart,
   githubCallback,
+  googleStart,
+  googleCallback,
   forgotPassword,
   resetPassword,
 } from "../controllers/auth.controller.js";
@@ -87,4 +89,6 @@ router.post(
 );
 router.get("/github", githubStart);
 router.get("/github/callback", asyncHandler(githubCallback));
+router.get("/google", googleStart);
+router.get("/google/callback", asyncHandler(googleCallback));
 export default router;

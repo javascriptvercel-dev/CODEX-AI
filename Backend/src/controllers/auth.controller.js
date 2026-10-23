@@ -18,6 +18,7 @@ const EMAIL_CHANGE_TTL_MS = 24 * 60 * 60 * 1000;
 const ACCOUNT_DELETION_TTL_MS = 60 * 60 * 1000;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const OAUTH_STATE_COOKIE = "codex_oauth_state";
+const GOOGLE_OAUTH_STATE_COOKIE = "codex_google_oauth_state";
 
 const publicUser = (user, authenticatedAt) =>
   user && {
@@ -701,5 +702,147 @@ export const githubCallback = async (req, res) => {
   } catch (err) {
     console.error("GitHub OAuth failed", err);
     res.redirect(`${env.frontendUrl}/login?auth=error`);
+  }
+};
+
+export const googleStart = (req, res) => {
+  if (!env.google.clientId || !env.google.clientSecret) {
+    console.error("Google OAuth is not configured.");
+    return res.redirect(`${env.frontendUrl}/login?auth=google_error`);
+  }
+
+  const next = safeNextPath(req.query.next, "/create");
+  const nonce = crypto.randomBytes(16).toString("hex");
+  res.cookie(GOOGLE_OAUTH_STATE_COOKIE, `${nonce}.${next}`, OAUTH_COOKIE_OPTIONS);
+  const params = new URLSearchParams({
+    client_id: env.google.clientId,
+    redirect_uri: env.google.callbackUrl,
+    response_type: "code",
+    scope: "openid email profile",
+    state: nonce,
+  });
+  res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`);
+};
+
+export const googleCallback = async (req, res) => {
+  const { code, state } = req.query;
+  const cookieState = req.cookies?.[GOOGLE_OAUTH_STATE_COOKIE];
+  const stateValid =
+    typeof state === "string" &&
+    /^[a-f0-9]{32}$/.test(state) &&
+    typeof cookieState === "string" &&
+    cookieState.startsWith(`${state}.`);
+  const next = stateValid
+    ? safeNextPath(cookieState.slice(state.length + 1), "/create")
+    : "/create";
+  res.clearCookie(GOOGLE_OAUTH_STATE_COOKIE, {
+    ...OAUTH_COOKIE_OPTIONS,
+    maxAge: undefined,
+  });
+  if (!code || !stateValid) {
+    return res.redirect(`${env.frontendUrl}/login?auth=google_error`);
+  }
+
+  try {
+    const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        code: String(code),
+        client_id: env.google.clientId,
+        client_secret: env.google.clientSecret,
+        redirect_uri: env.google.callbackUrl,
+        grant_type: "authorization_code",
+      }),
+    });
+    const tokenData = await tokenResponse.json();
+    if (!tokenResponse.ok || typeof tokenData.access_token !== "string") {
+      throw new Error("Google did not return an access token.");
+    }
+
+    const profileResponse = await fetch(
+      "https://openidconnect.googleapis.com/v1/userinfo",
+      { headers: { Authorization: `Bearer ${tokenData.access_token}` } },
+    );
+    const profile = await profileResponse.json();
+    if (
+      !profileResponse.ok ||
+      typeof profile.sub !== "string" ||
+      typeof profile.email !== "string" ||
+      profile.email_verified !== true
+    ) {
+      throw new Error("Google did not return a verified email address.");
+    }
+
+    const email = profile.email.trim().toLowerCase();
+    const { data: linkedUser, error: linkedUserError } = await supabase
+      .from("users")
+      .select("*")
+      .eq("google_id", profile.sub)
+      .maybeSingle();
+    if (linkedUserError) throw linkedUserError;
+
+    let existing = linkedUser;
+    if (!existing) {
+      const { data: emailUser, error: emailUserError } = await supabase
+        .from("users")
+        .select("*")
+        .eq("email", email)
+        .maybeSingle();
+      if (emailUserError) throw emailUserError;
+      existing = emailUser;
+    }
+
+    if (existing?.google_id && existing.google_id !== profile.sub) {
+      throw new Error("This email is already linked to a different Google account.");
+    }
+
+    const role = isAdminEmail(email) ? "admin" : existing?.role || "user";
+    let user;
+    if (existing) {
+      const { data: updated, error: updateError } = await supabase
+        .from("users")
+        .update({
+          google_id: profile.sub,
+          avatar_url: existing.avatar_url || profile.picture || null,
+          full_name: existing.full_name || profile.name || null,
+          role,
+        })
+        .eq("id", existing.id)
+        .select()
+        .single();
+      if (updateError) throw updateError;
+      user = updated;
+    } else {
+      const { data: created, error: createError } = await supabase
+        .from("users")
+        .insert({
+          email,
+          google_id: profile.sub,
+          full_name: profile.name || null,
+          avatar_url: profile.picture || null,
+          role,
+        })
+        .select()
+        .single();
+      if (createError) throw createError;
+      user = created;
+    }
+
+    setSessionCookie(res, signSession(user));
+    const destination = user.role === "admin" ? "/console" : next;
+    const successUrl = new URL(destination, env.frontendUrl);
+    successUrl.searchParams.set("auth", "success");
+    if (
+      destination === "/create" ||
+      destination === "/tools" ||
+      destination.startsWith("/tools/")
+    ) {
+      successUrl.searchParams.set("welcome", existing ? "back" : "created");
+    }
+    res.redirect(successUrl.toString());
+  } catch (error) {
+    console.error("Google OAuth failed", error);
+    res.redirect(`${env.frontendUrl}/login?auth=google_error`);
   }
 };

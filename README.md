@@ -103,6 +103,39 @@ Backend/
 - Sensitive routes (like publishing) require a session **freshly re-authenticated within the last 45 minutes**, independent of the 30-day general login.
 ---
 
+## 🔑 Google sign-in setup
+
+Google sign-in uses the backend OAuth callback and requires a Google OAuth
+client:
+
+1. In [Google Cloud Console](https://console.cloud.google.com/), create or
+   select a project, configure the OAuth consent screen, and create an OAuth
+   client ID with application type **Web application**.
+2. Add the backend callback URL to **Authorized redirect URIs**. Locally, use
+   `http://localhost:4000/api/auth/google/callback`. In production, use
+   `https://<your-backend-domain>/api/auth/google/callback`.
+3. Set these environment variables on the backend:
+
+   ```env
+   GOOGLE_CLIENT_ID=your-client-id
+   GOOGLE_CLIENT_SECRET=your-client-secret
+   GOOGLE_CALLBACK_URL=http://localhost:4000/api/auth/google/callback
+   ```
+
+   Set `GOOGLE_CALLBACK_URL` to the exact production callback URL when deployed;
+   it must match the URI registered in Google Cloud Console. Keep the client
+   secret server-side and never add it to the frontend.
+4. While the consent screen is in **Testing**, add the Google accounts that
+   need to sign in as test users.
+5. Run
+   [`Backend/src/db/migration_018_google_oauth.sql`](./Backend/src/db/migration_018_google_oauth.sql)
+   in the Supabase SQL editor before deploying the backend. The frontend must
+   also have `NEXT_PUBLIC_API_URL` set to the backend API URL.
+
+Google sign-in requires a verified Google email. It links to an existing CODEX
+AI account with the same email, preserving that account's role and profile; it
+does not create a duplicate account.
+
 ## 🧩 Plugin System
 
 Plugins are reviewed before publishing:

@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import Modal from "@/components/modals/Modal";
 import Button from "@/components/ui/Button";
+import { FcGoogle } from "react-icons/fc";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
 export default function AuthModal({ onClose, onSuccess, message, nextPath, returnPath = "/" }) {
@@ -247,6 +248,16 @@ export default function AuthModal({ onClose, onSuccess, message, nextPath, retur
             full
           >
             <Github size={16} /> Continue with GitHub
+          </Button>
+          <Button
+            href={api.googleUrl(nextPath || pathname)}
+            onClick={() => setLogoutReturnPath(returnPath)}
+            variant="secondary"
+            size="lg"
+            full
+            className="mt-2"
+          >
+            <FcGoogle size={17} aria-hidden="true" /> Continue with Google
           </Button>
           <p className="mt-4 text-center text-sm text-muted">
 

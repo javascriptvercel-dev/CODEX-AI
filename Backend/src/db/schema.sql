@@ -10,8 +10,9 @@ create extension if not exists pgcrypto;
 create table if not exists public.users (
   id uuid primary key default gen_random_uuid(),
   email text unique not null,
-  password_hash text,                  -- null for GitHub-only accounts
+  password_hash text,                  -- null for OAuth-only accounts
   github_id text unique,
+  google_id text unique,
   full_name text,
   avatar_url text,
   role text not null default 'user' check (role in ('user', 'admin')),

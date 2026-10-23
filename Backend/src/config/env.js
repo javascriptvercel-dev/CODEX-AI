@@ -50,6 +50,14 @@ export const env = {
       "http://localhost:4000/api/auth/github/callback",
     ),
   },
+  google: {
+    clientId: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackUrl: required(
+      "GOOGLE_CALLBACK_URL",
+      "http://localhost:4000/api/auth/google/callback",
+    ),
+  },
   resend: {
     apiKey: process.env.RESEND_API_KEY,
     from: process.env.MAIL_FROM || "CODEX AI <no-reply@codex-ai.site>",

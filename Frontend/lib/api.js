@@ -74,6 +74,7 @@ export const api = {
       body: JSON.stringify(body),
     }),
   githubUrl: (next) => `${API_URL}/api/auth/github${next ? `?next=${encodeURIComponent(next)}` : ""}`,
+  googleUrl: (next) => `${API_URL}/api/auth/google${next ? `?next=${encodeURIComponent(next)}` : ""}`,
   setNotifications: (enabled) =>
     request("/api/auth/notifications", {
       method: "PATCH",

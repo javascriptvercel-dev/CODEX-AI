@@ -19,7 +19,11 @@ function LoginPageInner() {
   return (
     <div className="min-h-dvh bg-bg">
       <AuthModal
-        message="Sign in to continue."
+        message={
+          searchParams.get("auth") === "google_error"
+            ? "Google sign-in couldn’t be completed. Please try again."
+            : "Sign in to continue."
+        }
         nextPath={nextPath}
         returnPath={cancelPath}
         onClose={() => router.replace(cancelPath)}
