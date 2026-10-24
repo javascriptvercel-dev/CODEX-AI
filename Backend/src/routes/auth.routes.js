@@ -28,6 +28,16 @@ const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 2 * 1024 * 1024 },
 });
+const acceptAvatarUpload = (req, res, next) => {
+  upload.single("avatar")(req, res, (error) => {
+    if (!error) return next();
+    if (error instanceof multer.MulterError && error.code === "LIMIT_FILE_SIZE") {
+      return res.status(413).json({ error: "Profile photos must be 2 MB or smaller." });
+    }
+    console.error("Avatar upload parsing failed", error);
+    return res.status(400).json({ error: "The photo upload could not be processed." });
+  });
+};
 
 // Brute-force and email-bombing protection. Counters are per IP (and per
 // email for login), reset when their window rolls over.
@@ -71,7 +81,7 @@ router.post(
   "/avatar",
   attachUser,
   requireAuth,
-  upload.single("avatar"),
+  acceptAvatarUpload,
   asyncHandler(uploadAvatar),
 );
 router.post(

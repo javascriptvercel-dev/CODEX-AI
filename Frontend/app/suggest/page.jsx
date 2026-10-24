@@ -47,7 +47,7 @@ export default function SuggestPage() {
             </div>
           </div>
 
-          <p className="mb-6 text-sm text-muted">Tell us what you&apos;d like to see next.</p>
+          <p className="mb-6 text-sm text-muted">Submit suggestions for future improvements.</p>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <label className="flex flex-col gap-1.5 text-sm">
@@ -75,7 +75,7 @@ export default function SuggestPage() {
                 rows={5}
                 value={idea}
                 onChange={(e) => setIdea(e.target.value)}
-                placeholder="A plugin, a feature, an integration — anything."
+                placeholder="Describe a plugin, feature, or integration you would like to see."
                 className="focus-ring resize-none rounded-lg border border-edge bg-surface2 px-3 py-2.5 text-sm outline-none placeholder:text-muted/70"
               />
             </label>

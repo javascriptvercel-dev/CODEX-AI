@@ -21,7 +21,7 @@ function LoginPageInner() {
       <AuthModal
         message={
           searchParams.get("auth") === "google_error"
-            ? "Google sign-in couldn’t be completed. Please try again."
+            ? "Google sign-in could not be completed. Please try again. If the problem continues, contact Support."
             : "Sign in to continue."
         }
         nextPath={nextPath}

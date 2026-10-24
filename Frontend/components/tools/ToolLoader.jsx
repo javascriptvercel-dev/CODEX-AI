@@ -41,7 +41,7 @@ class ToolErrorBoundary extends Component {
     return (
       <StateBlock
         tone="error"
-        title="This tool couldn't be loaded"
+        title="This tool could not be loaded"
         message="Check your connection and reload the page."
         onRetry={() => window.location.reload()}
         retryLabel="Reload"
@@ -61,7 +61,7 @@ export default function ToolLoader({ slug }) {
         tone="empty"
         icon={Wrench}
         title="Tool not available"
-        message="This tool isn't available right now."
+        message="This tool is not available right now."
       />
     );
   }
@@ -89,7 +89,7 @@ export default function ToolLoader({ slug }) {
           Sign in to use {tool?.name || "this tool"}
         </h2>
         <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted">
-          Sign in with your CODEX AI account to use this tool. You&apos;ll return
+          Sign in with your CODEX AI account to use this tool. You will return
           here after signing in, or if you close the sign-in form.
         </p>
         <Button href={signInPath} className="mt-5">

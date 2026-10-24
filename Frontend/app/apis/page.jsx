@@ -4,7 +4,7 @@ import { buildMetadata } from "@/lib/seo";
 
 export const metadata = buildMetadata({
   title: "APIs",
-  description: "Programmatic access to CODEX AI is in development and will unlock soon.",
+  description: "Programmatic access to CODEX AI is in development. Availability will be announced when it is ready.",
   path: "/apis",
 });
 

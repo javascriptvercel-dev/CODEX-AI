@@ -61,7 +61,7 @@ export function AuthProvider({ children }) {
     const { user: signedIn } = await api.login(loginCredentials);
     setLogoutReturnPath(returnPath);
     setUser(signedIn);
-    robot.say("Hey! Welcome.");
+    robot.say("Welcome back.");
     robot.mood("happy");
     goToConsoleIfAdmin(signedIn, nextPath);
     return signedIn;
@@ -71,7 +71,7 @@ export function AuthProvider({ children }) {
     const { user: created } = await api.signup(signupCredentials);
     setLogoutReturnPath(returnPath);
     setUser(created);
-    robot.say("Hey! Welcome.");
+    robot.say("Your account is ready.");
     robot.mood("happy");
     goToConsoleIfAdmin(created, nextPath);
     return created;

@@ -45,7 +45,7 @@ export default function PluginSubmitForm({
     event.preventDefault();
     if (!canSubmit) return;
     if (file && file.size > MAX_FILE_SIZE) {
-      setStatus({ state: "error", message: "That file is larger than 5MB. Please choose a smaller file." });
+      setStatus({ state: "error", message: "Files must be 5 MB or smaller." });
       return;
     }
 
@@ -58,8 +58,8 @@ export default function PluginSubmitForm({
       if (file) formData.append("file", file);
       await api.submitPlugin(formData);
       onSubmitted?.();
-      showToast("Submitted — you'll see it in the library once it's tested and approved.");
-      setStatus({ state: "success", message: "Submitted — you'll see it in the library once it's tested and approved." });
+      showToast("Your submission has been received. It will appear in the library after review and approval.");
+      setStatus({ state: "success", message: "Your submission has been received. It will appear in the library after review and approval." });
     } catch (err) {
       setStatus({ state: "error", message: err?.message || "We could not submit this plugin. Please check the form and try again." });
     }
@@ -108,7 +108,7 @@ export default function PluginSubmitForm({
         </label>
 
         <label className="flex cursor-pointer flex-col gap-2 text-base">
-          <span className="font-semibold">Code File <span className="font-normal text-muted">(optional, max 5MB)</span></span>
+          <span className="font-semibold">Code File <span className="font-normal text-muted">(optional)</span></span>
           <span className="focus-ring flex min-w-0 items-center gap-3 rounded-lg border border-dashed border-edge bg-code-surface px-3.5 py-3.5 text-sm text-muted">
             <UploadCloud size={17} className="shrink-0" />
             <span className="min-w-0 truncate">{file ? file.name : "Attach a zip, script, or asset"}</span>
@@ -116,7 +116,7 @@ export default function PluginSubmitForm({
               const selected = e.target.files?.[0] || null;
               if (selected && selected.size > MAX_FILE_SIZE) {
                 setFile(null);
-                setStatus({ state: "error", message: "That file is larger than 5MB. Please choose a smaller file." });
+                setStatus({ state: "error", message: "Files must be 5 MB or smaller." });
                 e.target.value = "";
                 return;
               }

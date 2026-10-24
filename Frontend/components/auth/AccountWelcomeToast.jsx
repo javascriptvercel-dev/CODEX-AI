@@ -32,8 +32,8 @@ function AccountWelcomeToastInner() {
       const firstName = user?.fullName?.trim().split(/\s+/)[0];
       const message =
         nextWelcome === "created"
-          ? `Account created — welcome${firstName ? `, ${firstName}` : ""}!`
-          : `Good to see you again${firstName ? `, ${firstName}` : ""}!`;
+          ? "Your account has been created."
+          : `Welcome back${firstName ? `, ${firstName}` : ""}.`;
       showToast(message, { type: nextWelcome === "created" ? "success" : "info" });
     }
 

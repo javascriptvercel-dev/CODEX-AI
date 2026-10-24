@@ -35,10 +35,10 @@ import { api } from "@/lib/api";
 import { robot } from "@/lib/robot";
 
 const CONSOLE_GREETINGS = [
-  "Welcome back, {name}! Let's see what's waiting for review.",
-  "Good to see you, {name}. I'll keep an eye on things from here too.",
-  "Hey {name}! Ready when you are.",
-  "{name}, the console is all yours.",
+  "Welcome back, {name}. Here are the latest items for review.",
+  "Welcome back, {name}. Your console is ready.",
+  "{name}, your administrator console is ready.",
+  "Welcome back, {name}.",
 ];
 
 const TABS = [
@@ -443,7 +443,7 @@ function ConsolePageInner() {
               tone="error"
               appearance="empty"
               icon={ShieldCheck}
-              title="Couldn’t load this list"
+              title="Unable to load this list"
               message={error}
               onRetry={reload}
             />

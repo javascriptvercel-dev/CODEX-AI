@@ -74,7 +74,7 @@ function parseTargetUrl(value) {
     return { error: "URLs containing a username or password are not allowed." };
   }
   if (isPrivateAddress(target.hostname)) {
-    return { error: "Private and local network addresses can't be shortened." };
+    return { error: "Private and local network addresses cannot be shortened." };
   }
 
   return { targetUrl: target.toString() };
@@ -237,7 +237,7 @@ export async function generateBotBase(req, res) {
     console.error("[bot-base-generator] failed to package template:", err);
     return res
       .status(500)
-      .json({ error: "The bot base couldn't be generated. Please try again later." });
+      .json({ error: "The bot base could not be generated. Please try again later." });
   }
 }
 

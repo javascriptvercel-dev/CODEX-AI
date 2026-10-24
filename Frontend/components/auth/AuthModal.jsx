@@ -49,8 +49,8 @@ export default function AuthModal({ onClose, onSuccess, message, nextPath, retur
       const raw = String(err?.message || "").trim();
       const safeMessages = [
         ["no account exists", "No account exists for that email."],
-        ["password is incorrect", "The email is recognized, but the password is incorrect."],
-        ["uses github login", "This account uses GitHub login. Continue with GitHub instead."],
+        ["password is incorrect", "The password for this account is incorrect."],
+        ["uses github login", "This account is registered with GitHub. Continue with GitHub to sign in."],
         ["invalid email", "Enter a valid email address."],
         ["email already", "An account with this email already exists."],
         ["already exists", "An account with this email already exists."],
@@ -96,7 +96,7 @@ export default function AuthModal({ onClose, onSuccess, message, nextPath, retur
             </span>
             <p className="text-sm text-muted [overflow-wrap:anywhere]">
 
-              A link has been sent to <span className="text-fg">{email}</span>, It&apos;s valid for 1 hour.
+              A password reset link has been sent to <span className="text-fg">{email}</span>. It is valid for 1 hour.
             </p>
             <button
               type="button"
@@ -111,7 +111,7 @@ export default function AuthModal({ onClose, onSuccess, message, nextPath, retur
           <form onSubmit={handleSubmit} className="flex flex-col gap-3">
 
             <p className="text-sm text-muted">
-              Enter your email and we&apos;ll send you a link to reset your
+              Enter your email and we will send you a link to reset your
               password.
             </p>
             <label className="flex flex-col gap-1.5 text-sm">
@@ -261,7 +261,7 @@ export default function AuthModal({ onClose, onSuccess, message, nextPath, retur
           </Button>
           <p className="mt-4 text-center text-sm text-muted">
 
-            {mode === "login" ? "New here?" : "Already have an account?"}{" "}
+            {mode === "login" ? "Need an account?" : "Already have an account?"}{" "}
             <button
               type="button"
               onClick={() => switchMode(mode === "login" ? "signup" : "login")}

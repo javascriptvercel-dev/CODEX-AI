@@ -16,7 +16,7 @@ const PAGE_NAMES = {
   default: "Home",
 };
 
-const SYSTEM_PROMPT = `You are the CODEX AI website helper. Answer user questions clearly and concisely.
+const SYSTEM_PROMPT = `You are the CODEX AI website assistant. Answer user questions clearly and concisely in a professional, courteous tone. Avoid slang, overfamiliar greetings, filler, and unnecessary exclamation marks.
 Known site facts:
 - The site helps users pair a WhatsApp session, configure/deploy the CODEX AI bot, browse plugins, and use tools.
 - The bot needs Node.js 22 or newer, exactly one running process per WhatsApp session, and persistent storage for session/ and database/.
@@ -128,7 +128,7 @@ export async function POST(request) {
   const model = process.env.AI_MODEL?.trim();
   if (!apiKey || !model) {
     console.error("[site-assistant] Assistant is not configured.");
-    return jsonError("I couldn’t answer that just now. Please try again later.", 503);
+    return jsonError("I am unable to answer your question at this time. Please try again later.", 503);
   }
 
   const forwardedFor = request.headers.get("x-forwarded-for");
@@ -177,14 +177,14 @@ export async function POST(request) {
 
     if (!response.ok) {
       console.error(`[site-assistant] AI provider returned status ${response.status}.`);
-      return jsonError("I couldn’t answer that just now. Please try again later.", 502);
+      return jsonError("I am unable to answer your question at this time. Please try again later.", 502);
     }
 
     const result = await response.json();
     const answer = result?.choices?.[0]?.message?.content;
     if (typeof answer !== "string" || !answer.trim()) {
       console.error("[site-assistant] AI provider returned an empty answer.");
-      return jsonError("I couldn’t answer that just now. Please try again later.", 502);
+      return jsonError("I am unable to answer your question at this time. Please try again later.", 502);
     }
 
     return Response.json(
@@ -193,7 +193,7 @@ export async function POST(request) {
     );
   } catch (error) {
     console.error("[site-assistant] AI provider request failed:", error);
-    return jsonError("I couldn’t answer that just now. Please try again later.", 502);
+    return jsonError("I am unable to answer your question at this time. Please try again later.", 502);
   } finally {
     clearTimeout(timeout);
   }

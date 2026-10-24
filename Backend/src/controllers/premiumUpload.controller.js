@@ -56,7 +56,7 @@ export async function obfuscateUploadedProject(req, res) {
     });
     const status = error instanceof PremiumUploadError ? 400 : 500;
     return res.status(status).json({
-      error: status === 400 ? error.message : "The uploaded project couldn't be obfuscated.",
+      error: status === 400 ? error.message : "The uploaded project could not be obfuscated.",
     });
   } finally {
     await unlink(req.file.path).catch((error) => {

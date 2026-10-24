@@ -26,7 +26,7 @@ export default function Avatar({ size = 36, editable = true }) {
       await api.uploadAvatar(file);
       await refresh();
     } catch (err) {
-      setError("We could not update your profile photo. Please try again.");
+      setError(err?.message || "We could not update your profile photo. Please try again.");
       setTimeout(() => setError(""), 3000);
     } finally {
       setUploading(false);

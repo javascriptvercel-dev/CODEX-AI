@@ -40,7 +40,7 @@ export default function SupportFaqs() {
     <div>
       {loadFailed ? (
         <p className="mb-2 text-xs text-muted">
-          Additional answers couldn’t be loaded right now.
+          Additional answers could not be loaded. Please try again later.
         </p>
       ) : null}
       <div className="divide-y divide-edge overflow-hidden rounded-2xl border border-edge bg-surface">

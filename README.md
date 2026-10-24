@@ -11,7 +11,7 @@
 [![Baileys](https://img.shields.io/badge/WhatsApp-Baileys-25D366?logo=whatsapp&logoColor=white)](https://github.com/WhiskeySockets/Baileys)
 [![License](https://img.shields.io/badge/license-Proprietary-lightgrey)]()
 
-**[Live Demo](#) · [Report a Bug](#) · [Suggest a Feature](#)**
+**[Live Demo](codex-ai.site) · [Report a Bug](wa.me/blazedev) · [Suggest a Feature](codex-ai.site/suggest)**
 
 </div>
 
@@ -19,7 +19,7 @@
 
 ## ✨ What is CODEX AI?
 
-CODEX AI is a full-stack platform for spinning up **WhatsApp bot sessions** in seconds, pairing devices via QR or pairing code, and growing your bot with a **community-driven plugin marketplace** — all from a clean web console. No terminal required.
+CODEX AI is a full-stack platform for creating and managing **WhatsApp bot sessions**, pairing devices by QR code or pairing code, and extending bots with a **community-driven plugin marketplace** — all through a web console.
 
 ```
   ┌──────────────┐        ┌───────────────┐        ┌──────────────────┐
@@ -39,14 +39,14 @@ CODEX AI is a full-stack platform for spinning up **WhatsApp bot sessions** in s
 
 | | |
 |---|---|
-| 🔌 **Session Generator** | Spin up a bot session with a custom name, prefix, and bot name — get a ready-to-scan QR in seconds |
-| 📱 **Pairing Code Flow** | Prefer typing a code on your phone instead of scanning? Pair by WhatsApp number directly |
-| 🧩 **Plugin Marketplace** | Browse, search, and `.install <url>` community plugins across Utility, Fun, Moderation, AI, and more |
-| ✍️ **Plugin Submissions** | Ship your own plugin — paste code or upload a file, and it lands straight in the admin review queue |
+| 🔌 **Session Generator** | Create a bot session with a custom name, prefix, and bot name, then connect by QR code |
+| 📱 **Pairing Code Flow** | Connect to WhatsApp with a pairing code instead of scanning a QR code |
+| 🧩 **Plugin Marketplace** | Browse and install community plugins across utility, entertainment, moderation, AI, and other categories |
+| ✍️ **Plugin Submissions** | Submit plugin code or upload a file for review in the admin queue |
 | 👑 **Premium expiry reminders** | Premium members are emailed 7 and 1 UTC calendar days before their access expires |
 | 🤖 **Site Assistant FAQs** | Assistant conversations can create summarized FAQ drafts for admin review; approved answers appear on Support |
-| 💡 **Suggestion Box** | Users can pitch new features directly to the team |
-| 🌓 **Light/Dark UI** | Because good tools should look good at 2am too |
+| 💡 **Suggestion Box** | Submit feature suggestions for review |
+| 🌓 **Light/Dark UI** | Choose between light and dark themes |
 
 ---
 
@@ -103,39 +103,6 @@ Backend/
 - Sensitive routes (like publishing) require a session **freshly re-authenticated within the last 45 minutes**, independent of the 30-day general login.
 ---
 
-## 🔑 Google sign-in setup
-
-Google sign-in uses the backend OAuth callback and requires a Google OAuth
-client:
-
-1. In [Google Cloud Console](https://console.cloud.google.com/), create or
-   select a project, configure the OAuth consent screen, and create an OAuth
-   client ID with application type **Web application**.
-2. Add the backend callback URL to **Authorized redirect URIs**. Locally, use
-   `http://localhost:4000/api/auth/google/callback`. In production, use
-   `https://<your-backend-domain>/api/auth/google/callback`.
-3. Set these environment variables on the backend:
-
-   ```env
-   GOOGLE_CLIENT_ID=your-client-id
-   GOOGLE_CLIENT_SECRET=your-client-secret
-   GOOGLE_CALLBACK_URL=http://localhost:4000/api/auth/google/callback
-   ```
-
-   Set `GOOGLE_CALLBACK_URL` to the exact production callback URL when deployed;
-   it must match the URI registered in Google Cloud Console. Keep the client
-   secret server-side and never add it to the frontend.
-4. While the consent screen is in **Testing**, add the Google accounts that
-   need to sign in as test users.
-5. Run
-   [`Backend/src/db/migration_018_google_oauth.sql`](./Backend/src/db/migration_018_google_oauth.sql)
-   in the Supabase SQL editor before deploying the backend. The frontend must
-   also have `NEXT_PUBLIC_API_URL` set to the backend API URL.
-
-Google sign-in requires a verified Google email. It links to an existing CODEX
-AI account with the same email, preserving that account's role and profile; it
-does not create a duplicate account.
-
 ## 🧩 Plugin System
 
 Plugins are reviewed before publishing:
@@ -153,11 +120,6 @@ Assistant questions and replies may be summarized into private FAQ drafts. The
 original conversation is not stored in the FAQ queue. Administrators can edit,
 approve, or reject drafts from the **FAQ drafts** tab in the console. Only
 approved FAQs are shown publicly on the Support page.
-
-Before deploying this feature, run
-[`Backend/src/db/migration_008_assistant_faqs.sql`](./Backend/src/db/migration_008_assistant_faqs.sql)
-in the Supabase SQL editor. Configure `NEXT_PUBLIC_API_URL` to point to the
-backend API; server-side route handlers can use `API_URL` as an override.
 
 ## 🧰 Tools and usage limits
 
@@ -183,28 +145,18 @@ obfuscator settings, short-link analytics, plugin submissions, and admin account
 management. Premium adds higher tool/link limits and JavaScript/ZIP uploads to
 the obfuscator. The feature is disabled by default.
 
-Follow [the Premium deployment and rollback guide](./Backend/PREMIUM_DEPLOYMENT.md)
-before enabling it. The deployment requires
-[`migration_013_premium_dashboard.sql`](./Backend/src/db/migration_013_premium_dashboard.sql)
-followed by
-[`migration_014_premium_grants.sql`](./Backend/src/db/migration_014_premium_grants.sql),
-and `PREMIUM_FEATURES_ENABLED=true`. Migration 014 retires the integration-token
-table; back up its records first if they are still needed. There are no payment
-or subscription integrations; administrators grant access when creating
-accounts, or by updating the user's `premium_until` value in Supabase.
-
 ---
 
 ## 🤝 Contributing
 
-Got an idea? Head to **[/suggest](#)** and tell us — every submission goes straight to the team.
+Submit feature requests through the **[/suggest](#)** form.
 
-Found a bug? Open an issue with steps to reproduce, or use the in-app feedback if you're a signed-in user.
+To report a bug, open an issue with steps to reproduce it, or use in-app feedback when signed in.
 
 ---
 
 <div align="center">
 
-**© 2026 CODEX** · Built with ❤️ for the WhatsApp bot community
+**© 2026 CODEX** · Built for the WhatsApp bot community
 
 </div>

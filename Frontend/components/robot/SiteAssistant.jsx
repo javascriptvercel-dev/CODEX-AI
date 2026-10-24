@@ -106,14 +106,14 @@ function answerQuestion(question, pathname, approvedFaqs = []) {
 
   if (/docker|container/.test(normalized)) {
     return {
-      text: "Docker can work if you run one container per WhatsApp session, provide SESSION_ID privately, and mount persistent volumes for /app/session and /app/database. The repo doesn’t include Docker files, so the example setup on the Deploy page needs to be tested on your host.",
+      text: "Docker deployment requires one container per WhatsApp session, a privately configured SESSION_ID, and persistent volumes for /app/session and /app/database. The repository does not include Docker files, so test the example setup on your hosting provider before relying on it.",
       link: { href: "/deploy#docker", label: "Open Docker steps" },
     };
   }
 
   if (/heroku/.test(normalized)) {
     return {
-      text: "Heroku isn’t recommended for this bot as-is. The bot saves its WhatsApp login and runtime data to local files, and Heroku’s filesystem is ephemeral. It would need a storage redesign before deployment could be reliable.",
+      text: "Heroku is not recommended for this bot in its current form. The bot saves its WhatsApp login and runtime data to local files, while Heroku's filesystem is ephemeral. The storage system would need to be redesigned before deployment could be reliable.",
       link: { href: "/deploy#heroku", label: "Read the Heroku notes" },
     };
   }
@@ -308,7 +308,7 @@ export default function SiteAssistant({ open, onClose, askRequest }) {
       await showReply(reply, minimumDelay);
     } catch (error) {
       reply = {
-        text: `${response.text}\n\nI couldn’t answer that just now. Please try again later or visit Support.`,
+        text: `${response.text}\n\nI am unable to answer this question at the moment. Please try again later or contact Support.`,
         link: response.link,
       };
       await showReply(
@@ -375,8 +375,8 @@ export default function SiteAssistant({ open, onClose, askRequest }) {
       >
         <div className="max-w-[92%] rounded-2xl rounded-tl-sm bg-surface2 px-3.5 py-3 text-sm leading-5 text-fg">
           {pageKey === "deploy"
-            ? "Hey! I can walk you through the deployment options on this page. What are you setting up?"
-            : "Hey! I can help you find your way around CODEX AI. What are you trying to do?"}
+            ? "Hello. I can guide you through the deployment options on this page. What would you like to configure?"
+            : "Hello. I can help you navigate CODEX AI. What would you like help with?"}
         </div>
 
         {messages.map((message) => (

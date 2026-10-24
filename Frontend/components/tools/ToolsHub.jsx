@@ -29,6 +29,7 @@ export default function ToolsHub() {
       <Container size="wide" className="pb-7 pt-10 text-center">
         <PageHeader
           kicker="Tools"
+          title="Tools"
           icon={Wrench}
           description="Free utilities for everyone."
           className="mx-auto max-w-md"
@@ -77,10 +78,10 @@ export default function ToolsHub() {
                     <Lightbulb size={19} aria-hidden="true" />
                   </span>
                   <span className="mt-4 font-display text-base font-bold">
-                    More tools on the way
+                    More tools are in development
                   </span>
                   <span className="mt-1 max-w-[220px] text-sm leading-6 text-muted">
-                    New utilities are coming soon.
+                    Additional utilities will be announced when they are available.
                   </span>
                 </div>
               </li>

@@ -9,7 +9,7 @@ export const lockedPages = [
     title: "APIs",
     status: LOCKED_PAGE_STATUS.DEVELOPMENT,
     message:
-      "APIs are not available yet. This section is still in development and will be unlocked soon.",
+      "The APIs section is in development. Availability will be announced when it is ready.",
   },
 ];
 
@@ -31,5 +31,5 @@ export function getLockedPageMessage(page) {
     return `${page.title} is temporarily unavailable while we repair and improve this section. Please check back soon.`;
   }
 
-  return `${page.title} is not available yet. This section is still in development and will be unlocked soon.`;
+  return `${page.title} is in development. Availability will be announced when it is ready.`;
 }

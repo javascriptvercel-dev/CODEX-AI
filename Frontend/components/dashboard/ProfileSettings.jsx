@@ -146,7 +146,7 @@ export default function ProfileSettings() {
               {user.fullName || user.email}
               {isAdmin && <VerifiedBadge size={15} label="Verified administrator" />}
             </p>
-            <p className="mt-0.5 text-xs text-muted">Click your photo to change it. Images up to 2 MB.</p>
+            <p className="mt-0.5 text-xs text-muted">Click your photo to change it.</p>
           </div>
         </div>
 

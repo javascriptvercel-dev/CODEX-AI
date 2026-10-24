@@ -55,7 +55,7 @@ export default function BotBaseGenerator() {
       showToast("Your customized bot base is ready to download.");
     } catch (error) {
       setIsError(true);
-      setMessage(error.message || "The bot base couldn't be generated. Try again.");
+      setMessage(error.message || "The bot base could not be generated. Please try again.");
     } finally {
       setLoading(false);
     }

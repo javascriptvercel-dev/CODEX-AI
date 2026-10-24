@@ -1,7 +1,7 @@
 const STATUS = {
   live: { label: "Live", dot: "bg-emerald-500" },
   beta: { label: "Beta", dot: "bg-azure-500" },
-  soon: { label: "Coming soon", dot: "bg-muted" },
+  soon: { label: "In development", dot: "bg-muted" },
 };
 
 export default function ToolStatusBadge({ status = "live", className = "" }) {

@@ -153,7 +153,7 @@ export const forgotPassword = async (req, res) => {
   }
   res.json({
     ok: true,
-    message: "If that email has an account, we've sent a reset link.",
+    message: "If an account exists for that email, we have sent a password reset link.",
   });
 };
 
@@ -210,7 +210,7 @@ export const uploadAvatar = async (req, res) => {
   if (!req.file)
     return res.status(400).json({ error: "Choose an image to upload." });
   if (!req.file.mimetype.startsWith("image/")) {
-    return res.status(400).json({ error: "That file isn't an image." });
+    return res.status(400).json({ error: "The selected file is not an image." });
   }
   const ext = (req.file.originalname.split(".").pop() || "jpg").toLowerCase();
   const path = `${req.user.id}-${Date.now()}.${ext}`;
@@ -247,7 +247,7 @@ const checkEmailChange = async (user, nextEmail) => {
   // Roles are derived from ADMIN_EMAILS at login, so an email change must
   // never grant or silently drop admin access.
   if (!wasAdmin && becomesAdmin) {
-    return { status: 400, error: "That email can't be used on this account." };
+    return { status: 400, error: "This email address cannot be used for this account." };
   }
   if (wasAdmin && !becomesAdmin) {
     return {
@@ -347,7 +347,7 @@ export const updateProfile = async (req, res) => {
         .update({ pending_email: null, pending_email_token_hash: null, pending_email_expires_at: null })
         .eq("id", req.user.id);
       return res.status(502).json({
-        error: "We couldn't send the confirmation email. Check the address and try again.",
+        error: "We could not send the confirmation email. Check the address and try again.",
       });
     }
     current = pending;
@@ -536,7 +536,7 @@ export const requestAccountDeletion = async (req, res) => {
       console.error("requestAccountDeletion: could not clear unused token", clearError);
     }
     return res.status(502).json({
-      error: "We couldn't send the confirmation email. Please try again later.",
+      error: "We could not send the confirmation email. Please try again later.",
     });
   }
 

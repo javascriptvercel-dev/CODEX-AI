@@ -127,7 +127,7 @@ export default function JavaScriptObfuscator() {
       return;
     }
     if (uploadFile.size > 100 * 1024 * 1024) {
-      setError("Uploads are limited to 100 MB.");
+      setError("Files must be 100 MB or smaller.");
       return;
     }
     setUploading(true);
@@ -215,7 +215,7 @@ export default function JavaScriptObfuscator() {
               {user?.isPremium ? (
                 <>
                   <p className="mt-1 text-xs leading-5 text-muted">
-                    Upload JavaScript or a ZIP (up to 100 MB). JavaScript files are obfuscated and other project files are preserved.
+                    Upload JavaScript or a ZIP project. JavaScript files are obfuscated and other project files are preserved.
                   </p>
                   <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
                     <input

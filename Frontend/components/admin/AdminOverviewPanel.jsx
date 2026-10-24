@@ -493,7 +493,7 @@ export default function AdminOverviewPanel() {
             tone="error"
             appearance="empty"
             icon={ShieldCheck}
-            title="Couldn’t load submissions"
+            title="Unable to load submissions"
             message={submissionsError}
             onRetry={loadSubmissions}
           />
