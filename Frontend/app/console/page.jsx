@@ -288,55 +288,61 @@ function ConsolePageInner() {
         onSelect={selectTab}
         title="Admin console"
       >
-      <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
-        <div className="flex min-w-0 items-center gap-4">
-          <Avatar size={56} showBadge={false} />
-          <div className="min-w-0">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-azure-500">Administrator account center</p>
-            <h1 className="mt-2 flex flex-wrap items-center gap-2 font-display text-3xl font-bold">
-              Welcome, {user.fullName || user.email}
-              <VerifiedBadge size={18} label="Verified administrator" />
-            </h1>
-            <p className="mt-1 text-sm text-muted">{user.email}</p>
-          </div>
-        </div>
-      </div>
-
-        <div className="mt-5 max-w-xs">
-          <UserCount />
-        </div>
-
-        {!user.emailNotificationsEnabled && (
-          <section
-            aria-labelledby="email-alert-reminder-title"
-            className="mt-5 flex flex-col gap-4 rounded-2xl border border-azure-500/25 bg-gradient-to-r from-azure-500/[0.08] via-surface to-surface p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-5"
-          >
-            <div className="flex min-w-0 items-start gap-3">
-              <span className="grid h-10 w-10 flex-shrink-0 place-items-center rounded-xl border border-azure-500/20 bg-azure-500/10 text-azure-500">
-                <BellRing size={18} aria-hidden="true" />
-              </span>
-              <div className="min-w-0">
-                <h2
-                  id="email-alert-reminder-title"
-                  className="text-sm font-semibold text-fg"
-                >
-                  Email alerts are turned off
-                </h2>
-                <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted">
-                  Get notified when new plugin submissions and community
-                  suggestions arrive. You can change this any time in Settings.
-                </p>
+        {tab === "overview" && (
+          <>
+            <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
+              <div className="flex min-w-0 items-center gap-4">
+                <Avatar size={56} showBadge={false} />
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-azure-500">
+                    Administrator account center
+                  </p>
+                  <h1 className="mt-2 flex flex-wrap items-center gap-2 font-display text-3xl font-bold">
+                    Welcome, {user.fullName || user.email}
+                    <VerifiedBadge size={18} label="Verified administrator" />
+                  </h1>
+                  <p className="mt-1 text-sm text-muted">{user.email}</p>
+                </div>
               </div>
             </div>
-            <button
-              type="button"
-              onClick={() => setEmailPromptOpen(true)}
-              className="focus-ring inline-flex flex-shrink-0 items-center justify-center gap-2 rounded-lg border border-azure-500 bg-azure-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:border-azure-600 hover:bg-azure-600 active:scale-[0.98] sm:ml-4"
-            >
-              <Mail size={15} aria-hidden="true" />
-              Set up alerts
-            </button>
-          </section>
+
+            <div className="mt-5 max-w-xs">
+              <UserCount />
+            </div>
+
+            {!user.emailNotificationsEnabled && (
+              <section
+                aria-labelledby="email-alert-reminder-title"
+                className="mt-5 flex flex-col gap-4 rounded-2xl border border-azure-500/25 bg-gradient-to-r from-azure-500/[0.08] via-surface to-surface p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-5"
+              >
+                <div className="flex min-w-0 items-start gap-3">
+                  <span className="grid h-10 w-10 flex-shrink-0 place-items-center rounded-xl border border-azure-500/20 bg-azure-500/10 text-azure-500">
+                    <BellRing size={18} aria-hidden="true" />
+                  </span>
+                  <div className="min-w-0">
+                    <h2
+                      id="email-alert-reminder-title"
+                      className="text-sm font-semibold text-fg"
+                    >
+                      Email alerts are turned off
+                    </h2>
+                    <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted">
+                      Get notified when new plugin submissions and community
+                      suggestions arrive. You can change this any time in Settings.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setEmailPromptOpen(true)}
+                  className="focus-ring inline-flex flex-shrink-0 items-center justify-center gap-2 rounded-lg border border-azure-500 bg-azure-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:border-azure-600 hover:bg-azure-600 active:scale-[0.98] sm:ml-4"
+                >
+                  <Mail size={15} aria-hidden="true" />
+                  Set up alerts
+                </button>
+              </section>
+            )}
+          </>
         )}
 
         {isListTab && (
