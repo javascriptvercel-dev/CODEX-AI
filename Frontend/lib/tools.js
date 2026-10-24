@@ -29,7 +29,7 @@ export const tools = [
     status: TOOL_STATUS.LIVE,
     tags: ["JavaScript", "Code"],
     keywords: ["JavaScript obfuscator", "obfuscate code", "code protection"],
-    preview: "/tools/javascript-obfuscator/preview.svg",
+    preview: "/tools/javascript-obfuscator/JavaScript%20Obfuscator.png",
     load: () => import("@/components/tools/javascript-obfuscator/JavaScriptObfuscator"),
   },
   {
@@ -41,7 +41,7 @@ export const tools = [
     status: TOOL_STATUS.LIVE,
     tags: ["Links", "Share"],
     keywords: ["URL shortener", "short links", "link management"],
-    preview: "/tools/url-shortener/preview.svg",
+    preview: "/tools/url-shortener/URL%20Shortener.png",
     load: () => import("@/components/tools/url-shortener/UrlShortener"),
   },
   {

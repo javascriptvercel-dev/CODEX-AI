@@ -87,7 +87,7 @@ export default function ToastViewport() {
         }
         touchStartX.current = null;
       }}
-      className={`fixed inset-x-3 bottom-3 z-[100] mx-auto flex w-fit max-w-[calc(100vw-1.5rem)] items-center gap-3 rounded-xl border bg-surface p-3.5 text-sm shadow-2xl transition-[opacity,transform] duration-200 ease-out sm:inset-x-auto sm:bottom-5 sm:right-5 motion-reduce:transition-none ${
+      className={`fixed inset-x-3 bottom-3 z-[130] mx-auto flex w-fit max-w-[calc(100vw-1.5rem)] items-center gap-3 rounded-xl border bg-surface p-3.5 text-sm shadow-2xl transition-[opacity,transform] duration-200 ease-out sm:inset-x-auto sm:bottom-5 sm:right-5 motion-reduce:transition-none ${
         style.className
       } ${visible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"}`}
     >
