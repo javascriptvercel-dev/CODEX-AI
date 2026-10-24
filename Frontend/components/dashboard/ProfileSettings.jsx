@@ -140,7 +140,7 @@ export default function ProfileSettings() {
       <section className={cardClass} aria-labelledby="profile-heading">
         <h2 id="profile-heading" className="font-display text-lg font-bold">Profile</h2>
         <div className="mt-4 flex items-center gap-4">
-          <Avatar size={72} />
+          <Avatar size={72} showBadge={!isAdmin} />
           <div className="min-w-0">
             <p className="flex items-center gap-1.5 truncate text-sm font-semibold">
               {user.fullName || user.email}

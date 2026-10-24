@@ -10,7 +10,7 @@ const getInitials = (user) => {
     parts.length > 1 ? parts[0][0] + parts[1][0] : source.slice(0, 2);
   return initials.toUpperCase();
 };
-export default function Avatar({ size = 36, editable = true }) {
+export default function Avatar({ size = 36, editable = true, showBadge = true }) {
   const { user, refresh, isAdmin } = useAuth();
   const inputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
@@ -71,7 +71,7 @@ export default function Avatar({ size = 36, editable = true }) {
           </span>
         )}
       </button>
-      {isAdmin && (
+      {isAdmin && showBadge && (
         <span
           title="Verified"
           aria-label="Verified"

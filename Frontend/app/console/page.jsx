@@ -48,7 +48,7 @@ const TABS = [
   { id: "faqDrafts", label: "FAQ drafts", icon: BookOpenCheck },
   { id: "users", label: "Users", icon: Users },
   { id: "premium", label: "Premium", icon: Crown },
-  { id: "create", label: "Create plugin", icon: PackagePlus },
+  { id: "create", label: "Create plugin", icon: PackagePlus, dividerBefore: true },
   { id: "settings", label: "Settings", icon: Settings },
 ];
 const TAB_IDS = TABS.map((t) => t.id);
@@ -290,7 +290,7 @@ function ConsolePageInner() {
       >
       <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
         <div className="flex min-w-0 items-center gap-4">
-          <Avatar size={56} />
+          <Avatar size={56} showBadge={false} />
           <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-azure-500">Administrator account center</p>
             <h1 className="mt-2 flex flex-wrap items-center gap-2 font-display text-3xl font-bold">

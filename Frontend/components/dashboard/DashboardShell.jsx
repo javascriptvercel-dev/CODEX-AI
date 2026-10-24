@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, LoaderCircle, LogOut, Menu, X } from "lucide-react";
 import Avatar from "@/components/layout/Avatar";
@@ -56,11 +56,12 @@ function SidebarContent({
       </div>
 
       <nav aria-label="App sections" className={`flex-1 space-y-1 overflow-y-auto ${collapsed ? "p-2" : "p-3"}`}>
-        {sections.map(({ id, label, icon: Icon }) => {
+        {sections.map(({ id, label, icon: Icon, dividerBefore }) => {
           const current = active === id;
           return (
+            <Fragment key={id}>
+              {dividerBefore && <div role="separator" className="!my-3 border-t border-edge" />}
             <button
-              key={id}
               type="button"
               aria-current={current ? "page" : undefined}
               aria-label={collapsed ? label : undefined}
@@ -87,6 +88,7 @@ function SidebarContent({
                 <span className="h-4 w-1 flex-none rounded-full bg-azure-500" aria-hidden="true" />
               )}
             </button>
+            </Fragment>
           );
         })}
       </nav>
@@ -127,10 +129,12 @@ function SidebarContent({
                   onSelect("settings");
                   onNavigate?.();
                 }}
-                aria-label="Open profile settings"
+                aria-label={`Open profile settings for ${user?.fullName || user?.email}${user?.fullName ? `, ${user.email}` : ""}`}
+                title={user?.email}
                 className="focus-ring flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-edge bg-surface2/50 px-2.5 py-2.5 text-left transition-colors hover:bg-surface2"
               >
-                <Avatar size={34} editable={false} />
+                {/* The badge sits next to the name below, so none on the photo. */}
+                <Avatar size={34} editable={false} showBadge={false} />
                 <span className="min-w-0 flex-1">
                   <span className="flex items-center gap-1 truncate text-sm font-semibold">
                     <span className="truncate">{user?.fullName || user?.email}</span>
@@ -157,7 +161,7 @@ function SidebarContent({
                   type="button"
                   onClick={onToggleCollapsed}
                   aria-label="Collapse sidebar"
-                  className="focus-ring flex items-center gap-2 rounded-lg px-2 py-1.5 text-xs text-muted transition-colors hover:bg-surface2 hover:text-fg"
+                  className="focus-ring flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-sm font-medium text-muted transition-colors hover:bg-surface2 hover:text-fg"
                 >
                   <ChevronLeft size={15} aria-hidden="true" />
                   Collapse
@@ -196,7 +200,7 @@ export default function DashboardShell({ sections, active, onSelect, title, chil
 
   return (
     <div className="min-h-dvh bg-bg text-fg">
-      <aside className={`fixed inset-y-0 left-0 z-30 hidden animate-sidebar-in border-r border-edge bg-surface transition-[width] duration-300 ease-out lg:block ${collapsed ? "w-[72px]" : "w-64"}`}>
+      <aside className={`fixed inset-y-0 left-0 z-30 hidden animate-sidebar-in border-r border-edge bg-surface transition-[width] duration-300 ease-out lg:block ${collapsed ? "w-[72px]" : "w-72"}`}>
         <SidebarContent
           sections={sections}
           active={active}
@@ -261,7 +265,7 @@ export default function DashboardShell({ sections, active, onSelect, title, chil
         </div>
       </div>
 
-      <main className={`transition-[padding] duration-300 ease-out ${collapsed ? "lg:pl-[72px]" : "lg:pl-64"}`}>
+      <main className={`transition-[padding] duration-300 ease-out ${collapsed ? "lg:pl-[72px]" : "lg:pl-72"}`}>
         <div className="mx-auto w-full max-w-5xl px-4 pb-16 pt-7 sm:px-6 lg:px-8 lg:pt-10">{children}</div>
       </main>
     </div>
