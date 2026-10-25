@@ -22,7 +22,7 @@ const MODES = [
   {
     id: "easy",
     name: "Easy",
-    description: "Compact output with light transformations.",
+    description: "Light transformations with readable line breaks.",
   },
   {
     id: "medium",

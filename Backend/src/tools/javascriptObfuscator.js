@@ -2,7 +2,7 @@ import JavaScriptObfuscator from "javascript-obfuscator";
 
 export const OBFUSCATION_MODES = Object.freeze({
   easy: {
-    compact: true,
+    compact: false,
     controlFlowFlattening: false,
     deadCodeInjection: false,
     identifierNamesGenerator: "hexadecimal",
@@ -10,7 +10,7 @@ export const OBFUSCATION_MODES = Object.freeze({
     stringArray: false,
   },
   medium: {
-    compact: true,
+    compact: false,
     controlFlowFlattening: false,
     deadCodeInjection: false,
     identifierNamesGenerator: "hexadecimal",
@@ -21,7 +21,7 @@ export const OBFUSCATION_MODES = Object.freeze({
     stringArrayThreshold: 0.5,
   },
   hard: {
-    compact: true,
+    compact: false,
     controlFlowFlattening: true,
     controlFlowFlatteningThreshold: 0.5,
     deadCodeInjection: true,
