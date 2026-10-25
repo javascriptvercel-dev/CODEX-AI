@@ -15,6 +15,9 @@ out/
 Backend/data/*
 !Backend/data/.gitkeep
 
+# Local-only plugin work
+bot-plugin/
+
 # Logs
 *.log
 npm-debug.log*
