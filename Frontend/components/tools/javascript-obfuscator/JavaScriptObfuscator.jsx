@@ -1,15 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Check,
   Clipboard,
   Code2,
   Download,
+  FileText,
   LoaderCircle,
   Sparkles,
   Crown,
   Upload,
+  UploadCloud,
 } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { api } from "@/lib/api";
@@ -17,6 +19,7 @@ import { showToast } from "@/lib/toast";
 import { useAuth } from "@/context/AuthContext";
 
 const MAX_CODE_LENGTH = 50_000;
+const MAX_UPLOAD_SIZE = 100 * 1024 * 1024;
 
 const MODES = [
   {
@@ -46,6 +49,8 @@ export default function JavaScriptObfuscator() {
   const [error, setError] = useState("");
   const [uploadFile, setUploadFile] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [dragActive, setDragActive] = useState(false);
+  const uploadInputRef = useRef(null);
 
   useEffect(() => {
     let active = true;
@@ -68,6 +73,24 @@ export default function JavaScriptObfuscator() {
     setSource(value);
     setOutput("");
     setCopied(false);
+    setError("");
+  }
+
+  function selectUploadFile(file) {
+    if (!file) return;
+    if (!/\.(js|zip)$/i.test(file.name)) {
+      setUploadFile(null);
+      setError("Choose a .js file or .zip project.");
+      if (uploadInputRef.current) uploadInputRef.current.value = "";
+      return;
+    }
+    if (file.size > MAX_UPLOAD_SIZE) {
+      setUploadFile(null);
+      setError("Files must be 100 MB or smaller.");
+      if (uploadInputRef.current) uploadInputRef.current.value = "";
+      return;
+    }
+    setUploadFile(file);
     setError("");
   }
 
@@ -126,7 +149,7 @@ export default function JavaScriptObfuscator() {
       setError("Choose a .js file or .zip project to upload.");
       return;
     }
-    if (uploadFile.size > 100 * 1024 * 1024) {
+    if (uploadFile.size > MAX_UPLOAD_SIZE) {
       setError("Files must be 100 MB or smaller.");
       return;
     }
@@ -217,19 +240,79 @@ export default function JavaScriptObfuscator() {
                   <p className="mt-1 text-xs leading-5 text-muted">
                     Upload JavaScript or a ZIP project. JavaScript files are obfuscated and other project files are preserved.
                   </p>
-                  <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
+                  <div
+                    onDragEnter={(event) => {
+                      event.preventDefault();
+                      setDragActive(true);
+                    }}
+                    onDragOver={(event) => {
+                      event.preventDefault();
+                      event.dataTransfer.dropEffect = "copy";
+                      setDragActive(true);
+                    }}
+                    onDragLeave={(event) => {
+                      if (!event.currentTarget.contains(event.relatedTarget)) {
+                        setDragActive(false);
+                      }
+                    }}
+                    onDrop={(event) => {
+                      event.preventDefault();
+                      setDragActive(false);
+                      selectUploadFile(event.dataTransfer.files?.[0]);
+                    }}
+                    className={`mt-4 flex min-h-48 flex-col items-center justify-center rounded-xl border-2 border-dashed px-5 py-6 text-center transition-colors ${
+                      dragActive
+                        ? "border-azure-500 bg-azure-500/10"
+                        : "border-edge bg-surface2/30 hover:border-azure-500/60"
+                    }`}
+                  >
+                    {uploadFile ? (
+                      <div aria-live="polite" className="flex max-w-full items-center gap-3">
+                        <span className="grid h-11 w-11 flex-none place-items-center rounded-lg bg-azure-500/10 text-azure-500">
+                          <FileText size={21} aria-hidden="true" />
+                        </span>
+                        <span className="min-w-0 text-left">
+                          <span className="block max-w-full truncate text-sm font-semibold text-fg">
+                            {uploadFile.name}
+                          </span>
+                          <span className="mt-1 block text-xs text-muted">
+                            {(uploadFile.size / (1024 * 1024)).toFixed(2)} MB · Ready to obfuscate
+                          </span>
+                        </span>
+                      </div>
+                    ) : (
+                      <>
+                        <UploadCloud size={32} className="text-muted" aria-hidden="true" />
+                        <p className="mt-3 text-sm font-semibold text-fg">
+                          Drag and drop your file here
+                        </p>
+                        <p className="mt-1 text-sm text-muted">or</p>
+                      </>
+                    )}
                     <input
+                      ref={uploadInputRef}
+                      id="obfuscator-upload"
                       type="file"
                       accept=".js,.zip,application/zip,text/javascript"
-                      onChange={(event) => setUploadFile(event.target.files?.[0] || null)}
-                      className="focus-ring min-w-0 flex-1 text-xs text-muted file:mr-3 file:rounded-md file:border-0 file:bg-surface2 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-fg"
+                      aria-label="Choose a JavaScript file or ZIP project"
+                      onChange={(event) => selectUploadFile(event.target.files?.[0])}
+                      className="sr-only"
                     />
+                    <button
+                      type="button"
+                      onClick={() => uploadInputRef.current?.click()}
+                      className="focus-ring mt-1 rounded px-2 py-1 text-sm font-semibold text-azure-500 hover:text-azure-600"
+                    >
+                      {uploadFile ? "Choose a different file" : "Browse files"}
+                    </button>
+                    <p className="mt-2 text-xs text-muted">Accepted: .js and .zip · Maximum size: 100 MB</p>
+                  </div>
+                  <div className="mt-3 flex justify-end">
                     <Button type="button" onClick={obfuscateUpload} disabled={uploading || !uploadFile}>
                       {uploading ? <LoaderCircle size={15} className="animate-spin" /> : <Upload size={15} />}
                       {uploading ? "Obfuscating…" : "Upload and obfuscate"}
                     </Button>
                   </div>
-                  {uploadFile && <p className="mt-1.5 text-xs text-muted">{uploadFile.name} · {(uploadFile.size / (1024 * 1024)).toFixed(2)} MB</p>}
                 </>
               ) : (
                 <p className="mt-1 text-xs leading-5 text-muted">
