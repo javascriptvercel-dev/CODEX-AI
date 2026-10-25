@@ -22,8 +22,10 @@ tools and community plugins to customize your experience.
 - **Explore community plugins** for utilities, entertainment, moderation, and
   more.
 - **Submit plugins** for review and publication in the community library.
-- **Use built-in tools** including a JavaScript obfuscator, URL shortener, bot
-  base generator, and WhatsApp number checker.
+- **Use built-in tools** including a QR code generator, password and UUID
+  generators, a character counter, URL encoder/decoder, code minifier,
+  JavaScript obfuscator, URL shortener, bot base generator, and WhatsApp number
+  checker.
 - **Manage your account** and view your links and tool activity from your
   dashboard.
 - **Get help** through the support pages and site assistant.

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="34" y1="18" x2="770" y2="430" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#101B2C"/>
+      <stop offset="1" stop-color="#09111D"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="115" y1="80" x2="690" y2="380" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#62D6E8"/>
+      <stop offset="1" stop-color="#4485FF"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" rx="28" fill="url(#bg)"/>
+  <rect x="75" y="52" width="650" height="346" rx="24" fill="#121E30" stroke="#354A65" stroke-width="2"/>
+  <text x="112" y="102" fill="#F1F5FF" font-family="Arial,sans-serif" font-size="24" font-weight="700">URL Encoder / Decoder</text>
+  <rect x="112" y="126" width="104" height="35" rx="10" fill="#347BFF"/>
+  <text x="139" y="149" fill="#fff" font-family="Arial,sans-serif" font-size="13" font-weight="700">ENCODE</text>
+  <rect x="226" y="126" width="104" height="35" rx="10" fill="#202D40"/>
+  <text x="252" y="149" fill="#AAB9D1" font-family="Arial,sans-serif" font-size="13" font-weight="700">DECODE</text>
+  <rect x="112" y="181" width="576" height="66" rx="13" fill="#091421" stroke="#31465F"/>
+  <text x="135" y="220" fill="#AFC1DC" font-family="Courier New,monospace" font-size="14">https://example.com/search?q=hello world</text>
+  <g transform="translate(375 260)">
+    <circle cx="25" cy="25" r="22" fill="#14283A" stroke="url(#accent)" stroke-width="2"/>
+    <path d="M14 25h22M30 17l8 8-8 8" stroke="url(#accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <rect x="112" y="317" width="576" height="50" rx="12" fill="#091421" stroke="#31465F"/>
+  <text x="135" y="348" fill="#73D8D7" font-family="Courier New,monospace" font-size="14">https%3A%2F%2Fexample.com%2Fsearch%3Fq...</text>
+</svg>

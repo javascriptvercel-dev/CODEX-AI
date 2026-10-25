@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="40" y1="20" x2="770" y2="430" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#101B2D"/>
+      <stop offset="1" stop-color="#090E1A"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="110" y1="100" x2="693" y2="354" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3B82F6"/>
+      <stop offset="1" stop-color="#21C78A"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" rx="28" fill="url(#bg)"/>
+  <circle cx="653" cy="102" r="125" fill="#20C997" fill-opacity=".10"/>
+  <rect x="102" y="54" width="596" height="342" rx="24" fill="#131F32" stroke="#314561" stroke-width="2"/>
+  <g transform="translate(136 84)">
+    <rect width="54" height="54" rx="15" fill="#27C995" fill-opacity=".14" stroke="#34D6A1"/>
+    <rect x="17" y="24" width="21" height="17" rx="4" stroke="#70E9C2" stroke-width="3"/>
+    <path d="M21 24v-6a6 6 0 0 1 12 0v6" stroke="#70E9C2" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <text x="207" y="108" fill="#F2F6FF" font-family="Arial,sans-serif" font-size="23" font-weight="700">Password Generator</text>
+  <text x="207" y="133" fill="#96A8C2" font-family="Arial,sans-serif" font-size="13">Build a strong password, your way</text>
+  <rect x="137" y="164" width="526" height="57" rx="12" fill="#0A1321" stroke="#354B68"/>
+  <text x="160" y="201" fill="#B9C8E0" font-family="Courier New,monospace" font-size="22">aK8!rQ2#xM5$vP9z</text>
+  <g font-family="Arial,sans-serif" font-size="13" fill="#D8E2F2">
+    <rect x="137" y="240" width="240" height="38" rx="10" fill="#111B2C" stroke="#2D4058"/>
+    <text x="158" y="264">✓  Uppercase letters</text>
+    <rect x="397" y="240" width="266" height="38" rx="10" fill="#111B2C" stroke="#2D4058"/>
+    <text x="418" y="264">✓  Lowercase letters</text>
+    <rect x="137" y="289" width="240" height="38" rx="10" fill="#111B2C" stroke="#2D4058"/>
+    <text x="158" y="313">✓  Numbers</text>
+    <rect x="397" y="289" width="266" height="38" rx="10" fill="#111B2C" stroke="#2D4058"/>
+    <text x="418" y="313">✓  Symbols</text>
+  </g>
+  <rect x="137" y="347" width="526" height="8" rx="4" fill="#26354A"/>
+  <rect x="137" y="347" width="414" height="8" rx="4" fill="url(#accent)"/>
+  <text x="566" y="365" fill="#66E1B5" font-family="Arial,sans-serif" font-size="12" font-weight="700">STRONG</text>
+</svg>

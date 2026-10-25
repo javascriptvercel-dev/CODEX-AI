@@ -14,14 +14,39 @@ export default function ToolsHub() {
   const [query, setQuery] = useState("");
 
   const visible = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return tools;
-    return tools.filter((tool) =>
-      [tool.name, tool.description, ...(tool.tags || [])]
-        .join(" ")
-        .toLowerCase()
-        .includes(q),
-    );
+    const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    if (!terms.length) return tools;
+
+    return tools
+      .map((tool, index) => {
+        const name = tool.name.toLowerCase();
+        const fields = [
+          { value: name, weight: 8 },
+          { value: (tool.keywords || []).join(" ").toLowerCase(), weight: 4 },
+          { value: (tool.tags || []).join(" ").toLowerCase(), weight: 3 },
+          { value: tool.slug.replace(/-/g, " ").toLowerCase(), weight: 2 },
+          { value: tool.description.toLowerCase(), weight: 1 },
+        ];
+        const matches = terms.every((term) =>
+          fields.some(({ value }) => value.includes(term)),
+        );
+        const score = terms.reduce(
+          (total, term) =>
+            total +
+            Math.max(
+              0,
+              ...fields
+                .filter(({ value }) => value.includes(term))
+                .map(({ weight }) => weight),
+            ),
+          0,
+        );
+
+        return { tool, index, matches, score };
+      })
+      .filter((result) => result.matches)
+      .sort((a, b) => b.score - a.score || a.index - b.index)
+      .map(({ tool }) => tool);
   }, [query]);
 
   return (
@@ -31,7 +56,7 @@ export default function ToolsHub() {
           kicker="Tools"
           title="Tools"
           icon={Wrench}
-          description="Free utilities for everyone."
+          description="Free tools, including browser-based utilities that keep your data on your device."
           className="mx-auto max-w-md"
         />
       </Container>

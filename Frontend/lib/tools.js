@@ -1,4 +1,14 @@
-import { Bot, Braces, Link2, ShieldCheck } from "lucide-react";
+import {
+  Bot,
+  Braces,
+  FileCode2,
+  Fingerprint,
+  KeyRound,
+  Link2,
+  QrCode,
+  ShieldCheck,
+  Type,
+} from "lucide-react";
 
 /**
  * Tools registry — the single place every tool is declared.
@@ -67,6 +77,78 @@ export const tools = [
     keywords: ["WhatsApp ban checker", "check banned WhatsApp number"],
     preview: "/tools/wa-ban-checker/bg.jpg",
     load: () => import("@/components/tools/wa-ban-checker/WaBanChecker"),
+  },
+  {
+    slug: "qr-code-generator",
+    name: "QR Code Generator",
+    description:
+      "Create QR codes for links, text, Wi-Fi, email, SMS, and contacts without uploading your data.",
+    icon: QrCode,
+    status: TOOL_STATUS.LIVE,
+    tags: ["Free", "Private"],
+    keywords: ["QR code generator", "make QR", "Wi-Fi QR", "contact QR"],
+    preview: "/tools/qr-code-generator/preview.svg",
+    load: () => import("@/components/tools/browser-utilities/QrCodeGenerator"),
+  },
+  {
+    slug: "uuid-generator",
+    name: "UUID Generator",
+    description:
+      "Generate secure UUID v4 values in batches, right in your browser.",
+    icon: Fingerprint,
+    status: TOOL_STATUS.LIVE,
+    tags: ["Free", "Generator"],
+    keywords: ["UUID", "GUID generator", "random identifier"],
+    preview: "/tools/uuid-generator/preview.svg",
+    load: () => import("@/components/tools/browser-utilities/UuidGenerator"),
+  },
+  {
+    slug: "password-generator",
+    name: "Password Generator",
+    description:
+      "Create strong random passwords with your choice of length and characters.",
+    icon: KeyRound,
+    status: TOOL_STATUS.LIVE,
+    tags: ["Free", "Private"],
+    keywords: ["secure password", "random password", "password strength"],
+    preview: "/tools/password-generator/preview.svg",
+    load: () => import("@/components/tools/browser-utilities/PasswordGenerator"),
+  },
+  {
+    slug: "character-counter",
+    name: "Character Counter",
+    description:
+      "Count characters, words, sentences, and paragraphs as you type.",
+    icon: Type,
+    status: TOOL_STATUS.LIVE,
+    tags: ["Free", "Writing"],
+    keywords: ["word counter", "text counter", "sentence counter", "letter count"],
+    preview: "/tools/character-counter/preview.svg",
+    load: () => import("@/components/tools/browser-utilities/CharacterCounter"),
+  },
+  {
+    slug: "url-encoder-decoder",
+    name: "URL Encoder / Decoder",
+    description:
+      "Encode or decode URL text and validate web addresses locally.",
+    icon: Link2,
+    status: TOOL_STATUS.LIVE,
+    tags: ["Free", "Private"],
+    keywords: ["percent encoding", "URI encoder", "URL decode", "URL validator"],
+    preview: "/tools/url-encoder-decoder/preview.svg",
+    load: () => import("@/components/tools/browser-utilities/UrlEncoderDecoder"),
+  },
+  {
+    slug: "code-minifier",
+    name: "Code Minifier",
+    description:
+      "Minify JavaScript or CSS formatting in your browser, without sending code to a server.",
+    icon: FileCode2,
+    status: TOOL_STATUS.LIVE,
+    tags: ["Free", "JavaScript", "CSS"],
+    keywords: ["JavaScript minifier", "CSS minifier", "code compression"],
+    preview: "/tools/code-minifier/preview.svg",
+    load: () => import("@/components/tools/browser-utilities/CodeMinifier"),
   },
 ];
 

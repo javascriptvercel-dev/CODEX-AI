@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="30" y1="20" x2="770" y2="430" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#101B2D"/>
+      <stop offset="1" stop-color="#080E19"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="120" y1="110" x2="696" y2="358" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#67E8D0"/>
+      <stop offset="1" stop-color="#4B8DFF"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" rx="28" fill="url(#bg)"/>
+  <circle cx="623" cy="217" r="152" fill="#347DFF" fill-opacity=".13"/>
+  <rect x="74" y="69" width="384" height="312" rx="24" fill="#121D2C" stroke="#34465E" stroke-width="2"/>
+  <text x="106" y="116" fill="#EAF1FF" font-family="Arial,sans-serif" font-size="19" font-weight="700">Create a QR code</text>
+  <g font-family="Arial,sans-serif" font-size="13" font-weight="700">
+    <rect x="105" y="143" width="96" height="34" rx="10" fill="#347BFF"/>
+    <text x="138" y="165" fill="#fff">Link</text>
+    <rect x="211" y="143" width="96" height="34" rx="10" fill="#202D40"/>
+    <text x="241" y="165" fill="#AAB9D1">Wi-Fi</text>
+    <rect x="317" y="143" width="105" height="34" rx="10" fill="#202D40"/>
+    <text x="344" y="165" fill="#AAB9D1">Contact</text>
+  </g>
+  <rect x="105" y="202" width="322" height="56" rx="12" fill="#0A1321" stroke="#314761"/>
+  <text x="126" y="236" fill="#9BACCA" font-family="Arial,sans-serif" font-size="14">https://example.com</text>
+  <rect x="105" y="282" width="322" height="50" rx="12" fill="url(#accent)"/>
+  <text x="208" y="313" fill="#081320" font-family="Arial,sans-serif" font-size="15" font-weight="700">Generate QR</text>
+  <rect x="499" y="68" width="227" height="313" rx="24" fill="#152033" stroke="#34465E" stroke-width="2"/>
+  <rect x="535" y="103" width="155" height="155" rx="8" fill="#fff"/>
+  <g fill="#101827">
+    <path d="M547 115h49v49h-49zM555 123v33h33v-33zM563 131h17v17h-17z"/>
+    <path d="M629 115h49v49h-49zM637 123v33h33v-33zM645 131h17v17h-17z"/>
+    <path d="M547 197h49v49h-49zM555 205v33h33v-33zM563 213h17v17h-17z"/>
+    <path d="M608 111h9v9h-9zM613 128h10v10h-10zM602 145h11v11h-11zM620 154h9v9h-9zM603 171h9v9h-9zM619 181h11v11h-11zM633 171h9v9h-9zM654 172h9v9h-9zM605 198h10v10h-10zM624 205h9v9h-9zM639 197h10v10h-10zM659 205h10v10h-10zM607 220h9v9h-9zM627 228h10v10h-10zM648 222h9v9h-9zM670 231h8v8h-8z"/>
+  </g>
+  <rect x="538" y="285" width="149" height="38" rx="19" fill="#0F3B3C"/>
+  <circle cx="557" cy="304" r="5" fill="#59E3C3"/>
+  <text x="570" y="309" fill="#B8F3E7" font-family="Arial,sans-serif" font-size="12" font-weight="700">MADE ON YOUR DEVICE</text>
+</svg>

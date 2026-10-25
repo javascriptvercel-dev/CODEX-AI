@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="28" y1="24" x2="760" y2="430" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#19152D"/>
+      <stop offset="1" stop-color="#0C1020"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="120" y1="80" x2="696" y2="384" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#D08BFF"/>
+      <stop offset="1" stop-color="#786BFF"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" rx="28" fill="url(#bg)"/>
+  <circle cx="126" cy="73" r="100" fill="#B66BFF" fill-opacity=".12"/>
+  <text x="74" y="100" fill="#F5F0FF" font-family="Arial,sans-serif" font-size="28" font-weight="700">Analyze your text</text>
+  <text x="76" y="128" fill="#A9A0C5" font-family="Arial,sans-serif" font-size="14">Live counts while you write</text>
+  <rect x="74" y="157" width="652" height="105" rx="16" fill="#151A2B" stroke="#3B3458" stroke-width="2"/>
+  <text x="100" y="195" fill="#E4DDF3" font-family="Arial,sans-serif" font-size="16">Your words, ideas, and stories…</text>
+  <g font-family="Arial,sans-serif">
+    <rect x="74" y="285" width="202" height="94" rx="16" fill="#A96BEB"/>
+    <text x="96" y="319" fill="#211333" font-size="31" font-weight="700">1,284</text>
+    <text x="96" y="348" fill="#34204B" font-size="14">Characters</text>
+    <rect x="299" y="285" width="202" height="94" rx="16" fill="#FFB04F"/>
+    <text x="321" y="319" fill="#30200E" font-size="31" font-weight="700">214</text>
+    <text x="321" y="348" fill="#4C3217" font-size="14">Words</text>
+    <rect x="524" y="285" width="202" height="94" rx="16" fill="#47D3B0"/>
+    <text x="546" y="319" fill="#0B2B24" font-size="31" font-weight="700">12</text>
+    <text x="546" y="348" fill="#174639" font-size="14">Sentences</text>
+  </g>
+</svg>
