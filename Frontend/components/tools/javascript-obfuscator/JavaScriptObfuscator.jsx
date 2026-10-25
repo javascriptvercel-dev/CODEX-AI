@@ -5,6 +5,7 @@ import {
   Check,
   Clipboard,
   Code2,
+  ChevronDown,
   Download,
   FileText,
   LoaderCircle,
@@ -50,6 +51,7 @@ export default function JavaScriptObfuscator() {
   const [uploadFile, setUploadFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
+  const [uploadSectionOpen, setUploadSectionOpen] = useState(true);
   const uploadInputRef = useRef(null);
 
   useEffect(() => {
@@ -234,90 +236,103 @@ export default function JavaScriptObfuscator() {
               {user?.isPremium ? <Crown size={17} aria-hidden="true" /> : <Upload size={17} aria-hidden="true" />}
             </span>
             <div className="min-w-0 flex-1">
-              <h3 className="text-sm font-semibold">Obfuscate a file or ZIP project</h3>
-              {user?.isPremium ? (
-                <>
-                  <p className="mt-1 text-xs leading-5 text-muted">
-                    Upload JavaScript or a ZIP project. JavaScript files are obfuscated and other project files are preserved.
-                  </p>
-                  <div
-                    onDragEnter={(event) => {
-                      event.preventDefault();
-                      setDragActive(true);
-                    }}
-                    onDragOver={(event) => {
-                      event.preventDefault();
-                      event.dataTransfer.dropEffect = "copy";
-                      setDragActive(true);
-                    }}
-                    onDragLeave={(event) => {
-                      if (!event.currentTarget.contains(event.relatedTarget)) {
-                        setDragActive(false);
-                      }
-                    }}
-                    onDrop={(event) => {
-                      event.preventDefault();
-                      setDragActive(false);
-                      selectUploadFile(event.dataTransfer.files?.[0]);
-                    }}
-                    className={`mt-4 flex min-h-48 flex-col items-center justify-center rounded-xl border-2 border-dashed px-5 py-6 text-center transition-colors ${
-                      dragActive
-                        ? "border-azure-500 bg-azure-500/10"
-                        : "border-edge bg-surface2/30 hover:border-azure-500/60"
-                    }`}
-                  >
-                    {uploadFile ? (
-                      <div aria-live="polite" className="flex max-w-full items-center gap-3">
-                        <span className="grid h-11 w-11 flex-none place-items-center rounded-lg bg-azure-500/10 text-azure-500">
-                          <FileText size={21} aria-hidden="true" />
+              <button
+                type="button"
+                aria-expanded={uploadSectionOpen}
+                aria-controls="obfuscator-upload-section"
+                onClick={() => setUploadSectionOpen((open) => !open)}
+                className="focus-ring flex w-full items-center justify-between gap-3 rounded text-left"
+              >
+                <span className="text-sm font-semibold">Obfuscate a file or ZIP project</span>
+                <ChevronDown
+                  size={17}
+                  aria-hidden="true"
+                  className={`flex-none text-muted transition-transform ${uploadSectionOpen ? "rotate-180" : ""}`}
+                />
+              </button>
+              {uploadSectionOpen && (
+                <div id="obfuscator-upload-section">
+                  {user?.isPremium ? (
+                    <>
+                      <p className="mt-1 text-xs leading-5 text-muted">
+                        Upload JavaScript or a ZIP project. JavaScript files are obfuscated and other project files are preserved.
+                      </p>
+                      <label
+                        htmlFor="obfuscator-upload"
+                        onDragEnter={(event) => {
+                          event.preventDefault();
+                          setDragActive(true);
+                        }}
+                        onDragOver={(event) => {
+                          event.preventDefault();
+                          event.dataTransfer.dropEffect = "copy";
+                          setDragActive(true);
+                        }}
+                        onDragLeave={(event) => {
+                          if (!event.currentTarget.contains(event.relatedTarget)) {
+                            setDragActive(false);
+                          }
+                        }}
+                        onDrop={(event) => {
+                          event.preventDefault();
+                          setDragActive(false);
+                          selectUploadFile(event.dataTransfer.files?.[0]);
+                        }}
+                        className={`focus-within:ring-2 focus-within:ring-azure-500 focus-within:ring-offset-2 mt-4 flex min-h-48 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed px-5 py-6 text-center transition-colors ${
+                          dragActive
+                            ? "border-azure-500 bg-azure-500/10"
+                            : "border-edge bg-surface2/30 hover:border-azure-500/60"
+                        }`}
+                      >
+                        {uploadFile ? (
+                          <div aria-live="polite" className="flex max-w-full items-center gap-3">
+                            <span className="grid h-11 w-11 flex-none place-items-center rounded-lg bg-azure-500/10 text-azure-500">
+                              <FileText size={21} aria-hidden="true" />
+                            </span>
+                            <span className="min-w-0 text-left">
+                              <span className="block max-w-full truncate text-sm font-semibold text-fg">
+                                {uploadFile.name}
+                              </span>
+                              <span className="mt-1 block text-xs text-muted">
+                                {(uploadFile.size / (1024 * 1024)).toFixed(2)} MB · Ready to obfuscate
+                              </span>
+                            </span>
+                          </div>
+                        ) : (
+                          <>
+                            <UploadCloud size={32} className="text-muted" aria-hidden="true" />
+                            <p className="mt-3 text-sm font-semibold text-fg">
+                              Drag and drop your file here
+                            </p>
+                            <p className="mt-1 text-sm text-muted">or</p>
+                          </>
+                        )}
+                        <input
+                          ref={uploadInputRef}
+                          id="obfuscator-upload"
+                          type="file"
+                          accept=".js,.zip,application/zip,text/javascript"
+                          onChange={(event) => selectUploadFile(event.target.files?.[0])}
+                          className="sr-only"
+                        />
+                        <span className="mt-1 rounded px-2 py-1 text-sm font-semibold text-azure-500 hover:text-azure-600">
+                          {uploadFile ? "Choose a different file" : "Browse files"}
                         </span>
-                        <span className="min-w-0 text-left">
-                          <span className="block max-w-full truncate text-sm font-semibold text-fg">
-                            {uploadFile.name}
-                          </span>
-                          <span className="mt-1 block text-xs text-muted">
-                            {(uploadFile.size / (1024 * 1024)).toFixed(2)} MB · Ready to obfuscate
-                          </span>
-                        </span>
+                        <p className="mt-2 text-xs text-muted">Accepted: .js and .zip · Maximum size: 100 MB</p>
+                      </label>
+                      <div className="mt-3 flex justify-end">
+                        <Button type="button" onClick={obfuscateUpload} disabled={uploading || !uploadFile}>
+                          {uploading ? <LoaderCircle size={15} className="animate-spin" /> : <Upload size={15} />}
+                          {uploading ? "Obfuscating…" : "Upload and obfuscate"}
+                        </Button>
                       </div>
-                    ) : (
-                      <>
-                        <UploadCloud size={32} className="text-muted" aria-hidden="true" />
-                        <p className="mt-3 text-sm font-semibold text-fg">
-                          Drag and drop your file here
-                        </p>
-                        <p className="mt-1 text-sm text-muted">or</p>
-                      </>
-                    )}
-                    <input
-                      ref={uploadInputRef}
-                      id="obfuscator-upload"
-                      type="file"
-                      accept=".js,.zip,application/zip,text/javascript"
-                      aria-label="Choose a JavaScript file or ZIP project"
-                      onChange={(event) => selectUploadFile(event.target.files?.[0])}
-                      className="sr-only"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => uploadInputRef.current?.click()}
-                      className="focus-ring mt-1 rounded px-2 py-1 text-sm font-semibold text-azure-500 hover:text-azure-600"
-                    >
-                      {uploadFile ? "Choose a different file" : "Browse files"}
-                    </button>
-                    <p className="mt-2 text-xs text-muted">Accepted: .js and .zip · Maximum size: 100 MB</p>
-                  </div>
-                  <div className="mt-3 flex justify-end">
-                    <Button type="button" onClick={obfuscateUpload} disabled={uploading || !uploadFile}>
-                      {uploading ? <LoaderCircle size={15} className="animate-spin" /> : <Upload size={15} />}
-                      {uploading ? "Obfuscating…" : "Upload and obfuscate"}
-                    </Button>
-                  </div>
-                </>
-              ) : (
-                <p className="mt-1 text-xs leading-5 text-muted">
-                  File and project uploads are available to Premium members. <a className="font-semibold text-azure-500 hover:underline" href="/dashboard">View Premium in your dashboard</a>.
-                </p>
+                    </>
+                  ) : (
+                    <p className="mt-1 text-xs leading-5 text-muted">
+                      File and project uploads are available to Premium members. <a className="font-semibold text-azure-500 hover:underline" href="/dashboard">View Premium in your dashboard</a>.
+                    </p>
+                  )}
+                </div>
               )}
             </div>
           </div>
