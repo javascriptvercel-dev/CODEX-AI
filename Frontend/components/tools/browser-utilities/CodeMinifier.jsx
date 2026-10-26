@@ -1,10 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import postcss from "postcss";
-import { minify as minifyJavaScript } from "terser";
 import { Check, Copy, Download, FileCode2, Sparkles } from "lucide-react";
 import Button from "@/components/ui/Button";
+import {
+  detectCodeLanguage,
+  getMinifiedFilename,
+  minifyCode,
+} from "./codeMinifier.mjs";
 import {
   copyToolText,
   downloadToolText,
@@ -16,42 +19,13 @@ import {
 
 const MAX_SOURCE_LENGTH = 500_000;
 
-function minifyCss(source) {
-  const root = postcss.parse(source);
-  root.walkComments((comment) => {
-    if (!comment.text.startsWith("!")) comment.remove();
-  });
-  root.raws.before = "";
-  root.raws.after = "";
-  root.walk((node) => {
-    if (node.nodes) node.raws.semicolon = false;
-  });
-  root.walkRules((rule) => {
-    rule.selector = rule.selector.replace(/\s*,\s*/gu, ",");
-    rule.raws.before = "";
-    rule.raws.between = "";
-    rule.raws.after = "";
-  });
-  root.walkAtRules((rule) => {
-    rule.raws.before = "";
-    rule.raws.afterName = rule.params ? " " : "";
-    rule.raws.between = "";
-    rule.raws.after = "";
-  });
-  root.walkDecls((declaration) => {
-    declaration.raws.before = "";
-    declaration.raws.between = ":";
-  });
-  return root.toString();
-}
-
 export default function CodeMinifier() {
-  const [language, setLanguage] = useState("javascript");
   const [source, setSource] = useState("");
   const [output, setOutput] = useState("");
   const [minifying, setMinifying] = useState(false);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
+  const language = detectCodeLanguage(source);
 
   async function minify(event) {
     event.preventDefault();
@@ -59,7 +33,7 @@ export default function CodeMinifier() {
     setOutput("");
     setCopied(false);
     if (!source.trim()) {
-      setError("Paste JavaScript or CSS code to minify.");
+      setError("Paste code to detect its language and minify it.");
       return;
     }
     if (source.length > MAX_SOURCE_LENGTH) {
@@ -69,17 +43,7 @@ export default function CodeMinifier() {
 
     setMinifying(true);
     try {
-      if (language === "javascript") {
-        const result = await minifyJavaScript(source, {
-          compress: false,
-          mangle: false,
-          format: { beautify: false },
-        });
-        if (!result.code) throw new Error("Could not produce minified JavaScript.");
-        setOutput(result.code);
-      } else {
-        setOutput(minifyCss(source));
-      }
+      setOutput(await minifyCode(source, language));
     } catch (minifyError) {
       setError(minifyError?.message || "Could not minify this code. Check the syntax and try again.");
     } finally {
@@ -106,26 +70,16 @@ export default function CodeMinifier() {
     <ToolFrame
       icon={FileCode2}
       title="Code Minifier"
-      description="Remove unnecessary formatting and comments from JavaScript or CSS. Your code is processed locally."
+      description="Automatically detect and minify code in your browser, with no language selector."
     >
       <form onSubmit={minify} className="space-y-4">
         <div className="flex flex-wrap items-end justify-between gap-3">
-          <label htmlFor="minifier-language" className={`${TOOL_LABEL_CLASS} min-w-52`}>
-            Language
-            <select
-              id="minifier-language"
-              value={language}
-              onChange={(event) => {
-                setLanguage(event.target.value);
-                setOutput("");
-                setError("");
-              }}
-              className={`${TOOL_INPUT_CLASS} mt-2`}
-            >
-              <option value="javascript">JavaScript</option>
-              <option value="css">CSS</option>
-            </select>
-          </label>
+          <div className="min-w-52">
+            <span className="text-sm font-semibold text-fg">Language</span>
+            <p className="mt-2 text-sm text-muted" aria-live="polite">
+              {language || "Paste code to detect"}
+            </p>
+          </div>
           <span className="text-xs text-muted">
             {source.length.toLocaleString()} / {MAX_SOURCE_LENGTH.toLocaleString()} characters
           </span>
@@ -139,6 +93,7 @@ export default function CodeMinifier() {
             onChange={(event) => {
               setSource(event.target.value);
               setOutput("");
+              setError("");
               setCopied(false);
             }}
             rows={12}
@@ -146,7 +101,7 @@ export default function CodeMinifier() {
             spellCheck={false}
             autoCapitalize="off"
             autoComplete="off"
-            placeholder={language === "javascript" ? "function greet(name) {\n  return `Hello, ${name}!`;\n}" : ".card {\n  color: #ffffff;\n  padding: 1rem;\n}"}
+            placeholder={'Paste JavaScript, CSS, or JSON code here.\n\nExample:\nconst message = "Hello";'}
             className={`${TOOL_INPUT_CLASS} mt-2 resize-y font-mono text-xs leading-5`}
           />
         </label>
@@ -165,7 +120,7 @@ export default function CodeMinifier() {
               <Button
                 type="button"
                 variant="secondary"
-                onClick={() => downloadToolText(`minified.${language === "javascript" ? "js" : "css"}`, output, language === "javascript" ? "text/javascript;charset=utf-8" : "text/css;charset=utf-8")}
+                onClick={() => downloadToolText(getMinifiedFilename(language), output)}
               >
                 <Download size={15} aria-hidden="true" />
                 Download
