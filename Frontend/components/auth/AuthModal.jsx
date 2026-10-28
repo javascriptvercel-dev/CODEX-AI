@@ -96,7 +96,7 @@ export default function AuthModal({ onClose, onSuccess, message, nextPath, retur
             </span>
             <p className="text-sm text-muted [overflow-wrap:anywhere]">
 
-              A password reset link has been sent to <span className="text-fg">{email}</span>. It is valid for 1 hour.
+              If an account exists for <span className="text-fg">{email}</span>, a password reset link will be sent. It is valid for 1 hour. You can use this to set a password for an account created with GitHub or Google.
             </p>
             <button
               type="button"

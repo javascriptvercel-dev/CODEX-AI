@@ -102,17 +102,23 @@ export const login = async (req, res) => {
     console.error("login: fetch failed", fetchError);
     return res.status(500).json({ error: "We could not verify your login right now." });
   }
-  // Generic responses for both "unknown email" and "wrong password" so the
-  // login endpoint cannot be used to discover which emails have accounts.
+  // Keep the response identical for unknown emails and invalid passwords so
+  // the login endpoint cannot be used to discover which emails have accounts.
   if (!user || !user.password_hash)
     return res
       .status(401)
-      .json({ error: "Incorrect email or password." });
+      .json({
+        error:
+          "Incorrect email or password. If you signed up with GitHub or Google, use that sign-in option or choose Forgot password to set a password.",
+      });
   const valid = await comparePassword(password, user.password_hash);
   if (!valid)
     return res
       .status(401)
-      .json({ error: "Incorrect email or password." });
+      .json({
+        error:
+          "Incorrect email or password. If you signed up with GitHub or Google, use that sign-in option or choose Forgot password to set a password.",
+      });
   const role = isAdminEmail(user.email) ? "admin" : user.role;
   if (role !== user.role) {
     await supabase.from("users").update({ role }).eq("id", user.id);
@@ -130,30 +136,38 @@ export const logout = async (_req, res) => {
 export const forgotPassword = async (req, res) => {
   const { email } = req.body || {};
   if (!email) return res.status(400).json({ error: "Enter your email." });
-  const { data: user } = await supabase
+  const { data: user, error: lookupError } = await supabase
     .from("users")
-    .select("id, email, password_hash")
-    .eq("email", email.toLowerCase())
+    .select("id, email")
+    .eq("email", email.trim().toLowerCase())
     .maybeSingle();
-  if (user?.password_hash) {
+  if (lookupError) {
+    console.error("forgotPassword: account lookup failed", lookupError);
+  } else if (user) {
     const token = crypto.randomBytes(32).toString("hex");
     const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
     const expiresAt = new Date(Date.now() + RESET_TOKEN_TTL_MS).toISOString();
-    await supabase
+    const { error: updateError } = await supabase
       .from("users")
       .update({
         reset_token_hash: tokenHash,
         reset_token_expires_at: expiresAt,
       })
       .eq("id", user.id);
-    const resetUrl = `${env.frontendUrl}/reset-password?token=${token}&email=${encodeURIComponent(user.email)}`;
-    sendPasswordResetEmail(user, resetUrl).catch((err) =>
-      console.error("sendPasswordResetEmail failed", err),
-    );
+    if (updateError) {
+      console.error("forgotPassword: reset token save failed", updateError);
+    } else {
+      const resetUrl = `${env.frontendUrl}/reset-password?token=${token}&email=${encodeURIComponent(user.email)}`;
+      try {
+        await sendPasswordResetEmail(user, resetUrl);
+      } catch (error) {
+        console.error("forgotPassword: email delivery failed", error);
+      }
+    }
   }
   res.json({
     ok: true,
-    message: "If an account exists for that email, we have sent a password reset link.",
+    message: "If an account exists for that email, a password reset link will be sent.",
   });
 };
 

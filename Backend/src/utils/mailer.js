@@ -237,7 +237,7 @@ export const notifyUserOfPremiumExpiry = async (user, expiresAt, daysBefore) => 
 
 export const sendPasswordResetEmail = async (user, resetUrl) => {
   const resend = getClient();
-  if (!resend) return;
+  if (!resend) throw new Error("Email sending is not configured.");
 
   const heading = "Reset your CODEX AI password";
   const intro = "We received a request to reset the password for your CODEX AI account. Use the button below to choose a new password.";
