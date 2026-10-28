@@ -5,13 +5,17 @@ import Image from "next/image";
 import QRCode from "qrcode";
 import { Download, QrCode, Sparkles } from "lucide-react";
 import Button from "@/components/ui/Button";
+import { useAuth } from "@/context/AuthContext";
 import {
+  BROWSER_UTILITY_LIMITS,
+  consumeBrowserUtilityUsage,
   downloadToolText,
   TOOL_CARD_CLASS,
   TOOL_INPUT_CLASS,
   TOOL_LABEL_CLASS,
   ToolError,
   ToolFrame,
+  UtilityPlanNotice,
 } from "./ToolFrame";
 
 const QR_TYPES = [
@@ -97,6 +101,11 @@ function QrTextField({ id, label, value, onChange, placeholder, type = "text", r
 }
 
 export default function QrCodeGenerator() {
+  const { user } = useAuth();
+  const isPremium = user?.role === "admin" || user?.isPremium;
+  const outputWidth = isPremium
+    ? BROWSER_UTILITY_LIMITS.premiumQrPixels
+    : BROWSER_UTILITY_LIMITS.freeQrPixels;
   const [type, setType] = useState("url");
   const [fields, setFields] = useState({
     url: "",
@@ -132,17 +141,18 @@ export default function QrCodeGenerator() {
     setQr(null);
     try {
       const payload = makeQrPayload(type, fields);
+      await consumeBrowserUtilityUsage("qr-code-generator");
       const dataUrl = await QRCode.toDataURL(payload, {
         errorCorrectionLevel: "M",
         margin: 2,
-        width: 360,
+        width: outputWidth,
         color: { dark: "#111827", light: "#FFFFFF" },
       });
       const svg = await QRCode.toString(payload, {
         type: "svg",
         errorCorrectionLevel: "M",
         margin: 2,
-        width: 360,
+        width: outputWidth,
         color: { dark: "#111827", light: "#FFFFFF" },
       });
       setQr({ dataUrl, svg });
@@ -273,6 +283,10 @@ export default function QrCodeGenerator() {
           )}
         </div>
       </form>
+      <UtilityPlanNotice
+        freeBenefit={`${BROWSER_UTILITY_LIMITS.freeQrPixels}px PNG exports`}
+        premiumBenefit={`${BROWSER_UTILITY_LIMITS.premiumQrPixels.toLocaleString()}px PNG exports`}
+      />
       <ToolError message={error} />
       <p className="text-xs leading-5 text-muted">
         QR content is generated on your device. Avoid encoding sensitive information.

@@ -3,7 +3,10 @@
 import { useState } from "react";
 import { Check, Copy, Download, Fingerprint, RefreshCw } from "lucide-react";
 import Button from "@/components/ui/Button";
+import { useAuth } from "@/context/AuthContext";
 import {
+  BROWSER_UTILITY_LIMITS,
+  consumeBrowserUtilityUsage,
   copyToolText,
   downloadToolText,
   TOOL_CARD_CLASS,
@@ -11,6 +14,7 @@ import {
   ToolError,
   ToolFrame,
   TOOL_INPUT_CLASS,
+  UtilityPlanNotice,
 } from "./ToolFrame";
 
 function randomUuid() {
@@ -22,20 +26,31 @@ function randomUuid() {
 }
 
 export default function UuidGenerator() {
+  const { user } = useAuth();
+  const isPremium = user?.role === "admin" || user?.isPremium;
+  const maxBatch = isPremium
+    ? BROWSER_UTILITY_LIMITS.premiumUuidBatch
+    : BROWSER_UTILITY_LIMITS.freeUuidBatch;
   const [count, setCount] = useState(5);
+  const effectiveCount = Math.min(count, maxBatch);
   const [uppercase, setUppercase] = useState(false);
   const [uuids, setUuids] = useState([]);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
+  const [generating, setGenerating] = useState(false);
 
-  function generate() {
+  async function generate() {
+    setGenerating(true);
     try {
-      const values = Array.from({ length: count }, () => randomUuid());
+      const values = Array.from({ length: effectiveCount }, () => randomUuid());
+      await consumeBrowserUtilityUsage("uuid-generator");
       setUuids(uppercase ? values.map((value) => value.toUpperCase()) : values);
       setError("");
       setCopied(false);
-    } catch {
-      setError("Secure random generation is unavailable in this browser.");
+    } catch (generationError) {
+      setError(generationError?.message || "Secure random generation is unavailable in this browser.");
+    } finally {
+      setGenerating(false);
     }
   }
 
@@ -57,15 +72,18 @@ export default function UuidGenerator() {
     >
       <div className="grid gap-4 sm:grid-cols-[1fr_1fr]">
         <label className={TOOL_LABEL_CLASS}>
-          Number of UUIDs <span className="font-normal text-muted">({count})</span>
+          Number of UUIDs <span className="font-normal text-muted">({effectiveCount})</span>
           <input
             type="range"
             min="1"
-            max="20"
-            value={count}
-            onChange={(event) => setCount(Number(event.target.value))}
+            max={maxBatch}
+            value={effectiveCount}
+            onChange={(event) => setCount(Math.min(maxBatch, Number(event.target.value)))}
             className="mt-3 block w-full accent-azure-500"
           />
+          <span className="mt-1 block text-xs font-normal text-muted">
+            Up to {maxBatch} per batch
+          </span>
         </label>
         <label className={`${TOOL_CARD_CLASS} flex items-center justify-between gap-3 text-sm`}>
           <span>
@@ -82,9 +100,9 @@ export default function UuidGenerator() {
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <Button onClick={generate}>
+        <Button onClick={generate} disabled={generating}>
           <RefreshCw size={15} aria-hidden="true" />
-          Generate {count} UUID{count === 1 ? "" : "s"}
+          {generating ? "Generating…" : `Generate ${effectiveCount} UUID${effectiveCount === 1 ? "" : "s"}`}
         </Button>
         {uuids.length > 0 && (
           <>
@@ -129,6 +147,10 @@ export default function UuidGenerator() {
           ))}
         </section>
       )}
+      <UtilityPlanNotice
+        freeBenefit={`${BROWSER_UTILITY_LIMITS.freeUuidBatch} UUIDs per batch`}
+        premiumBenefit={`${BROWSER_UTILITY_LIMITS.premiumUuidBatch} UUIDs per batch`}
+      />
       <ToolError message={error} />
       <p className="text-xs leading-5 text-muted">
         Uses your browser&apos;s cryptographically secure random generator. No data is sent to a server.

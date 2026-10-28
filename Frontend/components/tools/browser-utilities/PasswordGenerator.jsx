@@ -3,12 +3,16 @@
 import { useState } from "react";
 import { Check, Copy, KeyRound, RefreshCw } from "lucide-react";
 import Button from "@/components/ui/Button";
+import { useAuth } from "@/context/AuthContext";
 import {
+  BROWSER_UTILITY_LIMITS,
+  consumeBrowserUtilityUsage,
   copyToolText,
   TOOL_CARD_CLASS,
   TOOL_INPUT_CLASS,
   ToolError,
   ToolFrame,
+  UtilityPlanNotice,
 } from "./ToolFrame";
 
 const CHARACTER_GROUPS = {
@@ -70,7 +74,13 @@ function generatePassword(length, options) {
 }
 
 export default function PasswordGenerator() {
+  const { user } = useAuth();
+  const isPremium = user?.role === "admin" || user?.isPremium;
+  const maxLength = isPremium
+    ? BROWSER_UTILITY_LIMITS.premiumPasswordLength
+    : BROWSER_UTILITY_LIMITS.freePasswordLength;
   const [length, setLength] = useState(16);
+  const effectiveLength = Math.min(length, maxLength);
   const [options, setOptions] = useState({
     uppercase: true,
     lowercase: true,
@@ -82,6 +92,7 @@ export default function PasswordGenerator() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
+  const [generating, setGenerating] = useState(false);
 
   function toggle(name) {
     setOptions((current) => ({ ...current, [name]: !current[name] }));
@@ -89,14 +100,19 @@ export default function PasswordGenerator() {
     setCopied(false);
   }
 
-  function generate() {
+  async function generate() {
+    setGenerating(true);
     try {
-      setPassword(generatePassword(length, options));
+      const generatedPassword = generatePassword(effectiveLength, options);
+      await consumeBrowserUtilityUsage("password-generator");
+      setPassword(generatedPassword);
       setError("");
       setCopied(false);
     } catch (generationError) {
       setPassword("");
       setError(generationError.message || "Could not generate a password.");
+    } finally {
+      setGenerating(false);
     }
   }
 
@@ -116,7 +132,7 @@ export default function PasswordGenerator() {
   const poolSize = options.excludeAmbiguous
     ? Array.from(new Set(selectedGroups.split("").filter((char) => !AMBIGUOUS_CHARACTERS.has(char)))).length
     : new Set(selectedGroups).size;
-  const strengthBits = length * Math.log2(Math.max(poolSize, 1));
+  const strengthBits = effectiveLength * Math.log2(Math.max(poolSize, 1));
   const strength = strengthBits >= 100 ? "Very strong" : strengthBits >= 70 ? "Strong" : strengthBits >= 45 ? "Fair" : "Needs improvement";
   const strengthColor = strengthBits >= 70 ? "bg-emerald-500" : strengthBits >= 45 ? "bg-amber-400" : "bg-red-500";
 
@@ -131,20 +147,21 @@ export default function PasswordGenerator() {
           <label htmlFor="password-length" className="text-sm font-semibold text-fg">
             Password length
           </label>
-          <span className="font-mono text-sm font-semibold text-fg">{length}</span>
+          <span className="font-mono text-sm font-semibold text-fg">{effectiveLength}</span>
         </div>
         <input
           id="password-length"
           type="range"
           min="8"
-          max="64"
-          value={length}
+          max={maxLength}
+          value={effectiveLength}
           onChange={(event) => {
             setLength(Number(event.target.value));
             setPassword("");
           }}
           className="block w-full accent-azure-500"
         />
+        <p className="text-xs text-muted">Up to {maxLength} characters</p>
         <div className="grid gap-2 sm:grid-cols-2">
           {[
             ["uppercase", "Uppercase letters (A–Z)"],
@@ -198,11 +215,15 @@ export default function PasswordGenerator() {
       </section>
 
       <div className="flex flex-wrap gap-2">
-        <Button onClick={generate}>
+        <Button onClick={generate} disabled={generating}>
           <RefreshCw size={15} aria-hidden="true" />
-          Generate password
+          {generating ? "Generating…" : "Generate password"}
         </Button>
       </div>
+      <UtilityPlanNotice
+        freeBenefit={`passwords up to ${BROWSER_UTILITY_LIMITS.freePasswordLength} characters`}
+        premiumBenefit={`passwords up to ${BROWSER_UTILITY_LIMITS.premiumPasswordLength} characters`}
+      />
       <ToolError message={error} />
       <p className="text-xs leading-5 text-muted">
         Uses cryptographically secure browser randomness. Complexity is an estimate; store passwords in a trusted password manager.

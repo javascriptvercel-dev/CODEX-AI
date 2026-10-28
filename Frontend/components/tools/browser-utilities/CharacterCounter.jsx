@@ -2,7 +2,15 @@
 
 import { useMemo, useState } from "react";
 import { Type } from "lucide-react";
-import { TOOL_CARD_CLASS, TOOL_INPUT_CLASS, TOOL_LABEL_CLASS, ToolFrame } from "./ToolFrame";
+import { useAuth } from "@/context/AuthContext";
+import {
+  BROWSER_UTILITY_LIMITS,
+  TOOL_CARD_CLASS,
+  TOOL_INPUT_CLASS,
+  TOOL_LABEL_CLASS,
+  ToolFrame,
+  UtilityPlanNotice,
+} from "./ToolFrame";
 
 const EMPTY_STATS = {
   characters: 0,
@@ -33,21 +41,28 @@ function analyzeText(value) {
 }
 
 export default function CharacterCounter() {
+  const { user } = useAuth();
+  const isPremium = user?.role === "admin" || user?.isPremium;
+  const maxCharacters = isPremium
+    ? BROWSER_UTILITY_LIMITS.premiumTextCharacters
+    : BROWSER_UTILITY_LIMITS.freeTextCharacters;
   const [text, setText] = useState("");
   const [limitEnabled, setLimitEnabled] = useState(false);
   const [limit, setLimit] = useState(280);
-  const stats = useMemo(() => (text ? analyzeText(text) : EMPTY_STATS), [text]);
+  const effectiveText = text.slice(0, maxCharacters);
+  const effectiveLimit = Math.min(limit, maxCharacters);
+  const stats = useMemo(() => (effectiveText ? analyzeText(effectiveText) : EMPTY_STATS), [effectiveText]);
   const topLetters = useMemo(() => {
     const counts = new Map();
-    for (const char of text.toLocaleLowerCase()) {
+    for (const char of effectiveText.toLocaleLowerCase()) {
       if (/\p{L}/u.test(char)) counts.set(char, (counts.get(char) || 0) + 1);
     }
     return Array.from(counts, ([letter, count]) => ({ letter, count }))
       .sort((a, b) => b.count - a.count || a.letter.localeCompare(b.letter))
       .slice(0, 8);
-  }, [text]);
-  const progress = limitEnabled && limit > 0
-    ? Math.min(100, (stats.characters / limit) * 100)
+  }, [effectiveText]);
+  const progress = limitEnabled && effectiveLimit > 0
+    ? Math.min(100, (stats.characters / effectiveLimit) * 100)
     : 0;
 
   const metrics = [
@@ -70,14 +85,23 @@ export default function CharacterCounter() {
       </label>
       <textarea
         id="character-counter-input"
-        value={text}
-        onChange={(event) => setText(event.target.value)}
+        value={effectiveText}
+        onChange={(event) => setText(event.target.value.slice(0, maxCharacters))}
         rows={9}
+        maxLength={maxCharacters}
         spellCheck={false}
         placeholder="Type or paste your text here…"
         className={`${TOOL_INPUT_CLASS} resize-y leading-6`}
       />
+      <p className="text-right text-xs text-muted">
+        {stats.characters.toLocaleString()} / {maxCharacters.toLocaleString()} characters
+      </p>
 
+      <UtilityPlanNotice
+        freeBenefit={`${BROWSER_UTILITY_LIMITS.freeTextCharacters.toLocaleString()} characters per text`}
+        premiumBenefit={`${BROWSER_UTILITY_LIMITS.premiumTextCharacters.toLocaleString()} characters per text`}
+        metered={false}
+      />
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {metrics.map(({ label, value }) => (
           <div key={label} className={TOOL_CARD_CLASS}>
@@ -104,9 +128,9 @@ export default function CharacterCounter() {
               <input
                 type="number"
                 min="1"
-                max="100000"
-                value={limit}
-                onChange={(event) => setLimit(Math.max(1, Number(event.target.value) || 1))}
+                max={maxCharacters}
+                value={effectiveLimit}
+                onChange={(event) => setLimit(Math.min(maxCharacters, Math.max(1, Number(event.target.value) || 1)))}
                 className="focus-ring w-24 rounded-md border border-edge bg-surface px-2 py-1.5 text-fg"
               />
             </label>
@@ -118,18 +142,18 @@ export default function CharacterCounter() {
               role="progressbar"
               aria-label="Character limit usage"
               aria-valuemin={0}
-              aria-valuemax={limit}
-              aria-valuenow={Math.min(stats.characters, limit)}
+              aria-valuemax={effectiveLimit}
+              aria-valuenow={Math.min(stats.characters, effectiveLimit)}
               className="h-2 overflow-hidden rounded-full bg-surface"
             >
               <div
-                className={`h-full rounded-full transition-[width] ${stats.characters > limit ? "bg-red-500" : "bg-azure-500"}`}
+                className={`h-full rounded-full transition-[width] ${stats.characters > effectiveLimit ? "bg-red-500" : "bg-azure-500"}`}
                 style={{ width: `${progress}%` }}
               />
             </div>
-            <p className={`text-xs ${stats.characters > limit ? "text-red-400" : "text-muted"}`}>
-              {stats.characters.toLocaleString()} / {limit.toLocaleString()} characters
-              {stats.characters > limit ? ` · ${stats.characters - limit} over the limit` : ""}
+            <p className={`text-xs ${stats.characters > effectiveLimit ? "text-red-400" : "text-muted"}`}>
+              {stats.characters.toLocaleString()} / {effectiveLimit.toLocaleString()} characters
+              {stats.characters > effectiveLimit ? ` · ${stats.characters - effectiveLimit} over the limit` : ""}
             </p>
           </>
         )}

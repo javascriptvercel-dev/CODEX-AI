@@ -10,6 +10,7 @@ import {
   obfuscateCode,
   redirectShortLink,
 } from "../controllers/tools.controller.js";
+import { consumeBrowserUtilityUsage } from "../controllers/browserUtilities.controller.js";
 import { BanCheckError, checkNumber, cleanNumber } from "../tools/banCheck.js";
 import { enforceToolRateLimit } from "../tools/rateLimit.js";
 import { randomUUID } from "node:crypto";
@@ -50,6 +51,13 @@ const enforcePremiumUploadLimit = async (req, res, next) => {
 
 const router = Router();
 const cache = new Map();
+
+router.post(
+  "/browser-utilities/:tool/usage",
+  attachUser,
+  requireAuth,
+  asyncHandler(consumeBrowserUtilityUsage),
+);
 
 router.post(
   "/bot-base-generator",

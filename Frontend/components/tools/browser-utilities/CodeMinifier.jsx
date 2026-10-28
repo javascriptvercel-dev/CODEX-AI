@@ -3,23 +3,30 @@
 import { useState } from "react";
 import { Check, Copy, Download, FileCode2, Sparkles } from "lucide-react";
 import Button from "@/components/ui/Button";
+import { useAuth } from "@/context/AuthContext";
 import {
   detectCodeLanguage,
   getMinifiedFilename,
   minifyCode,
 } from "./codeMinifier.mjs";
 import {
+  BROWSER_UTILITY_LIMITS,
+  consumeBrowserUtilityUsage,
   copyToolText,
   downloadToolText,
   TOOL_INPUT_CLASS,
   TOOL_LABEL_CLASS,
   ToolError,
   ToolFrame,
+  UtilityPlanNotice,
 } from "./ToolFrame";
 
-const MAX_SOURCE_LENGTH = 500_000;
-
 export default function CodeMinifier() {
+  const { user } = useAuth();
+  const isPremium = user?.role === "admin" || user?.isPremium;
+  const maxSourceLength = isPremium
+    ? BROWSER_UTILITY_LIMITS.premiumCodeCharacters
+    : BROWSER_UTILITY_LIMITS.freeCodeCharacters;
   const [source, setSource] = useState("");
   const [output, setOutput] = useState("");
   const [minifying, setMinifying] = useState(false);
@@ -36,14 +43,16 @@ export default function CodeMinifier() {
       setError("Paste code to detect its language and minify it.");
       return;
     }
-    if (source.length > MAX_SOURCE_LENGTH) {
-      setError(`Code must be ${MAX_SOURCE_LENGTH.toLocaleString()} characters or fewer.`);
+    if (source.length > maxSourceLength) {
+      setError(`Your account supports up to ${maxSourceLength.toLocaleString()} characters.`);
       return;
     }
 
     setMinifying(true);
     try {
-      setOutput(await minifyCode(source, language));
+      const result = await minifyCode(source, language);
+      await consumeBrowserUtilityUsage("code-minifier");
+      setOutput(result);
     } catch (minifyError) {
       setError(minifyError?.message || "Could not minify this code. Check the syntax and try again.");
     } finally {
@@ -81,7 +90,7 @@ export default function CodeMinifier() {
             </p>
           </div>
           <span className="text-xs text-muted">
-            {source.length.toLocaleString()} / {MAX_SOURCE_LENGTH.toLocaleString()} characters
+            {source.length.toLocaleString()} / {maxSourceLength.toLocaleString()} characters
           </span>
         </div>
 
@@ -97,7 +106,7 @@ export default function CodeMinifier() {
               setCopied(false);
             }}
             rows={12}
-            maxLength={MAX_SOURCE_LENGTH}
+            maxLength={maxSourceLength}
             spellCheck={false}
             autoCapitalize="off"
             autoComplete="off"
@@ -129,6 +138,11 @@ export default function CodeMinifier() {
           )}
         </div>
       </form>
+
+      <UtilityPlanNotice
+        freeBenefit={`${BROWSER_UTILITY_LIMITS.freeCodeCharacters.toLocaleString()} characters per minification`}
+        premiumBenefit={`${BROWSER_UTILITY_LIMITS.premiumCodeCharacters.toLocaleString()} characters per minification`}
+      />
 
       {output && (
         <section className="space-y-3" aria-labelledby="minifier-output-label">

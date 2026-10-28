@@ -155,6 +155,10 @@ export const api = {
       body: JSON.stringify({ number }),
       signal: AbortSignal.timeout(25000),
     }),
+  consumeBrowserUtilityUsage: (tool) =>
+    request(`/api/tools/browser-utilities/${encodeURIComponent(tool)}/usage`, {
+      method: "POST",
+    }),
   generateBotBase: (settings) =>
     requestBlob("/api/tools/bot-base-generator", {
       method: "POST",
