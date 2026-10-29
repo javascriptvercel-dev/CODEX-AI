@@ -309,7 +309,7 @@ export default function AdminOverviewPanel() {
     setLoading(true);
     setError("");
     try {
-      await loadOverview();
+      await Promise.all([loadOverview(), loadSubmissions()]);
     } catch (requestError) {
       setError(requestError.message);
     } finally {

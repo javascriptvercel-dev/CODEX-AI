@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import {
   Activity,
   ArrowUpRight,
-  BadgeCheck,
   Crown,
   ExternalLink,
   Link2,
@@ -14,7 +13,6 @@ import {
   LoaderCircle,
   MessageCircle,
   RefreshCw,
-  ShieldCheck,
   Sparkles,
   Settings,
   Star,
@@ -53,7 +51,6 @@ const SECTIONS = [
   { id: "links", label: "Short links", icon: Link2 },
   { id: "activity", label: "Tool activity", icon: Activity },
   { id: "tools", label: "Tool settings", icon: Sparkles },
-  { id: "submissions", label: "Plugin submissions", icon: ShieldCheck },
   { id: "settings", label: "Settings", icon: Settings },
 ];
 
@@ -208,7 +205,6 @@ export default function DashboardPage() {
                     <Metric icon={Activity} label="Tool runs" value={data.usage.totalRuns} detail="Last 30 days" />
                     <Metric icon={Link2} label="Short links" value={data.links.total} detail={`${data.links.maxActive ?? "Unlimited"} active-link capacity`} />
                     <Metric icon={ArrowUpRight} label="Link clicks" value={data.links.totalClicks.toLocaleString()} detail="All active links" />
-                    <Metric icon={BadgeCheck} label="Plugin submissions" value={data.submissions.length} detail="Your recent submissions" />
                   </section>
                   <section className={`${cardClass} flex flex-col justify-between gap-5 sm:flex-row sm:items-center`}>
                     <div className="flex items-start gap-3">
@@ -328,28 +324,6 @@ export default function DashboardPage() {
                         <Button type="submit" variant="secondary" disabled={busy || !data.premium.available} className="self-end">Save setting</Button>
                       </form>
                       {settings.length > 0 && <p className="mt-3 text-xs text-muted">{settings.length} saved tool configuration{settings.length === 1 ? "" : "s"}.</p>}
-                    </section>
-              )}
-              {section === "submissions" && (
-                    <section className={cardClass}>
-                      <div className="mb-4 flex items-center gap-3">
-                        <ShieldCheck size={18} className="text-azure-500" />
-                        <h2 className="font-display font-bold">Plugin submissions</h2>
-                      </div>
-                      <ul className="divide-y divide-edge">
-                        {data.submissions.slice(0, 6).map((submission) => (
-                          <li key={submission.id} className="flex items-center justify-between gap-3 py-3">
-                            <Link href={`/plugins/${encodeURIComponent(submission.id)}`} className="truncate text-sm font-medium hover:text-azure-500">
-                              {submission.title}
-                            </Link>
-                            <span className="rounded-full border border-edge px-2 py-1 text-[11px] capitalize text-muted">{submission.status.replaceAll("_", " ")}</span>
-                          </li>
-                        ))}
-                        {!data.submissions.length && <li className="py-3 text-sm text-muted">Your submissions will show here.</li>}
-                      </ul>
-                      <Link href="/create" className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-azure-500 hover:underline">
-                        Create a plugin <ArrowUpRight size={14} />
-                      </Link>
                     </section>
               )}
             </div>

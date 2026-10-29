@@ -8,6 +8,7 @@ const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function getDashboard(req, res) {
   const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+  const isAdmin = req.user.role === "admin";
   const [linksResult, usageResult, clicksResult, submissionsResult] = await Promise.all([
     supabase
       .from("short_links")
@@ -30,12 +31,14 @@ export async function getDashboard(req, res) {
           p_days: 30,
         })
       : Promise.resolve({ data: [], error: null }),
-    supabase
-      .from("plugin_submissions")
-      .select("public_id, title, status, created_at")
-      .eq("user_id", req.user.id)
-      .order("created_at", { ascending: false })
-      .limit(20),
+    isAdmin
+      ? supabase
+          .from("plugin_submissions")
+          .select("public_id, title, status, created_at")
+          .eq("user_id", req.user.id)
+          .order("created_at", { ascending: false })
+          .limit(20)
+      : Promise.resolve({ data: [], error: null }),
   ]);
 
   const failure = [linksResult, usageResult, clicksResult, submissionsResult]
