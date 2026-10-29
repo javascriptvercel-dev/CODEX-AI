@@ -72,7 +72,7 @@ function ConfirmAccountDeletionInner() {
               disabled={status.state === "loading"}
             >
               {status.state === "loading" && <LoaderCircle size={15} className="animate-spin" />}
-              {status.state === "loading" ? "Deleting…" : "Permanently delete account"}
+              {status.state === "loading" ? "Deleting…" : "Permanently delete my account"}
             </Button>
           </div>
         )}
