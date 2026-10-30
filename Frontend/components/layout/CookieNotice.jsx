@@ -51,16 +51,16 @@ export default function CookieNotice() {
           </span>
           <div className="min-w-0 flex-1">
             <p className="font-display text-base font-bold tracking-tight text-fg">
-              A quick note about cookies
+              Cookie notice
             </p>
             <p className="mt-1 text-sm leading-6 text-muted">
-              Essential cookies keep you signed in, and browser storage remembers
-              your preferences.{" "}
+              CODEX AI uses essential cookies to keep you signed in and protect
+              your account. We do not use advertising or analytics cookies.{" "}
               <Link
                 href="/privacy"
                 className="group inline-flex items-center gap-0.5 whitespace-nowrap font-semibold text-azure-500 underline decoration-azure-500/40 underline-offset-4 transition hover:decoration-azure-500 focus-ring"
               >
-                Privacy policy
+                How cookies work
                 <ArrowUpRight size={13} aria-hidden="true" />
               </Link>
             </p>
@@ -71,7 +71,7 @@ export default function CookieNotice() {
           onClick={dismiss}
           className="focus-ring min-h-11 w-full flex-none rounded-lg bg-azure-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm shadow-azure-500/20 transition hover:bg-azure-600 active:scale-[0.98] sm:w-auto"
         >
-          Got it
+          Understood
         </button>
       </div>
     </aside>
