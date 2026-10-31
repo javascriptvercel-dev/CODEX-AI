@@ -1,138 +1,167 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AlertTriangle, Check, Info, X, XCircle } from "lucide-react";
+import {
+  CheckCircle2,
+  AlertTriangle,
+  Info,
+  XCircle,
+  X,
+} from "lucide-react";
 import { subscribeToToasts } from "@/lib/toast";
 
-const TOAST_STYLES = {
+/**
+ * Farm-Pulse inspired toast notification system.
+ * - Top-right floating stack with depth scaling
+ * - Native swipe-to-dismiss (touch & mouse pointer drag)
+ * - Glassmorphism: dark backdrop-blur, subtle glow border
+ * - Warnings, errors, success & info styling
+ */
+
+const TOAST_THEMES = {
   success: {
-    icon: Check,
-    className: "border-emerald-500/30 text-emerald-500",
-    iconClassName: "bg-emerald-500/10",
+    icon: CheckCircle2,
+    badgeBg: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+    accentGlow: "from-emerald-500/30 via-emerald-500/10 to-transparent",
   },
   warning: {
     icon: AlertTriangle,
-    className: "border-amber-400/30 text-amber-400",
-    iconClassName: "bg-amber-400/10",
-  },
-  info: {
-    icon: Info,
-    className: "border-azure-500/30 text-azure-500",
-    iconClassName: "bg-azure-500/10",
+    badgeBg: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+    accentGlow: "from-amber-500/30 via-amber-500/10 to-transparent",
   },
   error: {
     icon: XCircle,
-    className: "border-red-500/30 text-red-400",
-    iconClassName: "bg-red-500/10",
+    badgeBg: "bg-rose-500/10 text-rose-400 border-rose-500/20",
+    accentGlow: "from-rose-500/30 via-rose-500/10 to-transparent",
+  },
+  info: {
+    icon: Info,
+    badgeBg: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+    accentGlow: "from-blue-500/30 via-blue-500/10 to-transparent",
   },
 };
 
-const AUTO_DISMISS_MS = 6000;
-const SWIPE_THRESHOLD = 72;
-const MAX_STACK = 3;
-const TOAST_TYPES = ["success", "warning", "info", "error"];
+const SWIPE_THRESHOLD = 70;
+const MAX_VISIBLE_STACK = 3;
 
-function ToastCard({ toast, leaving, onDismiss }) {
+function ToastCard({ item, index, onDismiss }) {
   const [shown, setShown] = useState(false);
   const [dragX, setDragX] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
   const timerRef = useRef(null);
-  const startedAtRef = useRef(null);
-  const remainingRef = useRef(AUTO_DISMISS_MS);
   const dragRef = useRef({ active: false, startX: 0 });
 
+  const duration = item.duration || 5000;
+
   useEffect(() => {
-    const frame = window.requestAnimationFrame(() => setShown(true));
-    return () => window.cancelAnimationFrame(frame);
+    const r = requestAnimationFrame(() => setShown(true));
+    return () => cancelAnimationFrame(r);
   }, []);
+
+  const startTimer = useCallback(() => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      onDismiss(item.id);
+    }, duration);
+  }, [duration, item.id, onDismiss]);
 
   const clearTimer = useCallback(() => {
     if (timerRef.current) {
-      window.clearTimeout(timerRef.current);
+      clearTimeout(timerRef.current);
       timerRef.current = null;
-    }
-    if (startedAtRef.current) {
-      remainingRef.current = Math.max(
-        remainingRef.current - (Date.now() - startedAtRef.current),
-        800,
-      );
-      startedAtRef.current = null;
     }
   }, []);
 
-  const scheduleDismiss = useCallback(() => {
-    clearTimer();
-    startedAtRef.current = Date.now();
-    timerRef.current = window.setTimeout(
-      () => onDismiss(toast.id),
-      remainingRef.current,
-    );
-  }, [clearTimer, onDismiss, toast.id]);
-
   useEffect(() => {
-    scheduleDismiss();
+    if (!isHovered) {
+      startTimer();
+    } else {
+      clearTimer();
+    }
     return clearTimer;
-  }, [scheduleDismiss, clearTimer]);
+  }, [isHovered, startTimer, clearTimer]);
 
-  function onPointerDown(event) {
-    dragRef.current = { active: true, startX: event.clientX };
-    event.currentTarget.setPointerCapture?.(event.pointerId);
+  function onPointerDown(e) {
+    dragRef.current = { active: true, startX: e.clientX };
+    e.currentTarget.setPointerCapture?.(e.pointerId);
     clearTimer();
   }
 
-  function onPointerMove(event) {
+  function onPointerMove(e) {
     if (!dragRef.current.active) return;
-    const delta = event.clientX - dragRef.current.startX;
+    const delta = e.clientX - dragRef.current.startX;
     if (delta > 0) setDragX(delta);
   }
 
-  function onPointerUp(event) {
+  function onPointerUp(e) {
     if (!dragRef.current.active) return;
     dragRef.current.active = false;
-    const delta = event.clientX - dragRef.current.startX;
+    const delta = e.clientX - dragRef.current.startX;
     if (delta > SWIPE_THRESHOLD) {
-      onDismiss(toast.id);
-      return;
+      onDismiss(item.id);
+    } else {
+      setDragX(0);
+      startTimer();
     }
-    setDragX(0);
-    scheduleDismiss();
   }
 
-  const style = TOAST_STYLES[toast.type] || TOAST_STYLES.success;
-  const Icon = style.icon;
-  const offsetX = leaving ? 28 : shown ? dragX : 28;
+  const theme = TOAST_THEMES[item.type] || TOAST_THEMES.success;
+  const Icon = theme.icon;
+
+  const isLeaving = Boolean(item.leaving);
+  const stackOffset = Math.min(index, 2) * 8;
+  const scale = 1 - Math.min(index, 2) * 0.04;
+  const opacity = isLeaving ? 0 : shown ? 1 - Math.min(index, 2) * 0.15 : 0;
 
   return (
     <div
-      role="status"
+      role="alert"
       aria-live="polite"
-      onMouseEnter={clearTimer}
-      onMouseLeave={() => {
-        if (!dragRef.current.active) scheduleDismiss();
-      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerUp}
       style={{
-        transform: `translateX(${offsetX}px)`,
-        opacity: shown && !leaving ? 1 : 0,
+        transform: `translate3d(${dragX}px, ${stackOffset}px, 0) scale(${scale})`,
+        opacity,
         touchAction: "none",
       }}
-      className={`pointer-events-auto flex w-full items-center gap-3 overflow-hidden rounded-xl border bg-surface p-3.5 text-sm shadow-2xl transition-[opacity,transform] duration-200 ease-out motion-reduce:transition-none ${style.className}`}
+      className="pointer-events-auto relative flex w-full max-w-[23rem] items-start gap-3 overflow-hidden rounded-2xl border border-white/10 bg-[#0c101c]/95 p-4 shadow-[0_20px_50px_rgba(0,0,0,0.5),0_0_1px_1px_rgba(255,255,255,0.06)] backdrop-blur-xl transition-all duration-200 ease-out select-none"
     >
-      <span
-        className={`grid h-9 w-9 flex-none place-items-center rounded-lg ${style.iconClassName}`}
+      {/* Top subtle glow line */}
+      <div
+        className={`absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r ${theme.accentGlow}`}
+      />
+
+      {/* Status icon badge */}
+      <div
+        className={`grid h-8 w-8 flex-none place-items-center rounded-xl border ${theme.badgeBg}`}
       >
-        <Icon size={18} aria-hidden="true" />
-      </span>
-      <p className="min-w-0 flex-1 break-words text-fg">{toast.message}</p>
+        <Icon size={17} strokeWidth={2.2} />
+      </div>
+
+      {/* Text body */}
+      <div className="min-w-0 flex-1 pt-0.5">
+        <p className="text-sm font-semibold tracking-tight text-white/95 leading-snug">
+          {item.title}
+        </p>
+        {item.description && (
+          <p className="mt-1 text-xs text-white/60 leading-relaxed">
+            {item.description}
+          </p>
+        )}
+      </div>
+
+      {/* Close button */}
       <button
         type="button"
-        onClick={() => onDismiss(toast.id)}
-        aria-label="Dismiss notification"
-        className="focus-ring grid h-8 w-8 flex-none place-items-center rounded-md text-muted transition hover:bg-surface2 hover:text-fg"
+        onClick={() => onDismiss(item.id)}
+        aria-label="Close notification"
+        className="flex-none -mr-1 -mt-1 grid h-7 w-7 place-items-center rounded-lg text-white/40 transition hover:bg-white/10 hover:text-white"
       >
-        <X size={16} aria-hidden="true" />
+        <X size={14} />
       </button>
     </div>
   );
@@ -142,42 +171,32 @@ export default function ToastViewport() {
   const [toasts, setToasts] = useState([]);
 
   const dismiss = useCallback((id) => {
-    setToasts((current) =>
-      current.map((toast) =>
-        toast.id === id ? { ...toast, leaving: true } : toast,
-      ),
+    setToasts((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, leaving: true } : t))
     );
-    window.setTimeout(() => {
-      setToasts((current) => current.filter((toast) => toast.id !== id));
-    }, 220);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 180);
   }, []);
 
   useEffect(() => {
     return subscribeToToasts((incoming) => {
-      const message = incoming?.message;
-      if (typeof message !== "string" || !message.trim()) return;
-      const type = TOAST_TYPES.includes(incoming.type) ? incoming.type : "success";
-      setToasts((current) =>
-        [
-          { id: incoming.id, message: message.trim(), type },
-          ...current,
-        ].slice(0, MAX_STACK),
-      );
+      setToasts((prev) => [incoming, ...prev].slice(0, MAX_VISIBLE_STACK));
     });
   }, []);
 
-  if (!toasts.length) return null;
+  if (toasts.length === 0) return null;
 
   return (
     <aside
       aria-label="Notifications"
-      className="pointer-events-none fixed inset-x-3 top-3 z-[130] flex flex-col gap-2 sm:inset-x-auto sm:right-5 sm:top-5 sm:w-[24rem]"
+      className="pointer-events-none fixed inset-x-4 top-4 z-[9999] flex flex-col items-end gap-2.5 sm:inset-x-auto sm:right-6 sm:top-6 sm:w-auto"
     >
-      {toasts.map((toast) => (
+      {toasts.map((item, idx) => (
         <ToastCard
-          key={toast.id}
-          toast={toast}
-          leaving={Boolean(toast.leaving)}
+          key={item.id}
+          item={item}
+          index={idx}
           onDismiss={dismiss}
         />
       ))}
