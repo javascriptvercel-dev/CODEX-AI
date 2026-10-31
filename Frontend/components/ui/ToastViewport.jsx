@@ -82,6 +82,7 @@ function ToastCard({ item, index, onDismiss }) {
   }, [isHovered, startTimer, clearTimer]);
 
   function onPointerDown(e) {
+    if (e.target.closest("button")) return;
     dragRef.current = { active: true, startX: e.clientX };
     e.currentTarget.setPointerCapture?.(e.pointerId);
     clearTimer();

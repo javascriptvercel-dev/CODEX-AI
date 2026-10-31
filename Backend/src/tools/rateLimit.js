@@ -1,6 +1,20 @@
 import { supabase } from "../config/supabase.js";
 import { env } from "../config/env.js";
 
+function formatRetryAfter(seconds) {
+  const totalMinutes = Math.ceil(Math.max(seconds, 1) / 60);
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+
+  if (hours === 0) {
+    return `${totalMinutes} ${totalMinutes === 1 ? "minute" : "minutes"}`;
+  }
+  if (minutes === 0) {
+    return `${hours} ${hours === 1 ? "hour" : "hours"}`;
+  }
+  return `${hours} ${hours === 1 ? "hour" : "hours"} ${minutes} ${minutes === 1 ? "minute" : "minutes"}`;
+}
+
 export async function enforceToolRateLimit(
   req,
   res,
@@ -54,7 +68,7 @@ export async function enforceToolRateLimit(
   if (!result.allowed) {
     res.set("Retry-After", String(result.retry_after));
     res.status(429).json({
-      error: `You've reached the limit for ${tool.replaceAll("-", " ")}. Try again in ${result.retry_after} seconds.`,
+      error: `You've reached the limit for ${tool.replaceAll("-", " ")}. Try again in ${formatRetryAfter(result.retry_after)}.`,
       retryAfter: result.retry_after,
     });
     return false;
