@@ -14,30 +14,30 @@ import { subscribeToToasts } from "@/lib/toast";
  * Farm-Pulse inspired toast notification system.
  * - Top-right floating stack with depth scaling
  * - Native swipe-to-dismiss (touch & mouse pointer drag)
- * - Glassmorphism: dark backdrop-blur, subtle glow border
+ * - Theme-aware surface colors with a subtle accent glow
  * - Warnings, errors, success & info styling
  */
 
 const TOAST_THEMES = {
   success: {
     icon: CheckCircle2,
-    badgeBg: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-    accentGlow: "from-emerald-500/30 via-emerald-500/10 to-transparent",
+    badgeBg: "bg-azure-500/10 text-azure-500 border-azure-500/20",
+    accentGlow: "from-azure-500/30 via-azure-500/10 to-transparent",
   },
   warning: {
     icon: AlertTriangle,
-    badgeBg: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-    accentGlow: "from-amber-500/30 via-amber-500/10 to-transparent",
+    badgeBg: "bg-azure-500/10 text-azure-500 border-azure-500/20",
+    accentGlow: "from-azure-500/30 via-azure-500/10 to-transparent",
   },
   error: {
     icon: XCircle,
-    badgeBg: "bg-rose-500/10 text-rose-400 border-rose-500/20",
-    accentGlow: "from-rose-500/30 via-rose-500/10 to-transparent",
+    badgeBg: "bg-azure-500/10 text-azure-500 border-azure-500/20",
+    accentGlow: "from-azure-500/30 via-azure-500/10 to-transparent",
   },
   info: {
     icon: Info,
-    badgeBg: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-    accentGlow: "from-blue-500/30 via-blue-500/10 to-transparent",
+    badgeBg: "bg-azure-500/10 text-azure-500 border-azure-500/20",
+    accentGlow: "from-azure-500/30 via-azure-500/10 to-transparent",
   },
 };
 
@@ -129,7 +129,7 @@ function ToastCard({ item, index, onDismiss }) {
         opacity,
         touchAction: "none",
       }}
-      className="pointer-events-auto relative flex w-full max-w-[23rem] items-start gap-3 overflow-hidden rounded-2xl border border-white/10 bg-[#0c101c]/95 p-4 shadow-[0_20px_50px_rgba(0,0,0,0.5),0_0_1px_1px_rgba(255,255,255,0.06)] backdrop-blur-xl transition-all duration-200 ease-out select-none"
+      className="pointer-events-auto relative flex w-full max-w-[23rem] items-start gap-3 overflow-hidden rounded-2xl border border-edge bg-surface/95 p-4 text-fg shadow-xl backdrop-blur-xl transition-all duration-200 ease-out select-none"
     >
       {/* Top subtle glow line */}
       <div
@@ -145,11 +145,11 @@ function ToastCard({ item, index, onDismiss }) {
 
       {/* Text body */}
       <div className="min-w-0 flex-1 pt-0.5">
-        <p className="text-sm font-semibold tracking-tight text-white/95 leading-snug">
+        <p className="text-sm font-semibold tracking-tight text-fg leading-snug">
           {item.title}
         </p>
         {item.description && (
-          <p className="mt-1 text-xs text-white/60 leading-relaxed">
+          <p className="mt-1 text-xs text-muted leading-relaxed">
             {item.description}
           </p>
         )}
@@ -160,7 +160,7 @@ function ToastCard({ item, index, onDismiss }) {
         type="button"
         onClick={() => onDismiss(item.id)}
         aria-label="Close notification"
-        className="flex-none -mr-1 -mt-1 grid h-7 w-7 place-items-center rounded-lg text-white/40 transition hover:bg-white/10 hover:text-white"
+        className="focus-ring flex-none -mr-1 -mt-1 grid h-7 w-7 place-items-center rounded-lg text-muted transition hover:bg-surface2 hover:text-fg"
       >
         <X size={14} />
       </button>
