@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { AlertTriangle, Check, Info, X } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { AlertTriangle, Check, Info, X, XCircle } from "lucide-react";
 import { subscribeToToasts } from "@/lib/toast";
 
 const TOAST_STYLES = {
@@ -20,89 +20,167 @@ const TOAST_STYLES = {
     className: "border-azure-500/30 text-azure-500",
     iconClassName: "bg-azure-500/10",
   },
+  error: {
+    icon: XCircle,
+    className: "border-red-500/30 text-red-400",
+    iconClassName: "bg-red-500/10",
+  },
 };
 
-export default function ToastViewport() {
-  const [toast, setToast] = useState(null);
-  const [visible, setVisible] = useState(false);
-  const touchStartX = useRef(null);
-  const autoDismissTimer = useRef(null);
-  const exitTimer = useRef(null);
-  const animationFrame = useRef(null);
+const AUTO_DISMISS_MS = 6000;
+const SWIPE_THRESHOLD = 72;
+const MAX_STACK = 3;
+const TOAST_TYPES = ["success", "warning", "info", "error"];
+
+function ToastCard({ toast, leaving, onDismiss }) {
+  const [shown, setShown] = useState(false);
+  const [dragX, setDragX] = useState(0);
+  const timerRef = useRef(null);
+  const startedAtRef = useRef(null);
+  const remainingRef = useRef(AUTO_DISMISS_MS);
+  const dragRef = useRef({ active: false, startX: 0 });
 
   useEffect(() => {
-    const unsubscribe = subscribeToToasts((incomingToast) => {
-      const message = incomingToast?.message;
-      if (typeof message !== "string" || !message.trim()) return;
-
-      window.clearTimeout(autoDismissTimer.current);
-      window.clearTimeout(exitTimer.current);
-      window.cancelAnimationFrame(animationFrame.current);
-
-      const id = incomingToast.id;
-      const type = ["warning", "info"].includes(incomingToast.type) ? incomingToast.type : "success";
-      setVisible(false);
-      setToast({ id, message, type });
-      animationFrame.current = window.requestAnimationFrame(() => setVisible(true));
-      autoDismissTimer.current = window.setTimeout(() => {
-        setVisible(false);
-        exitTimer.current = window.setTimeout(() => {
-          setToast((current) => (current?.id === id ? null : current));
-        }, 220);
-      }, 6000);
-    });
-    return () => {
-      unsubscribe();
-      window.clearTimeout(autoDismissTimer.current);
-      window.clearTimeout(exitTimer.current);
-      window.cancelAnimationFrame(animationFrame.current);
-    };
+    const frame = window.requestAnimationFrame(() => setShown(true));
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
-  function dismiss() {
-    if (!toast) return;
-    window.clearTimeout(autoDismissTimer.current);
-    setVisible(false);
-    exitTimer.current = window.setTimeout(() => {
-      setToast((current) => (current?.id === toast.id ? null : current));
-    }, 220);
+  const clearTimer = useCallback(() => {
+    if (timerRef.current) {
+      window.clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+    if (startedAtRef.current) {
+      remainingRef.current = Math.max(
+        remainingRef.current - (Date.now() - startedAtRef.current),
+        800,
+      );
+      startedAtRef.current = null;
+    }
+  }, []);
+
+  const scheduleDismiss = useCallback(() => {
+    clearTimer();
+    startedAtRef.current = Date.now();
+    timerRef.current = window.setTimeout(
+      () => onDismiss(toast.id),
+      remainingRef.current,
+    );
+  }, [clearTimer, onDismiss, toast.id]);
+
+  useEffect(() => {
+    scheduleDismiss();
+    return clearTimer;
+  }, [scheduleDismiss, clearTimer]);
+
+  function onPointerDown(event) {
+    dragRef.current = { active: true, startX: event.clientX };
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+    clearTimer();
   }
 
-  if (!toast) return null;
+  function onPointerMove(event) {
+    if (!dragRef.current.active) return;
+    const delta = event.clientX - dragRef.current.startX;
+    if (delta > 0) setDragX(delta);
+  }
 
-  const style = TOAST_STYLES[toast.type];
+  function onPointerUp(event) {
+    if (!dragRef.current.active) return;
+    dragRef.current.active = false;
+    const delta = event.clientX - dragRef.current.startX;
+    if (delta > SWIPE_THRESHOLD) {
+      onDismiss(toast.id);
+      return;
+    }
+    setDragX(0);
+    scheduleDismiss();
+  }
+
+  const style = TOAST_STYLES[toast.type] || TOAST_STYLES.success;
   const Icon = style.icon;
+  const offsetX = leaving ? 28 : shown ? dragX : 28;
 
   return (
-    <aside
+    <div
       role="status"
       aria-live="polite"
-      onTouchStart={(event) => {
-        touchStartX.current = event.changedTouches[0]?.clientX ?? null;
+      onMouseEnter={clearTimer}
+      onMouseLeave={() => {
+        if (!dragRef.current.active) scheduleDismiss();
       }}
-      onTouchEnd={(event) => {
-        const endX = event.changedTouches[0]?.clientX;
-        if (touchStartX.current !== null && endX !== undefined && Math.abs(endX - touchStartX.current) > 48) {
-          dismiss();
-        }
-        touchStartX.current = null;
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerUp}
+      style={{
+        transform: `translateX(${offsetX}px)`,
+        opacity: shown && !leaving ? 1 : 0,
+        touchAction: "none",
       }}
-      className={`fixed inset-x-3 bottom-3 z-[130] mx-auto flex w-fit max-w-[calc(100vw-1.5rem)] items-center gap-3 rounded-xl border bg-surface p-3.5 text-sm shadow-2xl transition-[opacity,transform] duration-200 ease-out sm:inset-x-auto sm:bottom-5 sm:right-5 motion-reduce:transition-none ${
-        style.className
-      } ${visible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"}`}
+      className={`pointer-events-auto flex w-full items-center gap-3 overflow-hidden rounded-xl border bg-surface p-3.5 text-sm shadow-2xl transition-[opacity,transform] duration-200 ease-out motion-reduce:transition-none ${style.className}`}
     >
-      <span className={`grid h-9 w-9 flex-none place-items-center rounded-lg ${style.iconClassName}`}>
+      <span
+        className={`grid h-9 w-9 flex-none place-items-center rounded-lg ${style.iconClassName}`}
+      >
         <Icon size={18} aria-hidden="true" />
       </span>
-      <p className="min-w-0 flex-1 break-words">{toast.message}</p>
+      <p className="min-w-0 flex-1 break-words text-fg">{toast.message}</p>
       <button
         type="button"
-        onClick={dismiss}
+        onClick={() => onDismiss(toast.id)}
         aria-label="Dismiss notification"
         className="focus-ring grid h-8 w-8 flex-none place-items-center rounded-md text-muted transition hover:bg-surface2 hover:text-fg"
       >
         <X size={16} aria-hidden="true" />
       </button>
+    </div>
+  );
+}
+
+export default function ToastViewport() {
+  const [toasts, setToasts] = useState([]);
+
+  const dismiss = useCallback((id) => {
+    setToasts((current) =>
+      current.map((toast) =>
+        toast.id === id ? { ...toast, leaving: true } : toast,
+      ),
+    );
+    window.setTimeout(() => {
+      setToasts((current) => current.filter((toast) => toast.id !== id));
+    }, 220);
+  }, []);
+
+  useEffect(() => {
+    return subscribeToToasts((incoming) => {
+      const message = incoming?.message;
+      if (typeof message !== "string" || !message.trim()) return;
+      const type = TOAST_TYPES.includes(incoming.type) ? incoming.type : "success";
+      setToasts((current) =>
+        [
+          { id: incoming.id, message: message.trim(), type },
+          ...current,
+        ].slice(0, MAX_STACK),
+      );
+    });
+  }, []);
+
+  if (!toasts.length) return null;
+
+  return (
+    <aside
+      aria-label="Notifications"
+      className="pointer-events-none fixed inset-x-3 top-3 z-[130] flex flex-col gap-2 sm:inset-x-auto sm:right-5 sm:top-5 sm:w-[24rem]"
+    >
+      {toasts.map((toast) => (
+        <ToastCard
+          key={toast.id}
+          toast={toast}
+          leaving={Boolean(toast.leaving)}
+          onDismiss={dismiss}
+        />
+      ))}
     </aside>
   );
 }

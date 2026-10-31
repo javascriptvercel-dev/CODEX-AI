@@ -1,8 +1,49 @@
 import { robot } from "@/lib/robot";
+import { showToast } from "@/lib/toast";
+
 const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
 export const API_URL = configuredApiUrl
   ? configuredApiUrl.replace(/\/+$/, "")
   : "";
+
+// ── Tool usage tracking (from RateLimit response headers) ─────────
+let latestToolUsage = null;
+const toolUsageListeners = new Set();
+
+function publishToolUsage(usage) {
+  if (!usage) return;
+  latestToolUsage = { ...usage, at: Date.now() };
+  toolUsageListeners.forEach((listener) => listener(latestToolUsage));
+}
+
+export function getLatestToolUsage() {
+  return latestToolUsage;
+}
+
+export function subscribeToToolUsage(listener) {
+  toolUsageListeners.add(listener);
+  if (latestToolUsage) listener(latestToolUsage);
+  return () => toolUsageListeners.delete(listener);
+}
+
+function captureRateLimitHeaders(res) {
+  const limit = Number.parseInt(res.headers.get("RateLimit-Limit") ?? "", 10);
+  if (!Number.isFinite(limit) || limit <= 0) return;
+  const remaining = Number.parseInt(
+    res.headers.get("RateLimit-Remaining") ?? "",
+    10,
+  );
+  const resetSeconds = Number.parseInt(
+    res.headers.get("RateLimit-Reset") ?? "",
+    10,
+  );
+  publishToolUsage({
+    limit,
+    remaining: Number.isFinite(remaining) ? remaining : null,
+    resetSeconds: Number.isFinite(resetSeconds) ? resetSeconds : null,
+  });
+}
+
 async function request(path, options = {}) {
   let res;
   try {
@@ -22,8 +63,15 @@ async function request(path, options = {}) {
   }
   const isJson = res.headers.get("content-type")?.includes("application/json");
   const data = isJson ? await res.json().catch(() => null) : null;
+  captureRateLimitHeaders(res);
   if (!res.ok) {
     robot.mood("error");
+    if (res.status === 429) {
+      showToast(
+        data?.error || "You've reached your usage limit. Please try again shortly.",
+        { type: "warning" },
+      );
+    }
     throw new Error(data?.error || "Something went wrong. Please try again.");
   }
   return data;

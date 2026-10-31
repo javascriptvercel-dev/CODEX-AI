@@ -43,13 +43,19 @@ const CONSOLE_GREETINGS = [
 
 const TABS = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
-  { id: "submissions", label: "Submissions", icon: ShieldCheck },
-  { id: "suggestions", label: "Feedback", icon: MessageSquareText },
-  { id: "faqDrafts", label: "FAQ drafts", icon: BookOpenCheck },
-  { id: "users", label: "Users", icon: Users },
-  { id: "premium", label: "Premium", icon: Crown },
-  { id: "create", label: "Create plugin", icon: PackagePlus, dividerBefore: true },
-  { id: "settings", label: "Settings", icon: Settings },
+  { id: "submissions", label: "Submissions", icon: ShieldCheck, group: "Review" },
+  { id: "suggestions", label: "Feedback", icon: MessageSquareText, group: "Review" },
+  { id: "faqDrafts", label: "FAQ drafts", icon: BookOpenCheck, group: "Review" },
+  { id: "users", label: "Users", icon: Users, group: "Members" },
+  { id: "premium", label: "Premium", icon: Crown, group: "Members" },
+  {
+    id: "create",
+    label: "Create plugin",
+    icon: PackagePlus,
+    dividerBefore: true,
+    group: "Workspace",
+  },
+  { id: "settings", label: "Settings", icon: Settings, group: "Workspace" },
 ];
 const TAB_IDS = TABS.map((t) => t.id);
 const STATUSES = ["pending", "approved", "rejected"];
