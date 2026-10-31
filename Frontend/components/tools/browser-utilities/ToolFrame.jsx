@@ -65,8 +65,7 @@ function formatResetLabel(resetSeconds) {
 /**
  * Plan + usage notice. Shows the visitor only what applies to their own
  * plan — internal plan rules for other tiers or staff exemptions are never
- * disclosed here. Premium and admin visitors get a live "used / remaining"
- * meter, free visitors get their own allowance and a Premium entry point.
+ * disclosed here. Admin visitors don't see plan or usage details.
  */
 export function UtilityPlanNotice({ freeBenefit, premiumBenefit, metered = true }) {
   const { user } = useAuth();
@@ -74,7 +73,12 @@ export function UtilityPlanNotice({ freeBenefit, premiumBenefit, metered = true 
   const isPremium = isAdmin || user?.isPremium;
   const [usage, setUsage] = useState(null);
 
-  useEffect(() => subscribeToToolUsage(setUsage), []);
+  useEffect(() => {
+    if (isAdmin) return;
+    return subscribeToToolUsage(setUsage);
+  }, [isAdmin]);
+
+  if (isAdmin) return null;
 
   const planLimit = isPremium
     ? BROWSER_UTILITY_LIMITS.premiumActionsPerHour
