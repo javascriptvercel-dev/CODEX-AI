@@ -57,7 +57,7 @@ export default function CookieNotice() {
               CODEX AI uses essential cookies to keep you signed in and protect
               your account. We do not use advertising or analytics cookies.{" "}
               <Link
-                href="/privacy"
+                href="/privacy#cookies"
                 className="group inline-flex items-center gap-0.5 whitespace-nowrap font-semibold text-azure-500 underline decoration-azure-500/40 underline-offset-4 transition hover:decoration-azure-500 focus-ring"
               >
                 How cookies work

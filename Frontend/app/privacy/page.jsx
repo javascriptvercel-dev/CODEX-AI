@@ -18,6 +18,7 @@ const sections = [
     ],
   },
   {
+    id: "cookies",
     title: "2. Cookies and Browser Storage",
     content: [
       "A cookie is a small piece of information that a website asks your browser to store. Your browser sends that information back to the website with later requests, which lets the site remember things such as whether you are signed in.",
@@ -92,7 +93,11 @@ export default function PrivacyPage() {
           <div className="mt-12 space-y-10">
 
             {sections.map((section) => (
-              <section key={section.title}>
+              <section
+                key={section.title}
+                id={section.id}
+                className="scroll-mt-24"
+              >
 
                 <h2 className="font-display text-xl font-bold">
                   {section.title}
