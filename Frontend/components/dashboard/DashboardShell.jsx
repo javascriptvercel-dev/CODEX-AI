@@ -55,39 +55,51 @@ function SidebarContent({
         )}
       </div>
 
-      <nav aria-label="App sections" className={`flex-1 space-y-1 overflow-y-auto ${collapsed ? "p-2" : "p-3"}`}>
-        {sections.map(({ id, label, icon: Icon, dividerBefore }) => {
+      <nav aria-label="App sections" className={`flex-1 overflow-y-auto ${collapsed ? "p-2" : "p-3"}`}>
+        {sections.map(({ id, label, icon: Icon, dividerBefore, group }, index) => {
           const current = active === id;
+          const previous = sections[index - 1];
+          const showGroupLabel = !collapsed && Boolean(group) && previous?.group !== group;
           return (
             <Fragment key={id}>
               {dividerBefore && <div role="separator" className="!my-3 border-t border-edge" />}
-            <button
-              type="button"
-              aria-current={current ? "page" : undefined}
-              aria-label={collapsed ? label : undefined}
-              title={collapsed ? label : undefined}
-              onClick={() => {
-                onSelect(id);
-                onNavigate?.();
-              }}
-              className={`focus-ring relative flex w-full items-center rounded-xl text-left text-sm font-medium transition-colors ${
-                collapsed ? "justify-center px-0 py-3" : "gap-3 px-3 py-2.5"
-              } ${
-                current
-                  ? "bg-surface2 text-fg"
-                  : "text-muted hover:bg-surface2/70 hover:text-fg"
-              }`}
-            >
-              <Icon
-                size={18}
-                aria-hidden="true"
-                className={current ? "text-azure-500" : ""}
-              />
-              {!collapsed && <span className="min-w-0 flex-1 truncate">{label}</span>}
-              {!collapsed && current && (
-                <span className="h-4 w-1 flex-none rounded-full bg-azure-500" aria-hidden="true" />
+              {showGroupLabel && (
+                <p className="px-3 pb-1.5 pt-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted/60">
+                  {group}
+                </p>
               )}
-            </button>
+              <button
+                type="button"
+                aria-current={current ? "page" : undefined}
+                aria-label={collapsed ? label : undefined}
+                title={collapsed ? label : undefined}
+                onClick={() => {
+                  onSelect(id);
+                  onNavigate?.();
+                }}
+                className={`focus-ring group relative mb-0.5 flex w-full items-center rounded-xl text-left text-sm font-medium transition-all duration-150 ${
+                  collapsed ? "justify-center px-0 py-3" : "gap-3 px-3 py-2.5"
+                } ${
+                  current
+                    ? "bg-azure-500/10 text-fg"
+                    : "text-muted hover:bg-surface2/70 hover:text-fg"
+                }`}
+              >
+                <Icon
+                  size={18}
+                  aria-hidden="true"
+                  className={`flex-none transition-colors ${
+                    current ? "text-azure-500" : "text-muted group-hover:text-fg"
+                  }`}
+                />
+                {!collapsed && <span className="min-w-0 flex-1 truncate">{label}</span>}
+                <span
+                  aria-hidden="true"
+                  className={`absolute left-0 h-5 w-1 rounded-r-full bg-azure-500 transition-all duration-200 ${
+                    current ? (collapsed ? "-left-2 opacity-100" : "opacity-100") : "opacity-0"
+                  }`}
+                />
+              </button>
             </Fragment>
           );
         })}

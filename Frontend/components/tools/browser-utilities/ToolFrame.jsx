@@ -1,8 +1,9 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { showToast } from "@/lib/toast";
 import { useAuth } from "@/context/AuthContext";
-import { api } from "@/lib/api";
+import { api, subscribeToToolUsage } from "@/lib/api";
 
 export const TOOL_INPUT_CLASS =
   "focus-ring w-full rounded-lg border border-edge bg-surface2 px-3.5 py-2.5 text-sm text-fg outline-none placeholder:text-muted/70";
@@ -54,24 +55,72 @@ export function ToolError({ message }) {
   );
 }
 
+function formatResetLabel(resetSeconds) {
+  if (!Number.isFinite(resetSeconds) || resetSeconds <= 0) return null;
+  const minutes = Math.ceil(resetSeconds / 60);
+  if (minutes >= 60) return `${Math.round((minutes / 60) * 10) / 10}h`;
+  return `${minutes}m`;
+}
+
+/**
+ * Plan + usage notice. Shows the visitor only what applies to their own
+ * plan — internal plan rules for other tiers or staff exemptions are never
+ * disclosed here. Premium and admin visitors get a live "used / remaining"
+ * meter, free visitors get their own allowance and a Premium entry point.
+ */
 export function UtilityPlanNotice({ freeBenefit, premiumBenefit, metered = true }) {
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
   const isPremium = isAdmin || user?.isPremium;
-  const usageLimit = isPremium
+  const [usage, setUsage] = useState(null);
+
+  useEffect(() => subscribeToToolUsage(setUsage), []);
+
+  const planLimit = isPremium
     ? BROWSER_UTILITY_LIMITS.premiumActionsPerHour
     : BROWSER_UTILITY_LIMITS.freeActionsPerHour;
+  const limit = Number.isFinite(usage?.limit) ? usage.limit : planLimit;
+  const used =
+    Number.isFinite(usage?.remaining) && usage.remaining <= limit
+      ? Math.min(Math.max(limit - usage.remaining, 0), limit)
+      : null;
+  const resetLabel = formatResetLabel(usage?.resetSeconds);
+  const showMeter = metered && used !== null;
+  const percent = showMeter ? Math.min(Math.round((used / limit) * 100), 100) : 0;
 
   return (
     <aside className={`${TOOL_CARD_CLASS} text-xs leading-5 text-muted`}>
-      <p>
-        {isPremium
-          ? `Premium: ${premiumBenefit}.`
-          : `Free: ${freeBenefit}. Premium: ${premiumBenefit}.`}
-        {metered && (isAdmin
-          ? " Admin use is not rate-limited."
-          : ` Includes up to ${usageLimit} uses of this tool per hour.`)}
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+        <p>{isPremium ? premiumBenefit : freeBenefit}</p>
+        {metered && (
+          <p className="font-medium text-fg/80">
+            {showMeter
+              ? `${used} of ${limit} used this hour${resetLabel ? ` · resets in ${resetLabel}` : ""}`
+              : `Up to ${limit} uses per hour`}
+          </p>
+        )}
+      </div>
+      {showMeter && (
+        <div
+          className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-surface2"
+          role="progressbar"
+          aria-valuemin={0}
+          aria-valuemax={limit}
+          aria-valuenow={used}
+          aria-label="Hourly tool usage"
+        >
+          <div
+            className={`h-full rounded-full transition-[width] duration-500 ${
+              percent >= 100
+                ? "bg-red-500/70"
+                : percent >= 80
+                  ? "bg-amber-400"
+                  : "bg-azure-500"
+            }`}
+            style={{ width: `${percent}%` }}
+          />
+        </div>
+      )}
       {!isPremium && (
         <a
           href="/dashboard"
